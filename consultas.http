@@ -1,0 +1,25 @@
+// Consultas de ejemplo (ajustar cuando implementemos las rutas)
+GET http://localhost:3000/salud
+
+###
+POST http://localhost:3000/api/users/register
+Content-Type: application/json
+
+{
+  "name": "Fabricio",
+  "email": "fabri@example.com",
+  "password": "Plantitas#2025"
+}
+
+###
+POST http://localhost:3000/api/users/login
+Content-Type: application/json
+
+{
+  "email": "fabri@example.com",
+  "password": "Plantitas#2025"
+}
+
+###
+GET http://localhost:3000/api/users/me
+Authorization: Bearer {{token}}

@@ -1,0 +1,15 @@
+{
+  "name": "proyecto-plantitas",
+  "version": "1.0.0",
+  "description": "Base vacía con formato de clase (app.js en raíz, src/*).",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "dev": "node app.js",
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}
