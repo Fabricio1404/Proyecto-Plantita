@@ -1,77 +1,191 @@
-/* FIX: registro visible en derecha; overlay no tapa el formulario */
 :root{
-  --bg:#0b2e13;--bg1:#14532d;--bg2:#1b4332;
-  --card:#102a18;--muted:#b6e0c1;--text:#e8ffef;
-  --primary:#65a30d;--primary-strong:#4d7c0f;--accent:#f59e0b;
-  --ring:0 0 0 3px rgba(101,163,13,.28);--radius:18px;
+  --bg:#0b2e13; --bg1:#14532d; --bg2:#1b4332;
+  --card:#102a18; --muted:#c8e7d1; --text:#e8ffef;
+  --primary:#2e8b57; --primary-strong:#1f6f43; --accent:#4cb1c7;
+  --ring:0 0 0 3px rgba(76,177,199,.28); --radius:18px;
   --shadow:0 15px 35px rgba(0,0,0,.35),0 5px 15px rgba(0,0,0,.25);
 }
-*{box-sizing:border-box}html,body{height:100%}
-body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:"Poppins", Inter, system-ui, Segoe UI, Roboto, Arial;
   background:
-    radial-gradient(1000px 600px at 20% 10%, rgba(101,163,13,.18), transparent 60%),
-    radial-gradient(900px 700px at 85% 90%, rgba(245,158,11,.12), transparent 60%),
-    linear-gradient(140deg,var(--bg),var(--bg1) 40%,var(--bg2));
-  color:var(--text);display:grid;place-items:center;padding:24px}
+    radial-gradient(900px 600px at 20% 10%, rgba(46,139,87,.18), transparent 60%),
+    radial-gradient(900px 700px at 85% 90%, rgba(76,177,199,.10), transparent 60%),
+    linear-gradient(160deg,var(--bg),var(--bg1) 40%,var(--bg2));
+  color:var(--text);
+  display:grid; place-items:center;
+  min-height:100vh;
+  overflow:hidden;
+}
+
+/* === Header de la página (InfoForest) === */
+.brand-header{
+  position:absolute;
+  top:18px; left:0; width:100%;
+  display:flex; justify-content:center; align-items:center;
+  z-index:99; pointer-events:none;
+}
+.brand{
+  display:flex; align-items:center; gap:14px;
+  padding:10px 18px; border-radius:16px;
+  background:linear-gradient(180deg, rgba(16,42,24,.55), rgba(16,42,24,.35));
+  border:1px solid rgba(182,224,193,.18);
+  box-shadow:0 6px 18px rgba(0,0,0,.25);
+  pointer-events:auto;
+}
+.brand-texts{display:flex; flex-direction:column; align-items:flex-start;}
+.brand-title{
+  margin:0; font-size:32px; font-weight:800; color:#e8ffef;
+  text-shadow:0 3px 8px rgba(0,0,0,.35); letter-spacing:.6px;
+}
+.brand-subtitle{
+  margin:2px 0 0; font-size:15.5px; font-weight:600; color:#c8e7d1;
+  text-shadow:0 2px 6px rgba(0,0,0,.3);
+}
+
+/* Ícono seedling grande para el header (USANDO MASK) */
+.icon-mask{
+  display:inline-block;
+  width: 1.6em;                 /* un toque más grande para asegurar visibilidad */
+  height: 1.6em;
+  vertical-align: -0.2em;
+  margin-right: .45em;
+
+  /* color / “relleno” del icono */
+  color: currentColor;
+  background-color: currentColor;
+
+  /* declarar propiedades de máscara por separado (mejor compatibilidad) */
+  -webkit-mask-image: none;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+
+          mask-image: none;
+          mask-repeat: no-repeat;
+          mask-position: center;
+          mask-size: contain;
+}
+
+/* seedling en header (más grande) */
+.icon-seedling{
+  color:#4ade80;
+  width: 2.6em; height: 2.6em;
+  -webkit-mask-image:url("img/seedling-solid-full.svg?v=2");
+          mask-image:url("img/seedling-solid-full.svg?v=2");
+}
+
+/* Íconos de formularios (leaf / bug) */
+.icon-leaf{
+  color:#4ade80;
+  -webkit-mask-image:url("img/leaf-solid-full.svg?v=2");
+          mask-image:url("img/leaf-solid-full.svg?v=2");
+}
+.icon-bug{
+  color:#60a5fa;
+  -webkit-mask-image:url("img/bug-solid-full.svg?v=2");
+          mask-image:url("img/bug-solid-full.svg?v=2");
+}
+
+/* --- Destellos animados del fondo --- */
+.login-leaves {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  filter: saturate(1.3) blur(1px);
+}
+.login-leaves::before,
+.login-leaves::after,
+.login-leaves div {
+  content:""; position:absolute; inset:0;
+}
+.login-leaves::before {
+  background: radial-gradient(200px 140px at 12% 25%, rgba(46,139,87,.30), transparent 65%);
+  animation: drift1 10s ease-in-out infinite;
+}
+.login-leaves::after {
+  background: radial-gradient(240px 160px at 85% 70%, rgba(76,177,199,.25), transparent 65%);
+  animation: drift2 12s ease-in-out infinite;
+}
+.login-leaves div {
+  background: radial-gradient(180px 120px at 40% 85%, rgba(168,230,163,.22), transparent 65%);
+  animation: drift3 15s ease-in-out infinite;
+}
+@keyframes drift1 {0%{transform:translate3d(0,0,0);}50%{transform:translate3d(60px,-40px,0);}100%{transform:translate3d(0,0,0);}}
+@keyframes drift2 {0%{transform:translate3d(0,0,0);}50%{transform:translate3d(-50px,50px,0);}100%{transform:translate3d(0,0,0);}}
+@keyframes drift3 {0%{transform:translate3d(0,0,0);}50%{transform:translate3d(40px,70px,0);}100%{transform:translate3d(0,0,0);}}
+
+/* Contenedor principal */
 .container{background:linear-gradient(180deg,rgba(16,42,24,.85),rgba(16,42,24,.75));
-  border:1px solid rgba(182,224,193,.12);border-radius:var(--radius);
-  box-shadow:var(--shadow);position:relative;overflow:hidden;
-  width:min(980px,100%);min-height:560px}
-.form-container{position:absolute;top:0;height:100%;
+  border:1px solid rgba(182,224,193,.12); border-radius:var(--radius);
+  box-shadow:var(--shadow); position:relative; overflow:hidden;
+  width:min(980px,100%); min-height:560px}
+.form-container{position:absolute; top:0; height:100%;
   transition:transform .6s ease-in-out,opacity .3s ease-in-out;
-  display:grid;place-items:center;width:50%;padding:32px}
-/* Login ocupa mitad izquierda */
-.sign-in-container{left:0;z-index:2}
-/* Registro está ubicado en la mitad derecha desde el inicio (translateX(100%)) */
-.sign-up-container{left:0;transform:translateX(100%);opacity:0}
-/* Overlay inicia en la derecha (cubre la mitad derecha) */
-.overlay-container{position:absolute;top:0;left:50%;width:50%;height:100%;
-  overflow:hidden;transition:transform .6s ease-in-out;z-index:50}
-.overlay{
-  background:linear-gradient(120deg,rgba(77,124,15,.92),rgba(101,163,13,.92));
-  color:#fff;position:relative;left:-100%;height:100%;width:200%;
-  transform:translateX(0);display:grid;grid-template-columns:1fr 1fr}
-.overlay-panel{display:grid;place-items:center;text-align:center;padding:40px 32px}
+  display:grid; place-items:center; width:50%; padding:32px}
+.sign-in-container{left:0; z-index:2}
+.sign-up-container{left:0; transform:translateX(100%); opacity:0}
+
+/* Overlay */
+.overlay-container{position:absolute; top:0; left:50%; width:50%; height:100%;
+  overflow:hidden; transition:transform .6s ease-in-out; z-index:50}
+.overlay{background:linear-gradient(120deg,rgba(47,111,67,.92),rgba(46,139,87,.92));
+  color:#fff; position:relative; left:-100%; height:100%; width:200%;
+  transform:translateX(0); display:grid; grid-template-columns:1fr 1fr}
+.overlay-panel{display:grid; place-items:center; text-align:center; padding:40px 32px}
 .overlay-panel h2{margin:0 0 8px;font-size:28px;font-weight:700}
-.overlay-panel p{margin:0 0 18px;color:#f9ffe8}
+.overlay-panel p{margin:0 0 18px;color:#f1fff6}
 .overlay-left h2::after,.overlay-right h2::after{
   content:" ";display:block;width:64px;height:4px;margin:8px auto 0;border-radius:999px;
   background:linear-gradient(90deg,var(--accent),#ffe08a);opacity:.85}
 
-/* ESTADO ACTIVADO (abrir registro): */
+/* Estado activado */
 .container.right-panel-active .sign-in-container{transform:translateX(-100%);opacity:0}
-/* Mantener registro en la derecha y simplemente hacerlo visible */
 .container.right-panel-active .sign-up-container{transform:translateX(100%);opacity:1;z-index:5}
-/* Mover overlay a la izquierda para NO tapar el registro (queda sobre el área login) */
 .container.right-panel-active .overlay-container{transform:translateX(-100%)}
 .container.right-panel-active .overlay{transform:translateX(50%)}
 
-/* Form & controles */
+/* Formularios */
 .form{width:min(400px,100%);background:rgba(20,83,45,.45);
-  border:1px solid rgba(182,224,193,.14);border-radius:calc(var(--radius) - 6px);
-  backdrop-filter:blur(8px);padding:28px}
+  border:1px solid rgba(182,224,193,.14); border-radius:calc(var(--radius) - 6px);
+  backdrop-filter:blur(8px); padding:28px}
 .form h1{margin:0 0 4px;font-size:26px}
 .subtitle{margin:0 0 18px;color:var(--muted);font-size:14px}
-.input-group{display:grid;gap:6px;margin-bottom:14px}
+.input-group{display:grid;gap:6px;margin-bottom:14px;position:relative}
 .input-group label{font-size:14px;color:var(--muted)}
 input{width:100%;padding:12px 14px;border-radius:12px;
   border:1px solid rgba(182,224,193,.28);background:#0f2918;color:var(--text);
-  outline:none;transition:box-shadow .15s ease,border-color .15s ease}
-input:focus{border-color:var(--primary);box-shadow:var(--ring)}
+  outline:none;transition:box-shadow .15s ease,border-color .15s ease,transform .06s ease}
+input:focus{border-color:var(--accent);box-shadow:var(--ring); transform:scale(1.01)}
 .error{min-height:16px;font-size:12px;color:#ffd4a3}
+
+/* Íconos en inputs (emojis) */
+.input-group.with-icon .input-icon{
+  position:absolute; left:10px; top:38px; font-size:16px; opacity:.8
+}
+.input-group.with-icon input{padding-left:34px}
+
+/* Brillito al hover */
+.btn.primary:hover .icon-leaf{ filter: drop-shadow(0 0 6px rgba(74,222,128,.55)); }
+.btn.primary:hover .icon-bug { filter: drop-shadow(0 0 6px rgba(96,165,250,.55)); }
+
 .row{display:flex;gap:12px;align-items:center;margin:8px 0 18px}
 .row.between{justify-content:space-between}
 .checkbox{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
-.link{color:#fef9c3;text-decoration:none;border-bottom:1px dashed rgba(254,249,195,.5)}
-.link:hover{border-bottom-color:rgba(254,249,195,.85)}
-.helper{margin-top:10px;color:var(--muted);text-align:center;font-size:14px}
+.link{color:var(--accent);text-decoration:none;border-bottom:1px dashed rgba(76,177,199,.45)}
+.link:hover{border-bottom-color:rgba(76,177,199,.85)}
+
 .btn{border:0;padding:12px 16px;border-radius:12px;cursor:pointer;font-weight:700;
-  transition:transform .06s ease,filter .15s ease,background-color .15s ease}
+  transition:transform .06s ease,filter .15s ease,background-color .15s ease, box-shadow .2s}
 .btn:active{transform:translateY(1px)}
-.btn.primary{background:linear-gradient(180deg,var(--primary),var(--primary-strong));color:#fff;border:1px solid rgba(0,0,0,.08)}
+.btn.primary{background:linear-gradient(180deg,var(--primary),var(--primary-strong));
+  color:#fff; border:1px solid rgba(0,0,0,.08)}
+.btn.primary:hover{box-shadow:0 10px 20px rgba(46,139,87,.25)}
 .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.65);color:#fff}
 
-/* Responsive vertical para móviles */
+/* Responsive */
 @media (max-width:860px){
   .container{min-height:760px}
   .form-container,.overlay-container{width:100%;left:0}
@@ -83,16 +197,45 @@ input:focus{border-color:var(--primary);box-shadow:var(--ring)}
   .container.right-panel-active .sign-up-container{transform:translateY(0);opacity:1}
   .container.right-panel-active .overlay-container{transform:translateY(-100%)}
 }
-/* --- Toasts (mensajitos arriba a la derecha) --- */
-.toast-wrap{
-  position:fixed; top:16px; right:16px; display:flex; flex-direction:column; gap:8px;
-  z-index:9999;
-}
-.toast{
-  background:#141c2f; border:1px solid #2a3a58; color:#e8eefb; padding:10px 12px;
+
+/* Toasts */
+.toast-wrap{position:fixed; top:16px; right:16px; display:flex; flex-direction:column; gap:8px; z-index:9999}
+.toast{background:#141c2f; border:1px solid #2a3a58; color:#e8eefb; padding:10px 12px;
   border-radius:10px; box-shadow:0 6px 16px rgba(0,0,0,.25); font:600 14px system-ui,Segoe UI,Roboto;
-  transform:translateY(-8px); opacity:0; animation:toast-in .25s ease forwards;
+  transform:translateY(-8px); opacity:0; animation:toast-in .25s ease forwards}
+.toast.ok{border-color:#2e8b57;box-shadow:0 8px 18px rgba(46,139,87,.25)}
+.toast.err{border-color:#8b1d1d;box-shadow:0 8px 18px rgba(139,29,29,.25)}
+@keyframes toast-in{to{transform:translateY(0);opacity:1}}
+
+/* === Animaciones === */
+@keyframes pulse {
+  0%   { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(74,222,128,0)); }
+  50%  { transform: scale(1.08); filter: drop-shadow(0 0 10px rgba(74,222,128,.45)); }
+  100% { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(74,222,128,0)); }
 }
-.toast.ok{ border-color:#2e7d32; box-shadow:0 8px 18px rgba(46,125,50,.25); }
-.toast.err{ border-color:#8b1d1d; box-shadow:0 8px 18px rgba(139,29,29,.25); }
-@keyframes toast-in{ to{ transform:translateY(0); opacity:1; } }
+.anim-pulse { animation: pulse 1.8s ease-in-out infinite; }
+
+@keyframes floaty {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+.anim-float { animation: floaty 3.5s ease-in-out infinite; }
+
+@keyframes sway {
+  0%   { transform: rotate(0deg) translateY(0); }
+  50%  { transform: rotate(-6deg) translateY(-2px); }
+  100% { transform: rotate(0deg) translateY(0); }
+}
+.anim-sway { animation: sway 2.8s ease-in-out infinite; transform-origin: 50% 10%; }
+
+/* Aparición suave del subtítulo del header */
+@keyframes fadeInUp {
+  0%   { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.fade-in-delayed { animation: fadeInUp .7s ease .15s both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-pulse, .anim-float, .anim-sway, .fade-in-delayed { animation: none !important; }
+}
