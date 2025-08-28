@@ -114,21 +114,21 @@ body {
   color: #4ade80;
   width: 2.6em;
   height: 2.6em;
-  -webkit-mask-image: url("img/seedling-solid-full.svg?v=2");
-  mask-image: url("img/seedling-solid-full.svg?v=2");
+  -webkit-mask-image: url("../img/seedling-solid-full.svg?v=2");
+  mask-image: url("../img/seedling-solid-full.svg?v=2");
 }
 
 /* Íconos de formularios (leaf / bug) */
 .icon-leaf {
   color: #4ade80;
-  -webkit-mask-image: url("img/leaf-solid-full.svg?v=2");
-  mask-image: url("img/leaf-solid-full.svg?v=2");
+  -webkit-mask-image: url("../img/leaf-solid-full.svg?v=2");
+  mask-image: url("../img/leaf-solid-full.svg?v=2");
 }
 
 .icon-bug {
   color: #60a5fa;
-  -webkit-mask-image: url("img/bug-solid-full.svg?v=2");
-  mask-image: url("img/bug-solid-full.svg?v=2");
+  -webkit-mask-image: url("../img/bug-solid-full.svg?v=2");
+  mask-image: url("../img/bug-solid-full.svg?v=2");
 }
 
 /* --- Destellos animados del fondo --- */

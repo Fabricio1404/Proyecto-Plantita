@@ -84,7 +84,7 @@ signupForm?.addEventListener("submit", async (e) => {
   try {
     const data = await api("/api/users/register", { method: "POST", body: JSON.stringify(body) });
     toast(`Registro exitoso. ¡Bienvenido/a, ${data.name}!`, "ok");
-    setTimeout(() => { window.location.href = "/proximamente.html"; }, 1200);
+    setTimeout(() => { window.location.href = "../home.html"; }, 1200);
   } catch (err) {
     const first = err?.errors?.[0];
     const msg = err?.message || first?.msg || "Error en el registro";
@@ -117,7 +117,7 @@ signinForm?.addEventListener("submit", async (e) => {
     const data = await api("/api/users/login", { method: "POST", body: JSON.stringify(body) });
     setToken(data.token);
     toast("Sesión iniciada correctamente", "ok");
-    setTimeout(() => { window.location.href = "/proximamente.html"; }, 900);
+    setTimeout(() => { window.location.href = "../home.html"; }, 900);
   } catch (err) {
     const msg = err?.message || "Credenciales inválidas";
     signinGlobalMsg.textContent = msg; signinGlobalMsg.className = "msg error";

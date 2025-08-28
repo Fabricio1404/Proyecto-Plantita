@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>InfoForest - Acceder / Registrarse</title>
+  <link rel="stylesheet" href="styles/login.css" />
+  <!-- Tipografía -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Fondo decorativo -->
+  <div class="login-leaves"><div></div></div>
+
+  <!-- HEADER con título y subtítulo -->
+  <header class="brand-header" role="banner" aria-label="Título del sitio">
+    <div class="brand">
+      <span class="icon-mask icon-seedling anim-sway" aria-hidden="true"></span>
+      <div class="brand-texts">
+        <h1 class="brand-title">InfoForest</h1>
+        <p class="brand-subtitle fade-in-delayed">El conocimiento forestal al alcance de todos</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" id="container">
+    <!-- Registro -->
+    <section class="form-container sign-up-container" aria-label="Formulario de registro">
+      <form class="form" id="signupForm" novalidate>
+        <h1><span class="icon-mask icon-leaf anim-pulse" aria-hidden="true"></span>Crear cuenta</h1>
+        <p class="subtitle">Sumate a la comunidad</p>
+
+        <div class="input-group with-icon">
+          <label for="signup-name">Nombre</label>
+          <span class="input-icon">👤</span>
+          <input id="signup-name" name="name" type="text" placeholder="Tu nombre" required />
+          <span class="error" id="signup-name-error"></span>
+        </div>
+
+        <div class="input-group with-icon">
+          <label for="signup-email">Email</label>
+          <span class="input-icon">✉️</span>
+          <input id="signup-email" name="email" type="email" placeholder="tu@email.com" required />
+          <span class="error" id="signup-email-error"></span>
+        </div>
+
+        <div class="input-group with-icon">
+          <label for="signup-password">Contraseña</label>
+          <span class="input-icon">🔒</span>
+          <input id="signup-password" name="password" type="password" placeholder="Mínimo 8 caracteres" minlength="6" required />
+          <span class="error" id="signup-password-error"></span>
+        </div>
+
+        <button type="submit" class="btn primary">
+          <span class="icon-mask icon-leaf anim-pulse" aria-hidden="true"></span>
+          Registrarme
+        </button>
+      </form>
+    </section>
+
+    <!-- Login -->
+    <section class="form-container sign-in-container" aria-label="Formulario de inicio de sesión">
+      <form class="form" id="signinForm" novalidate>
+        <h1><span class="icon-mask icon-bug anim-float" aria-hidden="true"></span>Iniciar sesión</h1>
+        <p class="subtitle">Bienvenido otra vez</p>
+
+        <div class="input-group with-icon">
+          <label for="signin-email">Email</label>
+          <span class="input-icon">✉️</span>
+          <input id="signin-email" name="email" type="email" placeholder="tu@email.com" required />
+          <span class="error" id="signin-email-error"></span>
+        </div>
+
+        <div class="input-group with-icon">
+          <label for="signin-password">Contraseña</label>
+          <span class="input-icon">🔒</span>
+          <input id="signin-password" name="password" type="password" placeholder="Tu contraseña" minlength="6" required />
+          <span class="error" id="signin-password-error"></span>
+        </div>
+
+        <div class="row between">
+          <label class="checkbox"><input type="checkbox" id="remember" /><span>Recordarme</span></label>
+          <a class="link" href="#">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button type="submit" class="btn primary">
+          <span class="icon-mask icon-bug anim-float" aria-hidden="true"></span>
+          Entrar
+        </button>
+      </form>
+    </section>
+
+    <!-- Overlay lateral -->
+    <aside class="overlay-container" aria-hidden="true">
+      <div class="overlay">
+        <div class="overlay-panel overlay-left">
+          <h2>¿Ya tenés cuenta?</h2>
+          <p>Iniciá sesión para continuar.</p>
+          <button class="btn ghost" id="signIn">
+            <span class="icon-mask icon-bug anim-float" aria-hidden="true"></span>
+            Iniciar sesión
+          </button>
+        </div>
+        <div class="overlay-panel overlay-right">
+          <h2>¿Sos nuevo/a por acá?</h2>
+          <p>Creá tu cuenta en segundos.</p>
+          <button class="btn ghost" id="signUp">
+            <span class="icon-mask icon-leaf anim-sway" aria-hidden="true"></span>
+            Registrarme
+          </button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="./tasks/login.js"></script>
+</body>
+</html>
