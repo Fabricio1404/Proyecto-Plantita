@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Próximamente · Plantitas</title>
+  <style>
+    :root{
+      --bg:#0e1726;         /* fondo general oscuro */
+      --leaf:#1b5e20;       /* verde hoja */
+      --leaf-2:#2e7d32;     /* verde claro */
+      --accent:#a8e6a3;     /* verde suave para textos */
+      --text:#e8eefb;       /* texto claro */
+      --card:#141c2f;       /* tarjeta */
+      --line:#2a3a58;       /* bordes */
+      --glow:0 0 40px rgba(46,125,50,.25);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(160deg,var(--bg),#0b1220 60%,#08101d);
+         color:var(--text);font-family:system-ui,Segoe UI,Roboto,Arial}
+    .wrap{min-height:100vh;display:grid;place-items:center;padding:24px}
+    .card{
+      width:100%;max-width:780px;background:linear-gradient(180deg,#121a2a, #101828);
+      border:1px solid var(--line); border-radius:16px; padding:28px;
+      box-shadow: var(--glow);
+      position:relative; overflow:hidden;
+    }
+    h1{margin:0 0 .5rem;font-size:clamp(1.4rem,3.2vw,2.2rem)}
+    p{margin:.25rem 0 0;color:#cdd9f4;line-height:1.5}
+    .badge{
+      display:inline-block;background:linear-gradient(90deg,var(--leaf),var(--leaf-2));
+      color:white;padding:6px 10px;border-radius:999px;font-weight:600;font-size:.85rem;
+      border:1px solid #194d1b
+    }
+    .tag{display:inline-block;margin-top:10px;color:var(--accent);opacity:.9}
+    .btn{
+      display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:12px 16px;
+      border-radius:12px;border:1px solid var(--leaf-2);background:transparent;color:var(--accent);
+      font-weight:700;cursor:pointer;text-decoration:none
+    }
+    .btn:hover{background:rgba(46,125,50,.12)}
+    .art{
+      position:absolute;inset:auto -20% -35% auto;width:70%;height:70%;
+      background:
+        radial-gradient(300px 180px at 70% 80%, rgba(46,125,50,.12), transparent 60%),
+        radial-gradient(220px 140px at 30% 60%, rgba(168,230,163,.10), transparent 60%),
+        radial-gradient(240px 200px at 60% 30%, rgba(46,125,50,.08), transparent 60%);
+      pointer-events:none;filter:saturate(1.2) blur(0.2px);
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <span class="badge">Próximamente</span>
+      <h1>Información en <span style="color:#a8e6a3">Morfología Vegetal</span> y <span style="color:#9bdcff">Entomología Forestal</span></h1>
+      <p>Estamos preparando contenidos y herramientas para estudiar estructuras morfológicas de plantas y la biología de insectos asociados a ecosistemas forestales.</p>
+      <p class="tag">Tema: plantas 🌿 · insectos 🪲 · bosques 🌳</p>
+      <a class="btn" href="/">← Volver al inicio</a>
+      <div class="art"></div>
+    </section>
+  </main>
+</body>
+</html>

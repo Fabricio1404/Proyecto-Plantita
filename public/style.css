@@ -1,0 +1,98 @@
+/* FIX: registro visible en derecha; overlay no tapa el formulario */
+:root{
+  --bg:#0b2e13;--bg1:#14532d;--bg2:#1b4332;
+  --card:#102a18;--muted:#b6e0c1;--text:#e8ffef;
+  --primary:#65a30d;--primary-strong:#4d7c0f;--accent:#f59e0b;
+  --ring:0 0 0 3px rgba(101,163,13,.28);--radius:18px;
+  --shadow:0 15px 35px rgba(0,0,0,.35),0 5px 15px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
+  background:
+    radial-gradient(1000px 600px at 20% 10%, rgba(101,163,13,.18), transparent 60%),
+    radial-gradient(900px 700px at 85% 90%, rgba(245,158,11,.12), transparent 60%),
+    linear-gradient(140deg,var(--bg),var(--bg1) 40%,var(--bg2));
+  color:var(--text);display:grid;place-items:center;padding:24px}
+.container{background:linear-gradient(180deg,rgba(16,42,24,.85),rgba(16,42,24,.75));
+  border:1px solid rgba(182,224,193,.12);border-radius:var(--radius);
+  box-shadow:var(--shadow);position:relative;overflow:hidden;
+  width:min(980px,100%);min-height:560px}
+.form-container{position:absolute;top:0;height:100%;
+  transition:transform .6s ease-in-out,opacity .3s ease-in-out;
+  display:grid;place-items:center;width:50%;padding:32px}
+/* Login ocupa mitad izquierda */
+.sign-in-container{left:0;z-index:2}
+/* Registro está ubicado en la mitad derecha desde el inicio (translateX(100%)) */
+.sign-up-container{left:0;transform:translateX(100%);opacity:0}
+/* Overlay inicia en la derecha (cubre la mitad derecha) */
+.overlay-container{position:absolute;top:0;left:50%;width:50%;height:100%;
+  overflow:hidden;transition:transform .6s ease-in-out;z-index:50}
+.overlay{
+  background:linear-gradient(120deg,rgba(77,124,15,.92),rgba(101,163,13,.92));
+  color:#fff;position:relative;left:-100%;height:100%;width:200%;
+  transform:translateX(0);display:grid;grid-template-columns:1fr 1fr}
+.overlay-panel{display:grid;place-items:center;text-align:center;padding:40px 32px}
+.overlay-panel h2{margin:0 0 8px;font-size:28px;font-weight:700}
+.overlay-panel p{margin:0 0 18px;color:#f9ffe8}
+.overlay-left h2::after,.overlay-right h2::after{
+  content:" ";display:block;width:64px;height:4px;margin:8px auto 0;border-radius:999px;
+  background:linear-gradient(90deg,var(--accent),#ffe08a);opacity:.85}
+
+/* ESTADO ACTIVADO (abrir registro): */
+.container.right-panel-active .sign-in-container{transform:translateX(-100%);opacity:0}
+/* Mantener registro en la derecha y simplemente hacerlo visible */
+.container.right-panel-active .sign-up-container{transform:translateX(100%);opacity:1;z-index:5}
+/* Mover overlay a la izquierda para NO tapar el registro (queda sobre el área login) */
+.container.right-panel-active .overlay-container{transform:translateX(-100%)}
+.container.right-panel-active .overlay{transform:translateX(50%)}
+
+/* Form & controles */
+.form{width:min(400px,100%);background:rgba(20,83,45,.45);
+  border:1px solid rgba(182,224,193,.14);border-radius:calc(var(--radius) - 6px);
+  backdrop-filter:blur(8px);padding:28px}
+.form h1{margin:0 0 4px;font-size:26px}
+.subtitle{margin:0 0 18px;color:var(--muted);font-size:14px}
+.input-group{display:grid;gap:6px;margin-bottom:14px}
+.input-group label{font-size:14px;color:var(--muted)}
+input{width:100%;padding:12px 14px;border-radius:12px;
+  border:1px solid rgba(182,224,193,.28);background:#0f2918;color:var(--text);
+  outline:none;transition:box-shadow .15s ease,border-color .15s ease}
+input:focus{border-color:var(--primary);box-shadow:var(--ring)}
+.error{min-height:16px;font-size:12px;color:#ffd4a3}
+.row{display:flex;gap:12px;align-items:center;margin:8px 0 18px}
+.row.between{justify-content:space-between}
+.checkbox{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+.link{color:#fef9c3;text-decoration:none;border-bottom:1px dashed rgba(254,249,195,.5)}
+.link:hover{border-bottom-color:rgba(254,249,195,.85)}
+.helper{margin-top:10px;color:var(--muted);text-align:center;font-size:14px}
+.btn{border:0;padding:12px 16px;border-radius:12px;cursor:pointer;font-weight:700;
+  transition:transform .06s ease,filter .15s ease,background-color .15s ease}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:linear-gradient(180deg,var(--primary),var(--primary-strong));color:#fff;border:1px solid rgba(0,0,0,.08)}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.65);color:#fff}
+
+/* Responsive vertical para móviles */
+@media (max-width:860px){
+  .container{min-height:760px}
+  .form-container,.overlay-container{width:100%;left:0}
+  .sign-in-container{transform:translateY(0)}
+  .sign-up-container{transform:translateY(100%);opacity:0}
+  .overlay{left:0;width:100%;grid-template-columns:1fr}
+  .overlay-panel{padding:28px 20px}
+  .container.right-panel-active .sign-in-container{transform:translateY(-100%)}
+  .container.right-panel-active .sign-up-container{transform:translateY(0);opacity:1}
+  .container.right-panel-active .overlay-container{transform:translateY(-100%)}
+}
+/* --- Toasts (mensajitos arriba a la derecha) --- */
+.toast-wrap{
+  position:fixed; top:16px; right:16px; display:flex; flex-direction:column; gap:8px;
+  z-index:9999;
+}
+.toast{
+  background:#141c2f; border:1px solid #2a3a58; color:#e8eefb; padding:10px 12px;
+  border-radius:10px; box-shadow:0 6px 16px rgba(0,0,0,.25); font:600 14px system-ui,Segoe UI,Roboto;
+  transform:translateY(-8px); opacity:0; animation:toast-in .25s ease forwards;
+}
+.toast.ok{ border-color:#2e7d32; box-shadow:0 8px 18px rgba(46,125,50,.25); }
+.toast.err{ border-color:#8b1d1d; box-shadow:0 8px 18px rgba(139,29,29,.25); }
+@keyframes toast-in{ to{ transform:translateY(0); opacity:1; } }
