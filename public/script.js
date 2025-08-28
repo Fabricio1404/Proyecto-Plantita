@@ -1,7 +1,6 @@
 // ====== Config ======
 const BASE_URL = location.origin; // mismo servidor
 
-// ====== UI tabs (como ya tenías) ======
 const container = document.getElementById("container");
 const signUpBtn = document.getElementById("signUp");
 const signInBtn = document.getElementById("signIn");
@@ -22,31 +21,31 @@ linkToSignUp?.addEventListener("click", e => { e.preventDefault(); openSignup();
 linkToSignIn?.addEventListener("click", e => { e.preventDefault(); openSignin(); });
 
 // Activar registro si viene ?mode=signup o #signup
-(function initMode(){
+(function initMode() {
   const params = new URLSearchParams(location.search);
-  if (params.get("mode")==="signup" || location.hash==="#signup") openSignup();
+  if (params.get("mode") === "signup" || location.hash === "#signup") openSignup();
 })();
 
 // ====== Toast helpers ======
-function ensureToastWrap(){
+function ensureToastWrap() {
   let w = document.querySelector(".toast-wrap");
-  if(!w){ w = document.createElement("div"); w.className = "toast-wrap"; document.body.appendChild(w); }
+  if (!w) { w = document.createElement("div"); w.className = "toast-wrap"; document.body.appendChild(w); }
   return w;
 }
-function toast(msg, type="ok", timeout=2000){
+function toast(msg, type = "ok", timeout = 2000) {
   const wrap = ensureToastWrap();
   const el = document.createElement("div");
   el.className = `toast ${type}`;
   el.textContent = msg;
   wrap.appendChild(el);
-  setTimeout(()=> { el.style.opacity = "0"; el.style.transform = "translateY(-8px)"; }, timeout);
-  setTimeout(()=> { el.remove(); }, timeout + 250);
+  setTimeout(() => { el.style.opacity = "0"; el.style.transform = "translateY(-8px)"; }, timeout);
+  setTimeout(() => { el.remove(); }, timeout + 250);
 }
 
 // ====== Auth helpers ======
-function setToken(t){ localStorage.setItem("token", t); }
-function getToken(){ return localStorage.getItem("token"); }
-function clearToken(){ localStorage.removeItem("token"); }
+function setToken(t) { localStorage.setItem("token", t); }
+function getToken() { return localStorage.getItem("token"); }
+function clearToken() { localStorage.removeItem("token"); }
 
 async function api(path, opts = {}) {
   const headers = opts.headers || {};
@@ -57,7 +56,7 @@ async function api(path, opts = {}) {
   if (token) headers["Authorization"] = `Bearer ${token}`;
   const res = await fetch(`${BASE_URL}${path}`, { ...opts, headers });
   let data = {};
-  try { data = await res.json(); } catch(e){}
+  try { data = await res.json(); } catch (e) { }
   if (!res.ok) throw data;
   return data;
 }
@@ -71,11 +70,11 @@ const signupPass = document.getElementById("signup-password");
 const signupNameErr = document.getElementById("signup-name-error");
 const signupEmailErr = document.getElementById("signup-email-error");
 const signupPassErr = document.getElementById("signup-password-error");
-function clearSignupErrors(){
+function clearSignupErrors() {
   [signupNameErr, signupEmailErr, signupPassErr].forEach(el => { if (el) el.textContent = ""; });
 }
 
-signupForm?.addEventListener("submit", async (e)=>{
+signupForm?.addEventListener("submit", async (e) => {
   e.preventDefault(); clearSignupErrors();
   const body = {
     name: (signupName?.value || "").trim(),
@@ -85,7 +84,7 @@ signupForm?.addEventListener("submit", async (e)=>{
   try {
     const data = await api("/api/users/register", { method: "POST", body: JSON.stringify(body) });
     toast(`Registro exitoso. ¡Bienvenido/a, ${data.name}!`, "ok");
-    setTimeout(()=> { window.location.href = "/proximamente.html"; }, 1200);
+    setTimeout(() => { window.location.href = "/proximamente.html"; }, 1200);
   } catch (err) {
     const first = err?.errors?.[0];
     const msg = err?.message || first?.msg || "Error en el registro";
@@ -104,21 +103,21 @@ const signinPass = document.getElementById("signin-password");
 const signinEmailErr = document.getElementById("signin-email-error");
 const signinPassErr = document.getElementById("signin-password-error");
 const signinGlobalMsg = document.getElementById("signin-global-msg");
-function clearSigninErrors(){
-  [signinEmailErr, signinPassErr, signinGlobalMsg].forEach(el => { if (el){ el.textContent = ""; el.className="msg"; } });
+function clearSigninErrors() {
+  [signinEmailErr, signinPassErr, signinGlobalMsg].forEach(el => { if (el) { el.textContent = ""; el.className = "msg"; } });
 }
 
-signinForm?.addEventListener("submit", async (e)=>{
+signinForm?.addEventListener("submit", async (e) => {
   e.preventDefault(); clearSigninErrors();
   const body = {
     email: (signinEmail?.value || "").trim().toLowerCase(),
     password: signinPass?.value || ""
   };
   try {
-    const data = await api("/api/users/login", { method:"POST", body: JSON.stringify(body) });
+    const data = await api("/api/users/login", { method: "POST", body: JSON.stringify(body) });
     setToken(data.token);
     toast("Sesión iniciada correctamente", "ok");
-    setTimeout(()=> { window.location.href = "/proximamente.html"; }, 900);
+    setTimeout(() => { window.location.href = "/proximamente.html"; }, 900);
   } catch (err) {
     const msg = err?.message || "Credenciales inválidas";
     signinGlobalMsg.textContent = msg; signinGlobalMsg.className = "msg error";
