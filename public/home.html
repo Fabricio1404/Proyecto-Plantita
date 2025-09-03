@@ -3,63 +3,129 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Próximamente · Plantitas</title>
+  <title>InfoForest – Home</title>
   <link rel="stylesheet" href="styles/home.css" />
-  <style>
-    :root{
-      --bg:#0e1726;         /* fondo general oscuro */
-      --leaf:#1b5e20;       /* verde hoja */
-      --leaf-2:#2e7d32;     /* verde claro */
-      --accent:#a8e6a3;     /* verde suave para textos */
-      --text:#e8eefb;       /* texto claro */
-      --card:#141c2f;       /* tarjeta */
-      --line:#2a3a58;       /* bordes */
-      --glow:0 0 40px rgba(46,125,50,.25);
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(160deg,var(--bg),#0b1220 60%,#08101d);
-         color:var(--text);font-family:system-ui,Segoe UI,Roboto,Arial}
-    .wrap{min-height:100vh;display:grid;place-items:center;padding:24px}
-    .card{
-      width:100%;max-width:780px;background:linear-gradient(180deg,#121a2a, #101828);
-      border:1px solid var(--line); border-radius:16px; padding:28px;
-      box-shadow: var(--glow);
-      position:relative; overflow:hidden;
-    }
-    h1{margin:0 0 .5rem;font-size:clamp(1.4rem,3.2vw,2.2rem)}
-    p{margin:.25rem 0 0;color:#cdd9f4;line-height:1.5}
-    .badge{
-      display:inline-block;background:linear-gradient(90deg,var(--leaf),var(--leaf-2));
-      color:white;padding:6px 10px;border-radius:999px;font-weight:600;font-size:.85rem;
-      border:1px solid #194d1b
-    }
-    .tag{display:inline-block;margin-top:10px;color:var(--accent);opacity:.9}
-    .btn{
-      display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:12px 16px;
-      border-radius:12px;border:1px solid var(--leaf-2);background:transparent;color:var(--accent);
-      font-weight:700;cursor:pointer;text-decoration:none
-    }
-    .btn:hover{background:rgba(46,125,50,.12)}
-    .art{
-      position:absolute;inset:auto -20% -35% auto;width:70%;height:70%;
-      background:
-        radial-gradient(300px 180px at 70% 80%, rgba(46,125,50,.12), transparent 60%),
-        radial-gradient(220px 140px at 30% 60%, rgba(168,230,163,.10), transparent 60%),
-        radial-gradient(240px 200px at 60% 30%, rgba(46,125,50,.08), transparent 60%);
-      pointer-events:none;filter:saturate(1.2) blur(0.2px);
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <main class="wrap">
-    <section class="card">
-      <span class="badge">Próximamente</span>
-      <h1>Información en <span style="color:#a8e6a3">Morfología Vegetal</span> y <span style="color:#9bdcff">Entomología Forestal</span></h1>
-      <p>Estamos preparando contenidos y herramientas para estudiar estructuras morfológicas de plantas y la biología de insectos asociados a ecosistemas forestales.</p>
-      <p class="tag">Tema: plantas 🌿 · insectos 🪲 · bosques 🌳</p>
-      <a class="btn" href="/">← Volver al inicio</a>
-      <div class="art"></div>
-    </section>
-  </main>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/icons/seedling.svg" alt="" class="brand-icon" />
+      <span class="brand-name">InfoForest</span>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-item active" href="home.html">
+        <img src="assets/icons/seedling.svg" alt="" /> Inicio
+      </a>
+      <a class="nav-item" href="#" id="link-plantas">
+        <img src="assets/icons/leaf.svg" alt="" /> Plantas
+      </a>
+      <a class="nav-item" href="#" id="link-insectos">
+        <img src="assets/icons/bug.svg" alt="" /> Insectos
+      </a>
+      <a class="nav-item" href="#" id="link-biblioteca">
+        📚 Biblioteca
+      </a>
+      <a class="nav-item" href="#" id="link-perfil">
+        👤 Perfil
+      </a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <button id="logout" class="btn ghost">Salir</button>
+    </div>
+  </aside>
+
+  <!-- Contenido -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="hello">
+        <h1>¡Hola, <span id="userName">estudiante</span>! 👋</h1>
+        <p class="muted">Bienvenido/a a tu espacio. Próximamente vas a ver acá tus accesos rápidos y progreso.</p>
+      </div>
+      <div class="top-actions">
+        <input id="search" type="search" placeholder="Buscar plantas, insectos, fichas..." />
+        <button class="btn primary" id="newNote">+ Nota rápida</button>
+      </div>
+    </header>
+
+    <!-- Secciones -->
+    <main class="content">
+      <!-- Acciones rápidas -->
+      <section class="cards">
+        <article class="card action" id="goPlantas">
+          <div class="icon"><img src="assets/icons/leaf.svg" alt=""></div>
+          <div class="text">
+            <h3>Explorar Plantas</h3>
+            <p>Claves morfológicas, fichas e identificaciones.</p>
+          </div>
+        </article>
+
+        <article class="card action" id="goInsectos">
+          <div class="icon"><img src="assets/icons/bug.svg" alt=""></div>
+          <div class="text">
+            <h3>Explorar Insectos</h3>
+            <p>Biología, identificación y asociaciones forestales.</p>
+          </div>
+        </article>
+
+        <article class="card action" id="goBiblioteca">
+          <div class="icon">📚</div>
+          <div class="text">
+            <h3>Biblioteca</h3>
+            <p>Apuntes, PDFs y material de clase.</p>
+          </div>
+        </article>
+
+        <article class="card action" id="goPerfil">
+          <div class="icon">👤</div>
+          <div class="text">
+            <h3>Mi perfil</h3>
+            <p>Datos de la cuenta y futuro upgrade a profesor.</p>
+          </div>
+        </article>
+      </section>
+
+      <!-- Próximamente / actividad -->
+      <section class="grid">
+        <article class="panel">
+          <header class="panel-h">
+            <h3>Próximamente</h3>
+          </header>
+          <div class="panel-b">
+            <ul class="list">
+              <li>🌿 Módulo de claves morfológicas interactivas.</li>
+              <li>🐞 Visualizador de fichas de insectos con filtros.</li>
+              <li>📦 Exportar/guardar colecciones personales.</li>
+              <li>👨‍🏫 Solicitud y verificación de rol docente.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="panel">
+          <header class="panel-h">
+            <h3>Actividad reciente</h3>
+          </header>
+          <div class="panel-b">
+            <div class="empty">Aún no hay actividad. ¡Pronto verás tus avances acá!</div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <small>© 2025 InfoForest</small>
+    </footer>
+  </div>
+
+  <div class="toast-wrap" id="toasts"></div>
+  <script src="/public/tasks/home.js"></script>
 </body>
 </html>
+      

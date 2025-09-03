@@ -1,5 +1,9 @@
 // ====== Config ======
-const BASE_URL = location.origin; // mismo servidor
+// Si estamos en localhost, apuntamos a la API en :3000; si no, mismo origen.
+const API_BASE =
+  location.hostname === "localhost" || location.hostname === "127.0.0.1"
+    ? "http://localhost:3000"
+    : location.origin;
 
 const container = document.getElementById("container");
 const signUpBtn = document.getElementById("signUp");
@@ -54,7 +58,7 @@ async function api(path, opts = {}) {
   }
   const token = getToken();
   if (token) headers["Authorization"] = `Bearer ${token}`;
-  const res = await fetch(`${BASE_URL}${path}`, { ...opts, headers });
+  const res = await fetch(`${API_BASE}${path}`, { ...opts, headers });
   let data = {};
   try { data = await res.json(); } catch (e) { }
   if (!res.ok) throw data;
@@ -84,7 +88,10 @@ signupForm?.addEventListener("submit", async (e) => {
   try {
     const data = await api("/api/users/register", { method: "POST", body: JSON.stringify(body) });
     toast(`Registro exitoso. ¡Bienvenido/a, ${data.name}!`, "ok");
-    setTimeout(() => { window.location.href = "../home.html"; }, 1200);
+    // si devolvés token en register, guardalo:
+    if (data.token) setToken(data.token);
+    localStorage.setItem("userName", data.name || body.name);
+    setTimeout(() => { window.location.href = "home.html"; }, 1200);
   } catch (err) {
     const first = err?.errors?.[0];
     const msg = err?.message || first?.msg || "Error en el registro";
@@ -115,9 +122,10 @@ signinForm?.addEventListener("submit", async (e) => {
   };
   try {
     const data = await api("/api/users/login", { method: "POST", body: JSON.stringify(body) });
-    setToken(data.token);
+    if (data.token) setToken(data.token);
+    if (data.user?.name) localStorage.setItem("userName", data.user.name);
     toast("Sesión iniciada correctamente", "ok");
-    setTimeout(() => { window.location.href = "../home.html"; }, 900);
+    setTimeout(() => { window.location.href = "home.html"; }, 900);
   } catch (err) {
     const msg = err?.message || "Credenciales inválidas";
     signinGlobalMsg.textContent = msg; signinGlobalMsg.className = "msg error";
