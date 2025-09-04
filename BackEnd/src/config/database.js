@@ -14,12 +14,15 @@ export const sequelize = new Sequelize(
   }
 );
 
-export async function connectDB() {
+export const connectDB = async () => {
   try {
     await sequelize.authenticate();
-    console.log("✅ Conexión a MySQL OK");
-  } catch (err) {
-    console.error("❌ Error al conectar a MySQL:", err.message);
-    process.exit(1);
+    console.log("Connection has been established successfully.");
+    await sequelize.sync({
+      alter: true,
+      /* force: true */
+    });
+  } catch (error) {
+    console.error("Unable to connect to the database:", error);
   }
-}
+};
