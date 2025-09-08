@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/database.js";
 
-export const UserModel = sequelize.define("User", {
+export const TeacherModel = sequelize.define("Teacher", {
   name: {
     type: DataTypes.STRING(100),
     unique: false,
@@ -14,6 +14,11 @@ export const UserModel = sequelize.define("User", {
   },
   password: {
     type: DataTypes.CHAR(),
+    unique: false,
+    allowNull: false,
+  },
+  subject: {
+    type: DataTypes.STRING(40),
     unique: false,
     allowNull: false,
   },
