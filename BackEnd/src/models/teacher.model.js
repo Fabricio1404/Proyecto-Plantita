@@ -17,9 +17,4 @@ export const TeacherModel = sequelize.define("Teacher", {
     unique: false,
     allowNull: false,
   },
-  subject: {
-    type: DataTypes.STRING(40),
-    unique: false,
-    allowNull: false,
-  },
 });

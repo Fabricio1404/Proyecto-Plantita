@@ -3,10 +3,11 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import { User } from "./src/models/user.model.js";
 
 import { connectDB } from "./src/config/database.js";
 import userRoutes from "./src/routes/user.routes.js";
+import studentRoutes from "./src/routes/student.route.js";
+import teacherRoutes from "./src/routes/teacher.route.js";
 
 dotenv.config();
 
@@ -17,9 +18,9 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors());
 
-const __filename = fileURLToPath(import.meta.url);
+/* const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public"))); */
 
 // Ruta de salud (prueba rápida)
 app.get("/salud", (_req, res) => {
@@ -27,6 +28,8 @@ app.get("/salud", (_req, res) => {
 });
 
 app.use("/api/users", userRoutes);
+app.use("/api/students", studentRoutes);
+app.use("/api/teachers", teacherRoutes);
 
 (async () => {
   await connectDB();

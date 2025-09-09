@@ -1,259 +1,393 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>InfoForest — Plataforma informativa de flora y entomología</title>
-  <meta name="description" content="Buscador, mapas y analíticas para especies de flora e insectos forestales en Argentina.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles/index.css">
-</head>
-<body>
-  <!-- NAV -->
-  <header class="nav" id="nav">
-    <div class="container nav__inner">
-      <a href="#" class="brand">
-        <img src="./img/logo.png" alt="InfoForest" class="brand__logo">
-        <span class="brand__name">InfoForest</span>
-      </a>
-      <nav class="menu" aria-label="Principal">
-        <a href="#modulos">Módulos</a>
-        <a href="#casos">Casos</a>
-        <a href="#precios">Planes</a>
-        <a href="#contacto">Contacto</a>
-        <a class="btn btn--sm btn--ghost" href="/public/login.html">Iniciar sesión</a>
-      </nav>
-    </div>
-  </header>
-
-  <!-- HERO SLIDER -->
-  <section class="hero" aria-label="Presentación">
-    <div class="slider" id="slider">
-      <article class="slide is-active" style="--bg:url('https://images.unsplash.com/photo-1535905557558-afc4877a26fc?q=80&w=1600&auto=format&fit=crop');">
-        <div class="container slide__content">
-          <h1>Datos que <em>ordenan</em> la biodiversidad</h1>
-          <p>Catálogo de especies con búsqueda inteligente, filtros avanzados y fichas completas.</p>
-          <form class="hero__search" onsubmit="return false;" role="search">
-            <input type="search" placeholder="Buscar especie o familia…">
-            <button class="btn">Probar buscador</button>
-          </form>
-        </div>
-      </article>
-      <article class="slide" style="--bg:url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1600&auto=format&fit=crop');">
-        <div class="container slide__content">
-          <h1>Mapas y distribución <em>geográfica</em></h1>
-          <p>Visualizá ocurrencias por provincia y bioma. Exportá capas para tu SIG.</p>
-          <a class="btn" href="#modulos">Ver módulos</a>
-        </div>
-      </article>
-      <article class="slide" style="--bg:url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop');">
-        <div class="container slide__content">
-          <h1>Alertas y <em>entomología</em> aplicada</h1>
-          <p>Seguimiento de plagas con reportes y líneas de tiempo por cultivo.</p>
-          <a class="btn" href="#casos">Ver casos</a>
-        </div>
-      </article>
-      <div class="slider__dots" id="dots" aria-label="Selector de slides"></div>
-    </div>
-    <div class="hero__shade"></div>
-    <div class="hero__scroll">Deslizá ↓</div>
-  </section>
-
-  <!-- KPIs / CONTADORES -->
-  <section class="kpis">
-    <div class="container kpis__grid">
-      <div class="kpi"><span class="kpi__num" data-count="18000">0</span><span class="kpi__label">Registros</span></div>
-      <div class="kpi"><span class="kpi__num" data-count="3250">0</span><span class="kpi__label">Especies</span></div>
-      <div class="kpi"><span class="kpi__num" data-count="23">0</span><span class="kpi__label">Provincias</span></div>
-      <div class="kpi"><span class="kpi__num" data-count="120">0</span><span class="kpi__label">Colecciones</span></div>
-    </div>
-  </section>
-
-  <!-- PARALLAX STRIP -->
-  <section class="strip strip--parallax" aria-hidden="true">
-    <div class="parallax" data-parallax data-speed="0.25"></div>
-  </section>
-
-  <!-- MÓDULOS -->
-  <section class="section" id="modulos">
-    <div class="container">
-      <header class="section__head">
-        <h2>Módulos de InfoForest</h2>
-        <p class="muted">Inspirados en plataformas de analítica agro y adaptados al mundo de la flora y la entomología.</p>
-      </header>
-      <div class="cards">
-        <article class="card reveal">
-          <img class="card__media" src="https://images.unsplash.com/photo-1534595038511-9f219fe0c979?q=80&w=800&auto=format&fit=crop" alt="Buscador de especies">
-          <div class="card__body">
-            <h3>Buscador & Fichas</h3>
-            <p>Indexación por nombre científico/común, familia, estatus y provincia. Fichas con morfología e imágenes.</p>
-          </div>
-        </article>
-        <article class="card reveal">
-          <img class="card__media" src="https://images.unsplash.com/photo-1529101091764-c3526daf38fe?q=80&w=800&auto=format&fit=crop" alt="Mapas">
-          <div class="card__body">
-            <h3>Mapas & Distribución</h3>
-            <p>Mapa interactivo con capas por ecorregión, ocurrencias y exportación GeoJSON.</p>
-          </div>
-        </article>
-        <article class="card reveal">
-          <img class="card__media" src="https://images.unsplash.com/photo-1505238680356-667803448bb6?q=80&w=800&auto=format&fit=crop" alt="Alertas">
-          <div class="card__body">
-            <h3>Alertas de Plagas</h3>
-            <p>Series temporales, reportes por cultivo y sugerencias de manejo (uso educativo).</p>
-          </div>
-        </article>
-        <article class="card reveal">
-          <img class="card__media" src="https://images.unsplash.com/photo-1526285846709-179de08b1430?q=80&w=800&auto=format&fit=crop" alt="Colecciones">
-          <div class="card__body">
-            <h3>Colecciones</h3>
-            <p>Listas personales, anotaciones de campo y compartición con docentes.</p>
-          </div>
-        </article>
-        <article class="card reveal">
-          <img class="card__media" src="https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop" alt="Dashboards">
-          <div class="card__body">
-            <h3>Tableros</h3>
-            <p>Indicadores por familia, hábitat y provincia. Descarga a CSV.</p>
-          </div>
-        </article>
-        <article class="card reveal">
-          <img class="card__media" src="https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=800&auto=format&fit=crop" alt="API">
-          <div class="card__body">
-            <h3>API</h3>
-            <p>End points públicos de consulta para integrar con apps educativas.</p>
-          </div>
-        </article>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>InfoForest — Plataforma informativa forestal y entomología</title>
+    <meta
+      name="description"
+      content="Buscador, mapas y analíticas para especies de flora e insectos forestales en Argentina."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/index.css" />
+  </head>
+  <body>
+    <!-- NAV -->
+    <header class="nav" id="nav">
+      <div class="container nav__inner">
+        <a href="#" class="brand">
+          <img src="./img/logo.png" alt="InfoForest" class="brand__logo" />
+          <span class="brand__name">InfoForest</span>
+        </a>
+        <nav class="menu" aria-label="Principal">
+          <a href="#modulos">Módulos</a>
+          <a href="#casos">Casos</a>
+          <a href="#precios">Planes</a>
+          <a href="#contacto">Contacto</a>
+          <a class="btn btn--sm btn--ghost" href="login.html">Iniciar sesión</a>
+        </nav>
       </div>
-    </div>
-  </section>
+    </header>
 
-  <!-- LOGOS MARQUEE -->
-  <section class="marquee">
-    <div class="marquee__track">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/UNaF_logo.png/320px-UNaF_logo.png" alt="UNaF">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Conicet_logo.png/320px-Conicet_logo.png" alt="CONICET">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Logo_UNNE.png/320px-Logo_UNNE.png" alt="UNNE">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/UBA_logo.svg/320px-UBA_logo.svg.png" alt="UBA">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/INTA_logo.png/320px-INTA_logo.png" alt="INTA">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/UNaF_logo.png/320px-UNaF_logo.png" alt="UNaF">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Conicet_logo.png/320px-Conicet_logo.png" alt="CONICET">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Logo_UNNE.png/320px-Logo_UNNE.png" alt="UNNE">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/UBA_logo.svg/320px-UBA_logo.svg.png" alt="UBA">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/INTA_logo.png/320px-INTA_logo.png" alt="INTA">
-    </div>
-  </section>
-
-  <!-- CASOS (slider sencillo) -->
-  <section class="section" id="casos">
-    <div class="container">
-      <header class="section__head">
-        <h2>Casos de uso</h2>
-        <div class="section__actions">
-          <button class="btn btn--ghost" id="prev">‹</button>
-          <button class="btn btn--ghost" id="next">›</button>
-        </div>
-      </header>
-      <div class="carousel" id="carousel">
-        <article class="case">
-          <h3>Monitoreo de Algarrobo en Formosa</h3>
-          <p>Seguimiento de floración y registro de insectos asociados en 12 parcelas.</p>
+    <!-- HERO SLIDER -->
+    <section class="hero" aria-label="Presentación">
+      <div class="slider" id="slider">
+        <article
+          class="slide is-active"
+          style="
+            --bg: url('https://images.unsplash.com/photo-1535905557558-afc4877a26fc?q=80&w=1600&auto=format&fit=crop');
+          "
+        >
+          <div class="container slide__content">
+            <h1>Datos que <em>ordenan</em> la biodiversidad</h1>
+            <p>
+              Catálogo de especies con búsqueda inteligente, filtros avanzados y
+              fichas completas.
+            </p>
+            <form class="hero__search" onsubmit="return false;" role="search">
+              <input type="search" placeholder="Buscar especie o familia…" />
+              <button class="btn">Probar buscador</button>
+            </form>
+          </div>
         </article>
-        <article class="case">
-          <h3>Mapeo de ocurrencias de Yerba Mate</h3>
-          <p>Distribución provincial y rango altitudinal con datos de herbario.</p>
+        <article
+          class="slide"
+          style="
+            --bg: url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1600&auto=format&fit=crop');
+          "
+        >
+          <div class="container slide__content">
+            <h1>Mapas y distribución <em>geográfica</em></h1>
+            <p>
+              Visualizá ocurrencias por provincia y bioma. Exportá capas para tu
+              SIG.
+            </p>
+            <a class="btn" href="#modulos">Ver módulos</a>
+          </div>
         </article>
-        <article class="case">
-          <h3>Alerta educativa de <em>Atta sexdens</em></h3>
-          <p>Visualización de reportes y control cultural para prácticas de campo.</p>
+        <article
+          class="slide"
+          style="
+            --bg: url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop');
+          "
+        >
+          <div class="container slide__content">
+            <h1>Alertas y <em>entomología</em> aplicada</h1>
+            <p>
+              Seguimiento de plagas con reportes y líneas de tiempo por cultivo.
+            </p>
+            <a class="btn" href="#casos">Ver casos</a>
+          </div>
         </article>
+        <div
+          class="slider__dots"
+          id="dots"
+          aria-label="Selector de slides"
+        ></div>
       </div>
-    </div>
-  </section>
+      <div class="hero__shade"></div>
+      <div class="hero__scroll">Deslizá ↓</div>
+    </section>
 
-  <!-- PLANES -->
-  <section class="section section--muted" id="precios">
-    <div class="container">
-      <header class="section__head">
-        <h2>Planes</h2>
-        <p class="muted">Comenzá gratis. Versiones educativas para docentes y cátedras.</p>
-      </header>
-      <div class="plans">
-        <article class="plan reveal">
-          <h3>Gratis</h3>
-          <p class="muted">Búsqueda y fichas básicas.</p>
-          <ul>
-            <li>Buscador</li>
-            <li>Fichas e imágenes</li>
-            <li>Listas personales</li>
+    <!-- KPIs / CONTADORES -->
+    <section class="kpis">
+      <div class="container kpis__grid">
+        <div class="kpi">
+          <span class="kpi__num" data-count="18000">0</span
+          ><span class="kpi__label">Registros</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi__num" data-count="3250">0</span
+          ><span class="kpi__label">Especies</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi__num" data-count="23">0</span
+          ><span class="kpi__label">Provincias</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi__num" data-count="120">0</span
+          ><span class="kpi__label">Colecciones</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PARALLAX STRIP -->
+    <section class="strip strip--parallax" aria-hidden="true">
+      <div class="parallax" data-parallax data-speed="0.25"></div>
+    </section>
+
+    <!-- MÓDULOS -->
+    <section class="section" id="modulos">
+      <div class="container">
+        <header class="section__head">
+          <h2>Módulos de InfoForest</h2>
+          <p class="muted">
+            Inspirados en plataformas de analítica agro y adaptados al mundo de
+            la flora y la entomología.
+          </p>
+        </header>
+        <div class="cards">
+          <article class="card reveal">
+            <img
+              class="card__media"
+              src="https://images.unsplash.com/photo-1534595038511-9f219fe0c979?q=80&w=800&auto=format&fit=crop"
+              alt="Buscador de especies"
+            />
+            <div class="card__body">
+              <h3>Buscador & Fichas</h3>
+              <p>
+                Indexación por nombre científico/común, familia, estatus y
+                provincia. Fichas con morfología e imágenes.
+              </p>
+            </div>
+          </article>
+          <article class="card reveal">
+            <img
+              class="card__media"
+              src="https://images.unsplash.com/photo-1529101091764-c3526daf38fe?q=80&w=800&auto=format&fit=crop"
+              alt="Mapas"
+            />
+            <div class="card__body">
+              <h3>Mapas & Distribución</h3>
+              <p>
+                Mapa interactivo con capas por ecorregión, ocurrencias y
+                exportación GeoJSON.
+              </p>
+            </div>
+          </article>
+          <article class="card reveal">
+            <img
+              class="card__media"
+              src="https://images.unsplash.com/photo-1505238680356-667803448bb6?q=80&w=800&auto=format&fit=crop"
+              alt="Alertas"
+            />
+            <div class="card__body">
+              <h3>Alertas de Plagas</h3>
+              <p>
+                Series temporales, reportes por cultivo y sugerencias de manejo
+                (uso educativo).
+              </p>
+            </div>
+          </article>
+          <article class="card reveal">
+            <img
+              class="card__media"
+              src="https://images.unsplash.com/photo-1526285846709-179de08b1430?q=80&w=800&auto=format&fit=crop"
+              alt="Colecciones"
+            />
+            <div class="card__body">
+              <h3>Colecciones</h3>
+              <p>
+                Listas personales, anotaciones de campo y compartición con
+                docentes.
+              </p>
+            </div>
+          </article>
+          <article class="card reveal">
+            <img
+              class="card__media"
+              src="https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop"
+              alt="Dashboards"
+            />
+            <div class="card__body">
+              <h3>Tableros</h3>
+              <p>
+                Indicadores por familia, hábitat y provincia. Descarga a CSV.
+              </p>
+            </div>
+          </article>
+          <article class="card reveal">
+            <img
+              class="card__media"
+              src="https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=800&auto=format&fit=crop"
+              alt="API"
+            />
+            <div class="card__body">
+              <h3>API</h3>
+              <p>
+                End points públicos de consulta para integrar con apps
+                educativas.
+              </p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGOS MARQUEE -->
+    <section class="marquee">
+      <div class="marquee__track">
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/UNaF_logo.png/320px-UNaF_logo.png"
+          alt="UNaF"
+        />
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Conicet_logo.png/320px-Conicet_logo.png"
+          alt="CONICET"
+        />
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Logo_UNNE.png/320px-Logo_UNNE.png"
+          alt="UNNE"
+        />
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/UBA_logo.svg/320px-UBA_logo.svg.png"
+          alt="UBA"
+        />
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/INTA_logo.png/320px-INTA_logo.png"
+          alt="INTA"
+        />
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/UNaF_logo.png/320px-UNaF_logo.png"
+          alt="UNaF"
+        />
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Conicet_logo.png/320px-Conicet_logo.png"
+          alt="CONICET"
+        />
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Logo_UNNE.png/320px-Logo_UNNE.png"
+          alt="UNNE"
+        />
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/UBA_logo.svg/320px-UBA_logo.svg.png"
+          alt="UBA"
+        />
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/INTA_logo.png/320px-INTA_logo.png"
+          alt="INTA"
+        />
+      </div>
+    </section>
+
+    <!-- CASOS (slider sencillo) -->
+    <section class="section" id="casos">
+      <div class="container">
+        <header class="section__head">
+          <h2>Casos de uso</h2>
+          <div class="section__actions">
+            <button class="btn btn--ghost" id="prev">‹</button>
+            <button class="btn btn--ghost" id="next">›</button>
+          </div>
+        </header>
+        <div class="carousel" id="carousel">
+          <article class="case">
+            <h3>Monitoreo de Algarrobo en Formosa</h3>
+            <p>
+              Seguimiento de floración y registro de insectos asociados en 12
+              parcelas.
+            </p>
+          </article>
+          <article class="case">
+            <h3>Mapeo de ocurrencias de Yerba Mate</h3>
+            <p>
+              Distribución provincial y rango altitudinal con datos de herbario.
+            </p>
+          </article>
+          <article class="case">
+            <h3>Alerta educativa de <em>Atta sexdens</em></h3>
+            <p>
+              Visualización de reportes y control cultural para prácticas de
+              campo.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- PLANES -->
+    <section class="section section--muted" id="precios">
+      <div class="container">
+        <header class="section__head">
+          <h2>Planes</h2>
+          <p class="muted">
+            Comenzá gratis. Versiones educativas para docentes y cátedras.
+          </p>
+        </header>
+        <div class="plans">
+          <article class="plan reveal">
+            <h3>Gratis</h3>
+            <p class="muted">Búsqueda y fichas básicas.</p>
+            <ul>
+              <li>Buscador</li>
+              <li>Fichas e imágenes</li>
+              <li>Listas personales</li>
+            </ul>
+            <a class="btn btn--ghost" href="#">Comenzar</a>
+          </article>
+          <article class="plan plan--best reveal">
+            <h3>Educativo</h3>
+            <p class="muted">Docentes y estudiantes.</p>
+            <ul>
+              <li>Todo lo del Gratis</li>
+              <li>Mapas y exportación</li>
+              <li>Tableros y reportes</li>
+            </ul>
+            <a class="btn" href="#">Solicitar</a>
+          </article>
+          <article class="plan reveal">
+            <h3>Pro</h3>
+            <p class="muted">Grupos de investigación.</p>
+            <ul>
+              <li>Todo lo del Educativo</li>
+              <li>API y límites altos</li>
+              <li>Colecciones compartidas</li>
+            </ul>
+            <a class="btn btn--ghost" href="#">Contactar</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+      <div class="container cta__inner">
+        <div>
+          <h3>¿Listo para explorar la biodiversidad?</h3>
+          <p>Ingresá al buscador o creá tu primera colección.</p>
+        </div>
+        <a class="btn" href="/">Abrir InfoForest</a>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer" id="contacto">
+      <div class="container footer__grid">
+        <div>
+          <h4>InfoForest</h4>
+          <p>
+            Plataforma académica para organizar información de flora y
+            entomología forestal.
+          </p>
+        </div>
+        <div>
+          <h4>Recursos</h4>
+          <ul class="list">
+            <li><a href="#">Documentación</a></li>
+            <li><a href="#">API</a></li>
+            <li><a href="#">Guía de estilo</a></li>
           </ul>
-          <a class="btn btn--ghost" href="#">Comenzar</a>
-        </article>
-        <article class="plan plan--best reveal">
-          <h3>Educativo</h3>
-          <p class="muted">Docentes y estudiantes.</p>
-          <ul>
-            <li>Todo lo del Gratis</li>
-            <li>Mapas y exportación</li>
-            <li>Tableros y reportes</li>
+        </div>
+        <div>
+          <h4>Contacto</h4>
+          <ul class="list">
+            <li>
+              <a href="mailto:equipo@infoforest.edu">equipo@infoforest.edu</a>
+            </li>
+            <li><a href="#">Enviar sugerencia</a></li>
           </ul>
-          <a class="btn" href="#">Solicitar</a>
-        </article>
-        <article class="plan reveal">
-          <h3>Pro</h3>
-          <p class="muted">Grupos de investigación.</p>
-          <ul>
-            <li>Todo lo del Educativo</li>
-            <li>API y límites altos</li>
-            <li>Colecciones compartidas</li>
-          </ul>
-          <a class="btn btn--ghost" href="#">Contactar</a>
-        </article>
+        </div>
       </div>
-    </div>
-  </section>
+      <div class="container footer__bottom">
+        <small>© <span id="year"></span> InfoForest</small>
+      </div>
+    </footer>
 
-  <!-- CTA -->
-  <section class="cta">
-    <div class="container cta__inner">
-      <div>
-        <h3>¿Listo para explorar la biodiversidad?</h3>
-        <p>Ingresá al buscador o creá tu primera colección.</p>
-      </div>
-      <a class="btn" href="/">Abrir InfoForest</a>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="footer" id="contacto">
-    <div class="container footer__grid">
-      <div>
-        <h4>InfoForest</h4>
-        <p>Plataforma académica para organizar información de flora y entomología forestal.</p>
-      </div>
-      <div>
-        <h4>Recursos</h4>
-        <ul class="list">
-          <li><a href="#">Documentación</a></li>
-          <li><a href="#">API</a></li>
-          <li><a href="#">Guía de estilo</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Contacto</h4>
-        <ul class="list">
-          <li><a href="mailto:equipo@infoforest.edu">equipo@infoforest.edu</a></li>
-          <li><a href="#">Enviar sugerencia</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="container footer__bottom">
-      <small>© <span id="year"></span> InfoForest</small>
-    </div>
-  </footer>
-
-  <script src="./tasks/index.js" defer></script>
-</body>
+    <script src="./tasks/index.js" defer></script>
+  </body>
 </html>
