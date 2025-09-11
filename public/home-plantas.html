@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>InfoForest – Plantas</title>
+  <link rel="stylesheet" href="styles/home-plantas.css" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/icons/seedling.svg" alt="" class="brand-icon" />
+      <span class="brand-name">InfoForest</span>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-item active" href="home-plantas.html" id="link-plantas">
+        <img src="assets/icons/leaf.svg" alt="" /> Plantas
+      </a>
+      <a class="nav-item" href="#" id="link-buscador">🔍 Buscador avanzado</a>
+      <a class="nav-item" href="#" id="link-notas">📝 Mis notas</a>
+      <a class="nav-item" href="#" id="link-favs">⭐ Favoritos</a>
+      <a class="nav-item" href="#" id="link-mapas">🧭 Mapas</a>
+      <a class="nav-item" href="#" id="link-comparador">🧰 Comparador</a>
+      <a class="nav-item" href="#" id="link-config">⚙️ Configuración</a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <button id="logout" class="btn ghost">Salir</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="hello">
+        <h1>🌿 Plantas — Hola, <span id="userName">estudiante</span> 👋</h1>
+        <p class="muted">Claves morfológicas, fichas técnicas e identificación.</p>
+      </div>
+      <div class="top-actions">
+        <input id="search" type="search" placeholder="Buscar especies, familias, fichas..." />
+        <button class="btn primary" id="switch">Ir a Insectos 🐞</button>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+      <section class="cards">
+        <article class="card action" id="cat-especies">
+          <div class="icon"><img src="assets/icons/leaf.svg" alt=""></div>
+          <div class="text">
+            <h3>Catálogo de especies</h3>
+            <p>Explorá por nombre común o científico.</p>
+          </div>
+        </article>
+
+        <article class="card action" id="claves">
+          <div class="icon"><img src="assets/icons/seedling.svg" alt=""></div>
+          <div class="text">
+            <h3>Claves morfológicas</h3>
+            <p>Guías interactivas para identificar.</p>
+          </div>
+        </article>
+
+        <article class="card action" id="fichas">
+          <div class="icon">📄</div>
+          <div class="text">
+            <h3>Fichas</h3>
+            <p>Información técnica por especie.</p>
+          </div>
+        </article>
+
+        <article class="card action" id="biblioteca">
+          <div class="icon">📚</div>
+          <div class="text">
+            <h3>Biblioteca</h3>
+            <p>Apuntes y PDFs de botánica.</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <header class="panel-h"><h3>Próximamente</h3></header>
+          <div class="panel-b">
+            <ul class="list">
+              <li>🌱 Filtros por familia y hábito.</li>
+              <li>📷 Galería comparativa de hojas y flores.</li>
+              <li>🧭 Mapas de distribución.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="panel">
+          <header class="panel-h"><h3>Actividad reciente</h3></header>
+          <div class="panel-b">
+            <div class="empty">Aún no hay actividad.</div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <small>© 2025 InfoForest</small>
+    </footer>
+  </div>
+
+  <div class="toast-wrap" id="toasts"></div>
+  <script src="tasks/home-plantas.js" type="module"></script>
+</body>
+</html>

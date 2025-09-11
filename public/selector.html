@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Elegí una sección</title>
+  <link rel="stylesheet" href="./styles/selector.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="brand">🌱 Proyecto Plantitas</div>
+      <nav>
+        <button class="btn" id="btnLogout">Cerrar sesión</button>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1>¿Qué querés explorar?</h1>
+      <p>Elegí una tarjeta para entrar al Home de <b>Plantas</b> o <b>Insectos</b>.</p>
+    </section>
+
+    <section class="grid">
+      <article id="card-plants" class="card">
+        <h3>🌿 Plantas</h3>
+        <p>Identificación, morfología, fichas y material de estudio.</p>
+      </article>
+      <article id="card-insects" class="card">
+        <h3>🐞 Insectos</h3>
+        <p>Entomología forestal: identificación, biología y control.</p>
+      </article>
+    </section>
+  </div>
+
+  <script src="./tasks/selector.js" type="module"></script>
+</body>
+</html>

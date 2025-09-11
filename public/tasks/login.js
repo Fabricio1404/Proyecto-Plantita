@@ -91,7 +91,7 @@ signupForm?.addEventListener("submit", async (e) => {
     // si devolvés token en register, guardalo:
     if (data.token) setToken(data.token);
     localStorage.setItem("userName", data.name || body.name);
-    setTimeout(() => { window.location.href = "home.html"; }, 1200);
+    setTimeout(() => { window.location.href = "selector.html"; }, 1200);
   } catch (err) {
     const first = err?.errors?.[0];
     const msg = err?.message || first?.msg || "Error en el registro";
@@ -125,7 +125,7 @@ signinForm?.addEventListener("submit", async (e) => {
     if (data.token) setToken(data.token);
     if (data.user?.name) localStorage.setItem("userName", data.user.name);
     toast("Sesión iniciada correctamente", "ok");
-    setTimeout(() => { window.location.href = "home.html"; }, 900);
+    setTimeout(() => { window.location.href = "selector.html"; }, 900);
   } catch (err) {
     const msg = err?.message || "Credenciales inválidas";
     signinGlobalMsg.textContent = msg; signinGlobalMsg.className = "msg error";
