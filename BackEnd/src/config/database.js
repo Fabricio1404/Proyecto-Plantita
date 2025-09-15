@@ -1,27 +1,11 @@
-import { Sequelize } from "sequelize";
-import dotenv from "dotenv";
-dotenv.config();
+import mongoose from "mongoose";
 
-export const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  {
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT || 3000),
-    dialect: "mysql",
-  }
-);
-
-export const connectDB = async () => {
+export const mongo_DB = async () => {
   try {
-    await sequelize.authenticate();
-    console.log("Connection has been established successfully.");
-    await sequelize.sync({
-      alter: true,
-      /* force: true */
-    });
+    mongoose.connect("mongodb://localhost:27017/mi_base_datos");
+    await mongoose.connection.dropDatabase();
+    console.log("Conectado a MongoDB exitosamente");
   } catch (error) {
-    console.error("Unable to connect to the database:", error);
+    console.error("Error de conexión:", err);
   }
 };

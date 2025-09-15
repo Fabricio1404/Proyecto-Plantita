@@ -1,39 +1,27 @@
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
-
-import { connectDB } from "./src/config/database.js";
-import userRoutes from "./src/routes/user.routes.js";
-import studentRoutes from "./src/routes/student.route.js";
-import teacherRoutes from "./src/routes/teacher.route.js";
+import { mongo_DB } from "./src/config/database.js";
+import userRoute from "./src/routes/user.route.js";
+import projectRoute from "./src/routes/project.route.js";
+import listRoute from "./src/routes/list.route.js";
+import plantRoute from "./src/routes/plant.route.js";
+import insectRoute from "./src/routes/insect.route.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middlewares base
 app.use(express.json());
-app.use(cors());
+app.use("/api", userRoute);
+app.use("/api", projectRoute);
+app.use("/api", listRoute);
+app.use("/api", plantRoute);
+app.use("/api", insectRoute);
 
-/* const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, "public"))); */
-
-// Ruta de salud (prueba rápida)
-app.get("/salud", (_req, res) => {
-  res.json({ ok: true, message: "API viva (formato clase)" });
+app.listen(PORT, async () => {
+  await mongo_DB(), console.log(`Servidor funcionando en localhost: ${PORT}`);
+  console.log("LO VIEJO VA ACÁ ↑↑↑↑↑");
+  console.log("---------------------------------------");
+  console.log("LO NUEVO VA ACÁ ↓↓↓↓↓");
 });
-
-app.use("/api/users", userRoutes);
-app.use("/api/students", studentRoutes);
-app.use("/api/teachers", teacherRoutes);
-
-(async () => {
-  await connectDB();
-  app.listen(PORT, () => {
-    console.log(`🚀 Server en http://localhost:${PORT}`);
-  });
-})();

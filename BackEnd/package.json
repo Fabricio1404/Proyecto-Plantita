@@ -1,23 +1,18 @@
 {
-  "name": "proyecto-plantitas",
+  "name": "tlp-tp4",
   "version": "1.0.0",
-  "description": "Base vacía con formato de clase (app.js en raíz, src/*).",
-  "type": "module",
+  "description": "",
   "main": "app.js",
+  "type": "module",
   "scripts": {
-    "dev": "node app.js",
-    "start": "node app.js",
-    "db:init": "node scripts/sync.js"
+    "start": "node --watch app.js"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "bcryptjs": "^3.0.2",
-    "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
-    "express-validator": "^7.2.1",
-    "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.14.4",
-    "nodemailer": "^7.0.6",
-    "sequelize": "^6.37.7"
+    "mongoose": "^8.18.1"
   }
 }

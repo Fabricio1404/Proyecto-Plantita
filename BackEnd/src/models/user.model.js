@@ -1,20 +1,55 @@
-import { DataTypes } from "sequelize";
-import { sequelize } from "../config/database.js";
+import { model, Schema, Types } from "mongoose";
 
-export const StudentModel = sequelize.define("User", {
-  name: {
-    type: DataTypes.STRING(100),
-    unique: false,
-    allowNull: false,
+const UserSchema = new Schema(
+  {
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      /* trim: true, */
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    profile: {
+      first_name: {
+        type: String,
+        required: true,
+      },
+      last_name: {
+        type: String,
+        required: true,
+      },
+      recovery_email: {
+        type: String,
+      },
+    },
+    role: {
+      type: String,
+      enum: ["estudiante", "profesor", "admin"],
+      default: "estudiante",
+    },
+    lists: [
+      {
+        type: Types.ObjectId,
+        ref: "List",
+      },
+    ],
+    deleted: {
+      type: Boolean,
+      default: false,
+    },
   },
-  email: {
-    type: DataTypes.STRING(100),
-    unique: true,
-    allowNull: false,
-  },
-  password: {
-    type: DataTypes.CHAR(),
-    unique: false,
-    allowNull: false,
-  },
-});
+  {
+    versionKey: false,
+    timestamps: true,
+  }
+);
+
+export const UserModel = model("User", UserSchema);
