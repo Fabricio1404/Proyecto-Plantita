@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>InfoForest – Insectos</title>
+  <link rel="stylesheet" href="styles/home-insectos.css" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/icons/bug.svg" alt="" class="brand-icon" />
+      <span class="brand-name">InfoForest</span>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-item active" href="home-insectos.html" id="link-insectos">
+        <img src="assets/icons/bug.svg" alt="" /> Insectos
+      </a>
+      <a class="nav-item" href="#" id="link-buscador">🔍 Buscador avanzado</a>
+      <a class="nav-item" href="#" id="link-notas">📝 Mis notas</a>
+      <a class="nav-item" href="#" id="link-favs">⭐ Favoritos</a>
+      <a class="nav-item" href="#" id="link-mapas">🧭 Mapas</a>
+      <a class="nav-item" href="#" id="link-comparador">🧰 Comparador</a>
+      <a class="nav-item" href="#" id="link-config">⚙️ Configuración</a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <button id="logout" class="btn ghost">Salir</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="hello">
+        <h1>🐞 Insectos — Hola, <span id="userName">estudiante</span> 👋</h1>
+        <p class="muted">Identificación, biología, asociaciones y control.</p>
+      </div>
+      <div class="top-actions">
+        <input id="search" type="search" placeholder="Buscar órdenes, familias, plagas..." />
+        <button class="btn primary" id="switch">Ir a Plantas 🌿</button>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+      <section class="cards">
+        <article class="card action" id="cat-insectos">
+          <div class="icon"><img src="assets/icons/bug.svg" alt=""></div>
+          <div class="text">
+            <h3>Catálogo de insectos</h3>
+            <p>Explorá por orden, familia o especie.</p>
+          </div>
+        </article>
+
+        <article class="card action" id="biologia">
+          <div class="icon">🔄</div>
+          <div class="text">
+            <h3>Ciclos biológicos</h3>
+            <p>Infografías y material educativo.</p>
+          </div>
+        </article>
+
+        <article class="card action" id="plagas">
+          <div class="icon">🛡️</div>
+          <div class="text">
+            <h3>Plagas y control</h3>
+            <p>Manejo integrado y fichas técnicas.</p>
+          </div>
+        </article>
+
+        <article class="card action" id="biblioteca">
+          <div class="icon">📚</div>
+          <div class="text">
+            <h3>Biblioteca</h3>
+            <p>Material de entomología forestal.</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <header class="panel-h"><h3>Próximamente</h3></header>
+          <div class="panel-b">
+            <ul class="list">
+              <li>🧬 Filtros por estadio y hábitat.</li>
+              <li>🕷️ Galería comparativa de morfologías.</li>
+              <li>📍 Asociaciones árbol–insecto.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="panel">
+          <header class="panel-h"><h3>Actividad reciente</h3></header>
+          <div class="panel-b">
+            <div class="empty">Aún no hay actividad.</div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <small>© 2025 InfoForest</small>
+    </footer>
+  </div>
+
+  <div class="toast-wrap" id="toasts"></div>
+  <script src="tasks/home-insectos.js" type="module"></script>
+</body>
+</html>

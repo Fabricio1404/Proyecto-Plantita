@@ -1,13 +1,13 @@
-/* ====== Theme ====== */
+/* ====== Theme (verde + ámbar, Plantas/Insectos) ====== */
 :root{
-  --bg:#0f120f;
-  --ink:#1b2a1b;
+  --bg:#0f172a;
+  --ink:#1b2a1f;
   --ink-2:#2e4532;
-  --muted:#6b7e6e;
+  --muted:#cfe8d6;
   --card:#ffffff;
-  --brand:#2e7d32;
-  --brand-2:#236527;
-  --accent:#a5d6a7;
+  --brand:#65a30d;   /* verde principal */
+  --brand-2:#4d7c0f; /* hover verde */
+  --accent:#d97706;  /* ámbar insectos */
   --border:#e5e9e4;
   --shadow:0 10px 40px rgba(0,0,0,.08);
   --radius:18px;
@@ -38,7 +38,7 @@ img{max-width:100%; display:block}
 .brand__name{font-weight:800; letter-spacing:.3px}
 .menu{display:flex; gap:1rem; align-items:center}
 .menu a{text-decoration:none; color:#122112; font-weight:600}
-.menu a:hover{color:#2e7d32}
+.menu a:hover{color:var(--brand)}
 
 /* ====== Hero slider ====== */
 .hero{position:relative; min-height:82vh; overflow:hidden; background:#000}
@@ -51,7 +51,8 @@ img{max-width:100%; display:block}
   background-image:var(--bg);
 }
 .slide::before{
-  content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.55));
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(16,24,18,.35), rgba(16,24,18,.65));
 }
 .slide.is-active{opacity:1; transform:scale(1)}
 .slide__content{position:relative; color:#fff; max-width:680px; padding:4rem 0}
@@ -64,6 +65,8 @@ img{max-width:100%; display:block}
 .hero__search input{
   flex:1; padding:.8rem 1rem; border-radius:12px; border:none; outline:0;
 }
+
+/* Botones */
 .btn{
   background:var(--brand); color:#fff; border:none; border-radius:12px; padding:.8rem 1rem; cursor:pointer; font-weight:700; box-shadow:var(--shadow)
 }
@@ -82,7 +85,8 @@ img{max-width:100%; display:block}
 .strip{height:50vh; position:relative; overflow:hidden}
 .strip--parallax .parallax{
   position:absolute; inset:0;
-  background-image:url('https://images.unsplash.com/photo-1482192505345-5655af888cc4?q=80&w=1600&auto=format&fit=crop');
+  /* Bosque suave, acorde temática */
+  background-image:url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1600&auto=format&fit=crop');
   background-size:cover; background-position:center;
   transform:translateY(0);
 }
@@ -130,6 +134,7 @@ img{max-width:100%; display:block}
 .footer .list a{color:#d2ead5; text-decoration:none}
 .footer__bottom{border-top:1px solid #233628; margin-top:1rem; padding:1rem 0; color:#a8cbb0}
 
+/* ====== Breakpoints ====== */
 @media (max-width: 900px){
   .cards .card{grid-column:span 6}
   .plans{grid-template-columns:1fr}
