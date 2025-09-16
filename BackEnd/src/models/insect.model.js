@@ -2,6 +2,11 @@ import { Schema, model, Types } from "mongoose";
 
 const InsectSchema = new Schema(
   {
+    nombreCientifico: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     reino: {
       type: String,
       default: "Animalia",
@@ -62,5 +67,12 @@ InsectSchema.virtual("lists", {
   localField: "_id",
   foreignField: "insects",
 });
+
+// InsectSchema.set("toJSON", {
+//   virtuals: true,
+//   transform: (_doc, result) => { _ se usa por convención para un parametro que no usas
+//     delete result.id; sacará el id
+//   },
+// }); Otra forma
 
 export const InsectModel = model("Insect", InsectSchema);

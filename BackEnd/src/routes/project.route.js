@@ -10,10 +10,29 @@ import {
   deleteProject,
 } from "../controllers/project.controller.js";
 
-router.post("/project", createProject);
+import { validator } from "../Middlewares/validator.js";
+
+import {
+  createProjectValidation,
+  findProjectByIdValidation,
+  updateProjectValidation,
+  deleteProjectValidation,
+} from "../Middlewares/Validations/project.validation.js";
+
 router.get("/project", findAllProjects);
-router.get("/project/:id", findProjectById);
-router.put("/project/:id", updateProject);
-router.delete("/project/:id", deleteProject);
+router.post("/project", createProjectValidation, validator, createProject);
+router.get(
+  "/project/:id",
+  findProjectByIdValidation,
+  validator,
+  findProjectById
+);
+router.put("/project/:id", updateProjectValidation, validator, updateProject);
+router.delete(
+  "/project/:id",
+  deleteProjectValidation,
+  validator,
+  deleteProject
+);
 
 export default router;

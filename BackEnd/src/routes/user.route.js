@@ -10,10 +10,19 @@ import {
   deleteUser,
 } from "../controllers/user.controller.js";
 
+import { validator } from "../Middlewares/validator.js";
+
+import {
+  createUserValidation,
+  findUserByIdValidation,
+  updateUserValidation,
+  deleteUserValidation,
+} from "../Middlewares/Validations/user.validation.js";
+
 router.get("/user", findAllUsers);
-router.post("/user", createUser);
-router.get("/user/:id", findUserById);
-router.put("/user/:id", updateUser);
-router.delete("/user/:id", deleteUser);
+router.post("/user", createUserValidation, validator, createUser);
+router.get("/user/:id", findUserByIdValidation, validator, findUserById);
+router.put("/user/:id", updateUserValidation, validator, updateUser);
+router.delete("/user/:id", deleteUserValidation, validator, deleteUser);
 
 export default router;

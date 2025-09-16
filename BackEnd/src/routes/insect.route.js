@@ -10,10 +10,19 @@ import {
   deleteInsect,
 } from "../controllers/insect.controller.js";
 
-router.post("/insect", createInsect);
+import { validator } from "../middlewares/validator.js";
+
+import {
+  createInsectValidation,
+  findInsectByIdValidation,
+  updateInsectValidation,
+  deleteInsectValidation,
+} from "../middlewares/validations/insect.validation.js";
+
 router.get("/insect", findAllInsects);
-router.get("/insect/:id", findInsectById);
-router.put("/insect/:id", updateInsect);
-router.delete("/insect/:id", deleteInsect);
+router.post("/insect", createInsectValidation, validator, createInsect);
+router.get("/insect/:id", findInsectByIdValidation, validator, findInsectById);
+router.put("/insect/:id", updateInsectValidation, validator, updateInsect);
+router.delete("/insect/:id", deleteInsectValidation, validator, deleteInsect);
 
 export default router;

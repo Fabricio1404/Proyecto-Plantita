@@ -12,10 +12,12 @@ const UserSchema = new Schema(
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
     },
     password: {
       type: String,
       required: true,
+      select: false,
     },
     profile: {
       first_name: {
@@ -39,6 +41,12 @@ const UserSchema = new Schema(
       {
         type: Types.ObjectId,
         ref: "List",
+      },
+    ],
+    projects: [
+      {
+        type: Types.ObjectId,
+        ref: "Project",
       },
     ],
     deleted: {

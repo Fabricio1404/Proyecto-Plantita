@@ -4,6 +4,7 @@ import { ListModel } from "../models/list.model.js";
 export const createPlant = async (req, res) => {
   try {
     const {
+      nombreCientifico,
       division,
       clase,
       subclase,
@@ -20,6 +21,7 @@ export const createPlant = async (req, res) => {
     } = req.body;
 
     const newPlant = await PlantModel.create({
+      nombreCientifico,
       division,
       clase,
       subclase,
@@ -77,6 +79,7 @@ export const updatePlant = async (req, res) => {
   try {
     const { id } = req.params;
     const {
+      nombreCientifico,
       division,
       clase,
       subclase,
@@ -95,6 +98,7 @@ export const updatePlant = async (req, res) => {
     const plant = await PlantModel.findByIdAndUpdate(
       id,
       {
+        nombreCientifico,
         division,
         clase,
         subclase,

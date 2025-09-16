@@ -4,6 +4,7 @@ import { ListModel } from "../models/list.model.js";
 export const createInsect = async (req, res) => {
   try {
     const {
+      nombreCientifico,
       filo,
       clase,
       orden,
@@ -21,6 +22,7 @@ export const createInsect = async (req, res) => {
     } = req.body;
 
     const newInsect = await InsectModel.create({
+      nombreCientifico,
       filo,
       clase,
       orden,
@@ -50,6 +52,8 @@ export const createInsect = async (req, res) => {
 export const findAllInsects = async (req, res) => {
   try {
     const insects = await InsectModel.find().populate("lists");
+
+    console.log(insects);
     return res.status(200).json(insects);
   } catch (error) {
     return res.status(500).json({
@@ -80,6 +84,7 @@ export const updateInsect = async (req, res) => {
   try {
     const { id } = req.params;
     const {
+      nombreCientifico,
       filo,
       clase,
       orden,
@@ -99,6 +104,7 @@ export const updateInsect = async (req, res) => {
     const insect = await InsectModel.findByIdAndUpdate(
       id,
       {
+        nombreCientifico,
         filo,
         clase,
         orden,
