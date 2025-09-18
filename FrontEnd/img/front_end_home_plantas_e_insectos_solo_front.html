@@ -1,0 +1,469 @@
+<!--
+Proyecto-Plantita / FrontEnd
+Actualización: Home (módulos Plantas e Insectos) SOLO FRONT, sin tocar backend.
+Archivos propuestos (copiar/pegar):
+1) FrontEnd/home.html  (reemplazar entero)
+2) FrontEnd/styles/home-modules.css  (nuevo)
+3) FrontEnd/tasks/home.js  (reemplazar con navegación + utilidades comunes)
+4) FrontEnd/tasks/home-plants.js  (nuevo; mock data + UI Plantas)
+5) FrontEnd/tasks/home-insects.js (nuevo; mock data + UI Insectos)
+
+Ajustes:
+- Todo funciona con datos MOCK locales. Cuando conectemos el backend, sólo cambiamos la función fetchList()
+- No requiere librerías externas ni build tools.
+-->
+
+<!-- ============ 1) FrontEnd/home.html ============ -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proyecto Plantitas — Home</title>
+  <link rel="stylesheet" href="styles/home.css" />
+  <link rel="stylesheet" href="styles/home-modules.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="img/logo.png" alt="logo" class="logo" />
+      <h1>Proyecto-Plantitas</h1>
+    </div>
+    <div class="userbox">
+      <span>Hola, <b id="userName">Invitado</b></span>
+      <button id="logoutBtn" class="btn outline">Salir</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab is-active" id="tabPlantas" aria-controls="sectionPlantas">🌿 Plantas</button>
+    <button class="tab" id="tabInsectos" aria-controls="sectionInsectos">🐞 Insectos</button>
+  </nav>
+
+  <main class="container">
+    <!-- PLANTAS -->
+    <section id="sectionPlantas" class="panel is-active" role="region" aria-labelledby="tabPlantas">
+      <div class="toolbar">
+        <form id="plantSearch" class="searchbar" autocomplete="off">
+          <input type="search" id="plantQ" placeholder="Buscar por nombre o familia…" />
+          <select id="plantType">
+            <option value="">Tipo (todos)</option>
+            <option value="hierba">Hierba</option>
+            <option value="arbusto">Arbusto</option>
+            <option value="árbol">Árbol</option>
+          </select>
+          <select id="plantDifficulty">
+            <option value="">Dificultad</option>
+            <option value="fácil">Fácil</option>
+            <option value="media">Media</option>
+            <option value="difícil">Difícil</option>
+          </select>
+          <button class="btn" type="submit">Buscar</button>
+          <button class="btn ghost" type="button" id="plantClear">Limpiar</button>
+        </form>
+        <div class="toolbar-actions">
+          <button id="plantAdd" class="btn primary">+ Nueva planta</button>
+        </div>
+      </div>
+
+      <div id="plantResults" class="grid"></div>
+
+      <div class="pager">
+        <button id="plantPrev" class="btn" disabled>Anterior</button>
+        <span id="plantPageInfo">Página 1/1</span>
+        <button id="plantNext" class="btn" disabled>Siguiente</button>
+      </div>
+    </section>
+
+    <!-- INSECTOS -->
+    <section id="sectionInsectos" class="panel" role="region" aria-labelledby="tabInsectos">
+      <div class="toolbar">
+        <form id="insectSearch" class="searchbar" autocomplete="off">
+          <input type="search" id="insectQ" placeholder="Buscar por nombre o familia…" />
+          <select id="insectOrder">
+            <option value="">Orden (todos)</option>
+            <option value="coleóptera">Coleóptera</option>
+            <option value="lepidóptera">Lepidóptera</option>
+            <option value="hemíptera">Hemíptera</option>
+            <option value="díptera">Díptera</option>
+          </select>
+          <select id="insectRisk">
+            <option value="">Impacto</option>
+            <option value="bajo">Bajo</option>
+            <option value="medio">Medio</option>
+            <option value="alto">Alto</option>
+          </select>
+          <button class="btn" type="submit">Buscar</button>
+          <button class="btn ghost" type="button" id="insectClear">Limpiar</button>
+        </form>
+        <div class="toolbar-actions">
+          <button id="insectAdd" class="btn primary">+ Nuevo insecto</button>
+        </div>
+      </div>
+
+      <div id="insectResults" class="grid"></div>
+
+      <div class="pager">
+        <button id="insectPrev" class="btn" disabled>Anterior</button>
+        <span id="insectPageInfo">Página 1/1</span>
+        <button id="insectNext" class="btn" disabled>Siguiente</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal genérico -->
+  <dialog id="modal" class="modal">
+    <form method="dialog" class="modal-card">
+      <header class="modal-head">
+        <h3 id="modalTitle">Detalle</h3>
+        <button value="close" class="icon-btn" aria-label="Cerrar">✖</button>
+      </header>
+      <section class="modal-body" id="modalBody"></section>
+      <footer class="modal-foot">
+        <button value="close" class="btn">Cerrar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script src="tasks/home.js" defer></script>
+  <script src="tasks/home-plants.js" defer></script>
+  <script src="tasks/home-insects.js" defer></script>
+</body>
+</html>
+
+
+<!-- ============ 2) FrontEnd/styles/home-modules.css (NUEVO) ============ -->
+<style id="home-modules.css">
+:root{ --ink:#1b1f23; --muted:#6b7280; --bg:#f7fafc; --card:#ffffff; --primary:#2ecc71; --accent:#10b981; --line:#e5e7eb; }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;margin:0}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.brand{display:flex;gap:10px;align-items:center}
+.logo{width:36px;height:36px;border-radius:8px}
+.userbox{display:flex;gap:10px;align-items:center}
+.btn{border:none;background:#111827;color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
+.btn:hover{filter:brightness(0.95)}
+.btn.primary{background:var(--primary)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.outline{background:transparent;color:#111827;border:1px solid #111827}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+
+.tabs{display:flex;gap:6px;padding:8px;background:#fff;border-bottom:1px solid var(--line)}
+.tab{background:transparent;border:none;padding:10px 14px;border-radius:10px;cursor:pointer}
+.tab.is-active{background:var(--ink);color:#fff}
+
+.container{max-width:1100px;margin:16px auto;padding:0 12px}
+.panel{display:none}
+.panel.is-active{display:block}
+
+.toolbar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.searchbar{display:flex;gap:8px;flex-wrap:wrap}
+.searchbar input,.searchbar select{padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;min-width:180px}
+.toolbar-actions{display:flex;gap:8px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.card h4{margin:0;font-size:1.05rem}
+.card .meta{font-size:.9rem;color:var(--muted)}
+.badges{display:flex;flex-wrap:wrap;gap:6px}
+.badge{font-size:.75rem;background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe;padding:2px 8px;border-radius:999px}
+.badge.green{background:#ecfdf5;color:#065f46;border-color:#a7f3d0}
+.badge.red{background:#fef2f2;color:#991b1b;border-color:#fecaca}
+.card .row{display:flex;justify-content:space-between;align-items:center}
+.card .actions{display:flex;gap:8px}
+.icon-btn{border:none;background:transparent;cursor:pointer;font-size:1rem}
+.icon-btn:hover{transform:scale(1.06)}
+
+.pager{display:flex;gap:10px;align-items:center;justify-content:center;margin:18px 0}
+
+/* Modal */
+.modal{border:none;padding:0}
+.modal[open]{display:block}
+.modal-card{background:#fff;border:1px solid var(--line);border-radius:16px;width:min(720px,92vw);padding:0}
+.modal-head,.modal-foot{padding:12px 14px;border-bottom:1px solid var(--line)}
+.modal-foot{border-top:1px solid var(--line);border-bottom:none}
+.modal-body{padding:14px}
+
+/* Toasts */
+.toasts{position:fixed;right:14px;bottom:14px;display:flex;flex-direction:column;gap:8px;z-index:50}
+.toast{background:#111827;color:#fff;padding:10px 12px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.15);opacity:1;transition:opacity .25s, transform .25s}
+.toast.ok{background:var(--accent)}
+.toast.err{background:#ef4444}
+
+/* Responsive tweaks */
+@media (max-width:640px){
+  .searchbar input,.searchbar select{min-width:130px}
+}
+</style>
+
+
+<!-- ============ 3) FrontEnd/tasks/home.js (REEMPLAZAR) ============ -->
+<script type="module" id="home.js">
+// ===== Guardia básica =====
+(function guard(){
+  const token = localStorage.getItem("token");
+  if (!token) location.href = "login.html";
+})();
+
+// ===== Utilidades UI =====
+export function $(sel, ctx=document){ return ctx.querySelector(sel); }
+export function $all(sel, ctx=document){ return [...ctx.querySelectorAll(sel)]; }
+
+export function toast(msg, type="ok", t=2200){
+  const wrap = document.getElementById("toasts");
+  const el = document.createElement("div");
+  el.className = `toast ${type}`; el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.opacity=0; el.style.transform="translateY( -6px)"; }, t);
+  setTimeout(()=>{ el.remove(); }, t+280);
+}
+
+export function openModal(title, html){
+  const dlg = document.getElementById("modal");
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalBody").innerHTML = html;
+  dlg.showModal();
+}
+
+// ===== Tabs: Plantas / Insectos =====
+const tabPlantas = $("#tabPlantas");
+const tabInsectos = $("#tabInsectos");
+const sectionPlantas = $("#sectionPlantas");
+const sectionInsectos = $("#sectionInsectos");
+
+function activate(tab){
+  const isPlants = tab === "plantas";
+  tabPlantas.classList.toggle("is-active", isPlants);
+  tabInsectos.classList.toggle("is-active", !isPlants);
+  sectionPlantas.classList.toggle("is-active", isPlants);
+  sectionInsectos.classList.toggle("is-active", !isPlants);
+  localStorage.setItem("homeTab", isPlants?"plantas":"insectos");
+}
+
+tabPlantas?.addEventListener("click", ()=>activate("plantas"));
+tabInsectos?.addEventListener("click", ()=>activate("insectos"));
+activate(localStorage.getItem("homeTab") || "plantas");
+
+// ===== Usuario / logout =====
+(function greet(){
+  const el = document.getElementById("userName");
+  const name = localStorage.getItem("userName") || "Usuario";
+  if (el) el.textContent = name.split(" ")[0];
+})();
+
+document.getElementById("logoutBtn")?.addEventListener("click", ()=>{
+  localStorage.removeItem("token");
+  toast("Sesión cerrada", "ok");
+  setTimeout(()=> location.href = "login.html", 400);
+});
+</script>
+
+
+<!-- ============ 4) FrontEnd/tasks/home-plants.js (NUEVO) ============ -->
+<script type="module" id="home-plants.js">
+import { $, $all, toast, openModal } from "./home.js";
+
+// ========== MOCK DATA (reemplazar luego por fetch a backend) ==========
+const PLANTS = [
+  { id:"p1", nombre:"Aloe vera", familia:"Asphodelaceae", tipo:"hierba", dificultad:"fácil", riego:"moderado", luz:"alta", notas:"Medicinal" },
+  { id:"p2", nombre:"Lavanda", familia:"Lamiaceae", tipo:"arbusto", dificultad:"media", riego:"bajo", luz:"alta", notas:"Aroma, usos culinarios" },
+  { id:"p3", nombre:"Helecho espada", familia:"Nephrolepidaceae", tipo:"hierba", dificultad:"media", riego:"alto", luz:"media", notas:"Interior" },
+  { id:"p4", nombre:"Ficus benjamina", familia:"Moraceae", tipo:"árbol", dificultad:"difícil", riego:"moderado", luz:"alta", notas:"Ornamental" },
+  { id:"p5", nombre:"Cactus Echinopsis", familia:"Cactaceae", tipo:"hierba", dificultad:"fácil", riego:"bajo", luz:"alta", notas:"Xerófita" },
+  { id:"p6", nombre:"Menta", familia:"Lamiaceae", tipo:"hierba", dificultad:"fácil", riego:"alto", luz:"media", notas:"Culinaria" },
+  { id:"p7", nombre:"Romero", familia:"Lamiaceae", tipo:"arbusto", dificultad:"media", riego:"bajo", luz:"alta", notas:"Aromática" },
+];
+
+// ========== Estado y UI ==========
+const state = { q:"", tipo:"", dificultad:"", page:1, perPage:6, results:[] };
+const elGrid = $("#plantResults");
+const elInfo = $("#plantPageInfo");
+
+function applyFilters(){
+  const q = state.q.toLowerCase();
+  let list = PLANTS.filter(p =>
+    (!q || p.nombre.toLowerCase().includes(q) || p.familia.toLowerCase().includes(q)) &&
+    (!state.tipo || p.tipo === state.tipo) &&
+    (!state.dificultad || p.dificultad === state.dificultad)
+  );
+  state.results = list;
+  state.page = 1;
+  render();
+}
+
+function render(){
+  const { page, perPage, results } = state;
+  const totalPages = Math.max(1, Math.ceil(results.length / perPage));
+  const start = (page-1)*perPage;
+  const slice = results.slice(start, start+perPage);
+
+  elGrid.innerHTML = slice.map(item => cardPlant(item)).join("");
+  $("#plantPrev").disabled = page <= 1;
+  $("#plantNext").disabled = page >= totalPages;
+  elInfo.textContent = `Página ${page}/${totalPages}`;
+
+  // Eventos de tarjetas
+  $all(".plant-view").forEach(btn=> btn.addEventListener("click", ()=> showPlant(btn.dataset.id)));
+}
+
+function cardPlant(p){
+  return `<article class="card">
+    <div class="row">
+      <h4>${p.nombre}</h4>
+      <button class="icon-btn plant-view" data-id="${p.id}" title="Ver">🔎</button>
+    </div>
+    <div class="meta">Familia: ${p.familia}</div>
+    <div class="badges">
+      <span class="badge">${p.tipo}</span>
+      <span class="badge ${p.dificultad==='difícil'?'red':p.dificultad==='fácil'?'green':''}">${p.dificultad}</span>
+      <span class="badge">Riego: ${p.riego}</span>
+      <span class="badge">Luz: ${p.luz}</span>
+    </div>
+    <p class="meta">${p.notas||''}</p>
+  </article>`;
+}
+
+function showPlant(id){
+  const p = PLANTS.find(x=>x.id===id);
+  if (!p) return;
+  openModal(`Planta — ${p.nombre}`, `
+    <ul>
+      <li><b>Familia:</b> ${p.familia}</li>
+      <li><b>Tipo:</b> ${p.tipo}</li>
+      <li><b>Dificultad:</b> ${p.dificultad}</li>
+      <li><b>Riego:</b> ${p.riego}</li>
+      <li><b>Luz:</b> ${p.luz}</li>
+      <li><b>Notas:</b> ${p.notas||'-'}</li>
+    </ul>
+  `);
+}
+
+// ========== Eventos ==========
+$("#plantSearch")?.addEventListener("submit", (e)=>{
+  e.preventDefault();
+  state.q = $("#plantQ").value.trim();
+  state.tipo = $("#plantType").value;
+  state.dificultad = $("#plantDifficulty").value;
+  applyFilters();
+});
+
+$("#plantClear")?.addEventListener("click", ()=>{
+  $("#plantQ").value = "";
+  $("#plantType").value = "";
+  $("#plantDifficulty").value = "";
+  state.q = state.tipo = state.dificultad = "";
+  applyFilters();
+});
+
+$("#plantPrev")?.addEventListener("click", ()=>{ if (state.page>1){ state.page--; render(); } });
+$("#plantNext")?.addEventListener("click", ()=>{ state.page++; render(); });
+
+$("#plantAdd")?.addEventListener("click", ()=>{
+  toast("Formulario de alta de planta — próximamente", "ok");
+});
+
+// Init
+applyFilters();
+</script>
+
+
+<!-- ============ 5) FrontEnd/tasks/home-insects.js (NUEVO) ============ -->
+<script type="module" id="home-insects.js">
+import { $, $all, toast, openModal } from "./home.js";
+
+// ========== MOCK DATA ==========
+const INSECTS = [
+  { id:"i1", nombre:"Coccinella septempunctata", familia:"Coccinellidae", orden:"coleóptera", impacto:"bajo", rol:"benéfico", notas:"Vaquita de San Antonio" },
+  { id:"i2", nombre:"Spodoptera frugiperda", familia:"Noctuidae", orden:"lepidóptera", impacto:"alto", rol:"plaga", notas:"Oruga cogollera" },
+  { id:"i3", nombre:"Aphis gossypii", familia:"Aphididae", orden:"hemíptera", impacto:"medio", rol:"plaga", notas:"Pulgón" },
+  { id:"i4", nombre:"Apis mellifera", familia:"Apidae", orden:"himenóptera", impacto:"bajo", rol:"polinizador", notas:"Abeja de la miel" },
+  { id:"i5", nombre:"Anastrepha fraterculus", familia:"Tephritidae", orden:"díptera", impacto:"alto", rol:"plaga", notas:"Mosca de la fruta" },
+];
+
+const state = { q:"", orden:"", impacto:"", page:1, perPage:6, results:[] };
+const elGrid = $("#insectResults");
+const elInfo = $("#insectPageInfo");
+
+function applyFilters(){
+  const q = state.q.toLowerCase();
+  let list = INSECTS.filter(p =>
+    (!q || p.nombre.toLowerCase().includes(q) || p.familia.toLowerCase().includes(q)) &&
+    (!state.orden || p.orden === state.orden) &&
+    (!state.impacto || p.impacto === state.impacto)
+  );
+  state.results = list; state.page = 1; render();
+}
+
+function render(){
+  const { page, perPage, results } = state;
+  const totalPages = Math.max(1, Math.ceil(results.length / perPage));
+  const start = (page-1)*perPage;
+  const slice = results.slice(start, start+perPage);
+
+  elGrid.innerHTML = slice.map(item => card(item)).join("");
+  $("#insectPrev").disabled = page <= 1;
+  $("#insectNext").disabled = page >= totalPages;
+  elInfo.textContent = `Página ${page}/${totalPages}`;
+  $all(".insect-view").forEach(btn=> btn.addEventListener("click", ()=> show(btn.dataset.id)));
+}
+
+function card(p){
+  const cls = p.impacto==="alto"?"red":p.impacto==="bajo"?"green":"";
+  return `<article class="card">
+    <div class="row">
+      <h4>${p.nombre}</h4>
+      <button class="icon-btn insect-view" data-id="${p.id}" title="Ver">🔎</button>
+    </div>
+    <div class="meta">Familia: ${p.familia}</div>
+    <div class="badges">
+      <span class="badge">Orden: ${p.orden}</span>
+      <span class="badge ${cls}">Impacto: ${p.impacto}</span>
+      <span class="badge">Rol: ${p.rol}</span>
+    </div>
+    <p class="meta">${p.notas||''}</p>
+  </article>`;
+}
+
+function show(id){
+  const p = INSECTS.find(x=>x.id===id);
+  if (!p) return;
+  openModal(`Insecto — ${p.nombre}`, `
+    <ul>
+      <li><b>Familia:</b> ${p.familia}</li>
+      <li><b>Orden:</b> ${p.orden}</li>
+      <li><b>Impacto:</b> ${p.impacto}</li>
+      <li><b>Rol:</b> ${p.rol}</li>
+      <li><b>Notas:</b> ${p.notas||'-'}</li>
+    </ul>
+  `);
+}
+
+// Eventos
+$("#insectSearch")?.addEventListener("submit", (e)=>{
+  e.preventDefault();
+  state.q = $("#insectQ").value.trim();
+  state.orden = $("#insectOrder").value;
+  state.impacto = $("#insectRisk").value;
+  applyFilters();
+});
+
+$("#insectClear")?.addEventListener("click", ()=>{
+  $("#insectQ").value = "";
+  $("#insectOrder").value = "";
+  $("#insectRisk").value = "";
+  state.q = state.orden = state.impacto = "";
+  applyFilters();
+});
+
+$("#insectPrev")?.addEventListener("click", ()=>{ if (state.page>1){ state.page--; render(); } });
+$("#insectNext")?.addEventListener("click", ()=>{ state.page++; render(); });
+
+$("#insectAdd")?.addEventListener("click", ()=>{
+  toast("Formulario de alta de insecto — próximamente", "ok");
+});
+
+// Init
+applyFilters();
+</script>

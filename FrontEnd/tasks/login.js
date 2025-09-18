@@ -81,7 +81,7 @@ function clearSignupErrors() {
 signupForm?.addEventListener("submit", async (e) => {
   e.preventDefault(); clearSignupErrors();
   const body = {
-    name: (signupName?.value || "").trim(),
+    username: (signupName?.value || "").trim(),
     email: (signupEmail?.value || "").trim().toLowerCase(),
     password: signupPass?.value || ""
   };
