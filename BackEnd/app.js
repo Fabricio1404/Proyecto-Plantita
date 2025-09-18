@@ -6,6 +6,7 @@ import projectRoute from "./src/routes/project.route.js";
 import listRoute from "./src/routes/list.route.js";
 import plantRoute from "./src/routes/plant.route.js";
 import insectRoute from "./src/routes/insect.route.js";
+import authRoute from "./src/routes/auth.route.js";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use("/api", projectRoute);
 app.use("/api", listRoute);
 app.use("/api", plantRoute);
 app.use("/api", insectRoute);
+app.use("/api", authRoute);
 
 app.listen(PORT, async () => {
   await mongo_DB(), console.log(`Servidor funcionando en localhost: ${PORT}`);
