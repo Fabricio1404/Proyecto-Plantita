@@ -3,32 +3,35 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>InForest – Plantas</title>
+  <title>InForest — Plantas</title>
+
+  <!-- Estilos -->
   <link rel="stylesheet" href="styles/home-plantas.css" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/inat-plantas.css" />
+
+  <!-- Leaflet (mapa) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
 </head>
 <body>
-
-  <!-- Sidebar -->
+  <!-- Sidebar / Menú -->
   <aside class="sidebar">
     <div class="brand">
-      <img src="assets/icons/seedling.svg" alt="" class="brand-icon" />
-      <span class="brand-name">InForest</span>
+      <div class="brand-logo">🌿</div>
+      <div class="brand-name">InForest</div>
     </div>
-
-    <nav class="nav">
-      <a class="nav-item active" href="home-plantas.html" id="link-plantas">
-        <img src="assets/icons/leaf.svg" alt="" /> Plantas
-      </a>
-      <a class="nav-item" href="#" id="link-buscador">🔍 Buscador avanzado</a>
-      <a class="nav-item" href="#" id="link-notas">📝 Mis notas</a>
-      <a class="nav-item" href="#" id="link-favs">⭐ Favoritos</a>
-      <a class="nav-item" href="#" id="link-mapas">🧭 Mapas</a>
-      <a class="nav-item" href="#" id="link-comparador">🧰 Comparador</a>
-      <a class="nav-item" href="#" id="link-config">⚙️ Configuración</a>
+    <nav class="menu">
+      <a class="menu-item active" href="home-plantas.html">Plantas</a>
+      <a class="menu-item" href="home-insectos.html">Insectos</a>
+      <div class="menu-sep"></div>
+      <a class="menu-item" href="#">Biblioteca</a>
+      <a class="menu-item" href="#">Favoritos</a>
+      <a class="menu-item" href="#">Configuración</a>
     </nav>
-
     <div class="sidebar-foot">
       <button id="logout" class="btn ghost">Salir</button>
     </div>
@@ -36,82 +39,70 @@
 
   <!-- Main -->
   <div class="main">
-
     <!-- Topbar -->
     <header class="topbar">
       <div class="hello">
-        <h1>🌿 Plantas — Hola, <span id="userName">estudiante</span> 👋</h1>
-        <p class="muted">Claves morfológicas, fichas técnicas e identificación.</p>
+        <h1>Plantas – Argentina</h1>
+        <p class="muted">Árboles, herbáceas, nativas e introducidas (datos de iNaturalist).</p>
       </div>
-      <div class="top-actions">
-        <input id="search" type="search" placeholder="Buscar especies, familias, fichas..." />
-        <button class="btn primary" id="switch">Ir a Insectos 🐞</button>
-      </div>
+      <a class="btn switch" href="home-insectos.html">Ir a Insectos 🪲</a>
     </header>
 
-    <!-- Content -->
+    <!-- Buscador -->
+    <section class="search-wrap">
+      <div class="searchbar">
+        <input id="search-input" type="search" placeholder="Buscar especie o nombre común… (ej. jacarandá, ceibo)" />
+        <button id="search-btn" class="btn primary">Buscar</button>
+      </div>
+      <p class="hint">TIP: probá con nombres comunes o científicos. Los resultados se filtran sobre Argentina.</p>
+    </section>
+
+    <!-- Resumen + Mapa -->
+    <section class="summary">
+      <div class="stat">
+        <div class="stat-num" id="stat-total">–</div>
+        <div class="stat-label">Total resultados</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="stat-top1">–</div>
+        <div class="stat-label">Especie #1</div>x 
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="stat-top2">–</div>
+        <div class="stat-label">Especie #2</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="stat-top3">–</div>
+        <div class="stat-label">Especie #3</div>
+      </div>
+    </section>
+
+    <section class="map-panel">
+      <div id="map" class="map"></div>
+    </section>
+
+    <!-- Grilla de resultados -->
     <main class="content">
-      <section class="cards">
-        <article class="card action" id="cat-especies">
-          <div class="icon"><img src="assets/icons/leaf.svg" alt=""></div>
-          <div class="text">
-            <h3>Catálogo de especies</h3>
-            <p>Explorá por nombre común o científico.</p>
-          </div>
-        </article>
-
-        <article class="card action" id="claves">
-          <div class="icon"><img src="assets/icons/seedling.svg" alt=""></div>
-          <div class="text">
-            <h3>Claves morfológicas</h3>
-            <p>Guías interactivas para identificar.</p>
-          </div>
-        </article>
-
-        <article class="card action" id="fichas">
-          <div class="icon">📄</div>
-          <div class="text">
-            <h3>Fichas</h3>
-            <p>Información técnica por especie.</p>
-          </div>
-        </article>
-
-        <article class="card action" id="biblioteca">
-          <div class="icon">📚</div>
-          <div class="text">
-            <h3>Biblioteca</h3>
-            <p>Apuntes y PDFs de botánica.</p>
-          </div>
-        </article>
-      </section>
-
-      <section class="grid">
-        <article class="panel">
-          <header class="panel-h"><h3>Próximamente</h3></header>
-          <div class="panel-b">
-            <ul class="list">
-              <li>🌱 Filtros por familia y hábito.</li>
-              <li>📷 Galería comparativa de hojas y flores.</li>
-              <li>🧭 Mapas de distribución.</li>
-            </ul>
-          </div>
-        </article>
-
-        <article class="panel">
-          <header class="panel-h"><h3>Actividad reciente</h3></header>
-          <div class="panel-b">
-            <div class="empty">Aún no hay actividad.</div>
-          </div>
-        </article>
-      </section>
+      <section class="cards" id="results-grid"></section>
+      <div class="pager">
+        <button id="prev" class="btn" disabled>&larr; Anterior</button>
+        <span id="pageInfo" class="page-info">Página 1</span>
+        <button id="next" class="btn" disabled>Siguiente &rarr;</button>
+      </div>
     </main>
 
     <footer class="foot">
-      <small>© 2025 InForest</small>
+      <small>© 2025 InForest • Datos de iNaturalist</small>
     </footer>
   </div>
 
-  <div class="toast-wrap" id="toasts"></div>
+  <!-- Scripts -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
   <script src="tasks/home-plantas.js" type="module"></script>
+  <script src="tasks/inat-plantas.js" type="module"></script>
 </body>
 </html>
