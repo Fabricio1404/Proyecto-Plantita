@@ -8,6 +8,11 @@
   <!-- Tipografía -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    /* ayudas mínimas por si faltan (no alteran tu diseño) */
+    .msg{margin:.25rem 0;font-size:.9rem}
+    .msg.error,.error{color:#ef4444}
+  </style>
 </head>
 <body>
   <!-- Fondo decorativo -->
@@ -28,35 +33,61 @@
     <!-- Registro -->
     <section class="form-container sign-up-container" aria-label="Formulario de registro">
       <form class="form" id="signupForm" novalidate>
-        <h1><span class="icon-mask icon-leaf anim-pulse" aria-hidden="true"></span>Crear cuenta</h1>
-        <p class="subtitle">Sumate a la comunidad</p>
+  <h1><span class="icon-mask icon-leaf anim-pulse" aria-hidden="true"></span>Crear cuenta</h1>
+  <p class="subtitle">Sumate a la comunidad</p>
 
-        <div class="input-group with-icon">
-          <label for="signup-name">Nombre</label>
-          <span class="input-icon">👤</span>
-          <input id="signup-name" name="name" type="text" placeholder="Tu nombre" required />
-          <span class="error" id="signup-name-error"></span>
-        </div>
+  <!-- NUEVO GRID (Nombre y Apellido lado a lado; el resto ocupa todo el ancho) -->
+  <div class="form-grid">
+    <!-- Nombre (columna 1) -->
+    <div class="input-group with-icon">
+      <label for="signup-firstname">Nombre</label>
+      <span class="input-icon">👤</span>
+      <input id="signup-firstname" name="first_name" type="text" placeholder="Tu nombre" required />
+      <span class="error" id="signup-firstname-error"></span>
+    </div>
 
-        <div class="input-group with-icon">
-          <label for="signup-email">Email</label>
-          <span class="input-icon">✉️</span>
-          <input id="signup-email" name="email" type="email" placeholder="tu@email.com" required />
-          <span class="error" id="signup-email-error"></span>
-        </div>
+    <!-- Apellido (columna 2) -->
+    <div class="input-group with-icon">
+      <label for="signup-lastname">Apellido</label>
+      <span class="input-icon">👤</span>
+      <input id="signup-lastname" name="last_name" type="text" placeholder="Tu apellido" required />
+      <span class="error" id="signup-lastname-error"></span>
+    </div>
 
-        <div class="input-group with-icon">
-          <label for="signup-password">Contraseña</label>
-          <span class="input-icon">🔒</span>
-          <input id="signup-password" name="password" type="password" placeholder="Mínimo 8 caracteres" minlength="6" required />
-          <span class="error" id="signup-password-error"></span>
-        </div>
+    <!-- Usuario (ocupa ambas columnas) -->
+    <div class="input-group with-icon full">
+      <label for="signup-username">Usuario</label>
+      <span class="input-icon">🪪</span>
+      <input id="signup-username" name="username" type="text" placeholder="Nombre de usuario" required />
+      <span class="error" id="signup-username-error"></span>
+    </div>
 
-        <button type="submit" class="btn primary">
-          <span class="icon-mask icon-leaf anim-pulse" aria-hidden="true"></span>
-          Registrarme
-        </button>
-      </form>
+    <!-- Email (ocupa ambas columnas) -->
+    <div class="input-group with-icon full">
+      <label for="signup-email">Email</label>
+      <span class="input-icon">✉️</span>
+      <input id="signup-email" name="email" type="email" placeholder="tu@email.com" required />
+      <span class="error" id="signup-email-error"></span>
+    </div>
+
+    <!-- Contraseña (ocupa ambas columnas) -->
+    <div class="input-group with-icon full">
+      <label for="signup-password">Contraseña</label>
+      <span class="input-icon">🔒</span>
+      <input id="signup-password" name="password" type="password" placeholder="Mínimo 6 caracteres" minlength="6" required />
+      <span class="error" id="signup-password-error"></span>
+    </div>
+
+    <!-- Botón (ocupa ambas columnas) -->
+    <div class="full">
+      <button type="submit" class="btn primary" style="width:100%;">
+        <span class="icon-mask icon-leaf anim-pulse" aria-hidden="true"></span>
+        Registrarme
+      </button>
+    </div>
+  </div>
+</form>
+
     </section>
 
     <!-- Login -->
@@ -65,10 +96,11 @@
         <h1><span class="icon-mask icon-bug anim-float" aria-hidden="true"></span>Iniciar sesión</h1>
         <p class="subtitle">Bienvenido otra vez</p>
 
+        <!-- Usuario o Email -->
         <div class="input-group with-icon">
-          <label for="signin-email">Email</label>
+          <label for="signin-email">Usuario o Email</label>
           <span class="input-icon">✉️</span>
-          <input id="signin-email" name="email" type="email" placeholder="tu@email.com" required />
+          <input id="signin-email" name="user_or_email" type="text" placeholder="tu usuario o email" required />
           <span class="error" id="signin-email-error"></span>
         </div>
 
@@ -78,6 +110,9 @@
           <input id="signin-password" name="password" type="password" placeholder="Tu contraseña" minlength="6" required />
           <span class="error" id="signin-password-error"></span>
         </div>
+
+        <!-- Mensaje global opcional -->
+        <p id="signin-global-msg" class="msg error"></p>
 
         <div class="row between">
           <label class="checkbox"><input type="checkbox" id="remember" /><span>Recordarme</span></label>
@@ -114,6 +149,7 @@
     </aside>
   </main>
 
+  <!-- Tu JS (ya preparado para estos IDs) -->
   <script src="./tasks/login.js"></script>
 </body>
 </html>

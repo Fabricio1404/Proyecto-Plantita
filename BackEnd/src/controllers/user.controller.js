@@ -14,6 +14,8 @@ export const createUser = async (req, res) => {
       recovery_email, */
     } = req.body;
 
+    // ACLARACIÓN DEL PROFE, uso profile únicamente, porque con las validaciones no debería llegar nada a este punto si es nulo o algo similar.
+
     /* Esto es para los casos de documentos embebidos,
     para cuando el usuario mande el documento completo o
     solo una parte, No es necesario en este caso

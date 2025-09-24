@@ -84,32 +84,23 @@ body {
   text-shadow: 0 2px 6px rgba(0, 0, 0, .3);
 }
 
-/* Ícono seedling grande para el header (USANDO MASK) */
+/* Ícono seedling grande para el header */
 .icon-mask {
   display: inline-block;
   width: 1.6em;
-  /* un toque más grande para asegurar visibilidad */
   height: 1.6em;
   vertical-align: -0.2em;
   margin-right: .45em;
-
-  /* color / “relleno” del icono */
   color: currentColor;
   background-color: currentColor;
-
-  /* declarar propiedades de máscara por separado (mejor compatibilidad) */
-  -webkit-mask-image: none;
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-position: center;
   -webkit-mask-size: contain;
-
-  mask-image: none;
   mask-repeat: no-repeat;
   mask-position: center;
   mask-size: contain;
 }
 
-/* seedling en header (más grande) */
 .icon-seedling {
   color: #4ade80;
   width: 2.6em;
@@ -118,7 +109,6 @@ body {
   mask-image: url("../img/seedling-solid-full.svg?v=2");
 }
 
-/* Íconos de formularios (leaf / bug) */
 .icon-leaf {
   color: #4ade80;
   -webkit-mask-image: url("../img/leaf-solid-full.svg?v=2");
@@ -131,7 +121,7 @@ body {
   mask-image: url("../img/bug-solid-full.svg?v=2");
 }
 
-/* --- Destellos animados del fondo --- */
+/* --- Fondo decorativo --- */
 .login-leaves {
   position: fixed;
   inset: 0;
@@ -163,45 +153,13 @@ body {
 }
 
 @keyframes drift1 {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-
-  50% {
-    transform: translate3d(60px, -40px, 0);
-  }
-
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
+  50% { transform: translate3d(60px, -40px, 0); }
 }
-
 @keyframes drift2 {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-
-  50% {
-    transform: translate3d(-50px, 50px, 0);
-  }
-
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
+  50% { transform: translate3d(-50px, 50px, 0); }
 }
-
 @keyframes drift3 {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-
-  50% {
-    transform: translate3d(40px, 70px, 0);
-  }
-
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
+  50% { transform: translate3d(40px, 70px, 0); }
 }
 
 /* Contenedor principal */
@@ -235,7 +193,9 @@ body {
 .sign-up-container {
   left: 0;
   transform: translateX(100%);
-  opacity: 0
+  opacity: 0;
+  /* 👇 Ajuste: mover un poco más abajo */
+  padding-top: 64px;
 }
 
 /* Overlay */
@@ -297,17 +257,14 @@ body {
   transform: translateX(-100%);
   opacity: 0
 }
-
 .container.right-panel-active .sign-up-container {
   transform: translateX(100%);
   opacity: 1;
   z-index: 5
 }
-
 .container.right-panel-active .overlay-container {
   transform: translateX(-100%)
 }
-
 .container.right-panel-active .overlay {
   transform: translateX(50%)
 }
@@ -368,24 +325,26 @@ input:focus {
   color: #ffd4a3
 }
 
-/* Íconos en inputs (emojis) */
+/* Íconos en inputs */
 .input-group.with-icon .input-icon {
   position: absolute;
-  left: 10px;
-  top: 38px;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 16px;
-  opacity: .8
+  opacity: .9;
+  pointer-events: none;
 }
-
 .input-group.with-icon input {
-  padding-left: 34px
+  padding-left: 40px;
+  height: 42px;
+  line-height: 42px;
 }
 
 /* Brillito al hover */
 .btn.primary:hover .icon-leaf {
   filter: drop-shadow(0 0 6px rgba(74, 222, 128, .55));
 }
-
 .btn.primary:hover .icon-bug {
   filter: drop-shadow(0 0 6px rgba(96, 165, 250, .55));
 }
@@ -396,10 +355,7 @@ input:focus {
   align-items: center;
   margin: 8px 0 18px
 }
-
-.row.between {
-  justify-content: space-between
-}
+.row.between { justify-content: space-between }
 
 .checkbox {
   display: inline-flex;
@@ -414,10 +370,7 @@ input:focus {
   text-decoration: none;
   border-bottom: 1px dashed rgba(76, 177, 199, .45)
 }
-
-.link:hover {
-  border-bottom-color: rgba(76, 177, 199, .85)
-}
+.link:hover { border-bottom-color: rgba(76, 177, 199, .85) }
 
 .btn {
   border: 0;
@@ -427,21 +380,15 @@ input:focus {
   font-weight: 700;
   transition: transform .06s ease, filter .15s ease, background-color .15s ease, box-shadow .2s
 }
-
-.btn:active {
-  transform: translateY(1px)
-}
-
+.btn:active { transform: translateY(1px) }
 .btn.primary {
   background: linear-gradient(180deg, var(--primary), var(--primary-strong));
   color: #fff;
   border: 1px solid rgba(0, 0, 0, .08)
 }
-
 .btn.primary:hover {
   box-shadow: 0 10px 20px rgba(46, 139, 87, .25)
 }
-
 .btn.ghost {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, .65);
@@ -450,47 +397,14 @@ input:focus {
 
 /* Responsive */
 @media (max-width:860px) {
-  .container {
-    min-height: 760px
-  }
-
-  .form-container,
-  .overlay-container {
-    width: 100%;
-    left: 0
-  }
-
-  .sign-in-container {
-    transform: translateY(0)
-  }
-
-  .sign-up-container {
-    transform: translateY(100%);
-    opacity: 0
-  }
-
-  .overlay {
-    left: 0;
-    width: 100%;
-    grid-template-columns: 1fr
-  }
-
-  .overlay-panel {
-    padding: 28px 20px
-  }
-
-  .container.right-panel-active .sign-in-container {
-    transform: translateY(-100%)
-  }
-
-  .container.right-panel-active .sign-up-container {
-    transform: translateY(0);
-    opacity: 1
-  }
-
-  .container.right-panel-active .overlay-container {
-    transform: translateY(-100%)
-  }
+  .container { min-height: 760px }
+  .form-container, .overlay-container { width: 100%; left: 0 }
+  .sign-up-container { transform: translateY(100%); opacity: 0 }
+  .overlay { left: 0; width: 100%; grid-template-columns: 1fr }
+  .overlay-panel { padding: 28px 20px }
+  .container.right-panel-active .sign-in-container { transform: translateY(-100%) }
+  .container.right-panel-active .sign-up-container { transform: translateY(0); opacity: 1 }
+  .container.right-panel-active .overlay-container { transform: translateY(-100%) }
 }
 
 /* Toasts */
@@ -503,7 +417,6 @@ input:focus {
   gap: 8px;
   z-index: 9999
 }
-
 .toast {
   background: #141c2f;
   border: 1px solid #2a3a58;
@@ -516,106 +429,135 @@ input:focus {
   opacity: 0;
   animation: toast-in .25s ease forwards
 }
-
 .toast.ok {
   border-color: #2e8b57;
   box-shadow: 0 8px 18px rgba(46, 139, 87, .25)
 }
-
 .toast.err {
   border-color: #8b1d1d;
   box-shadow: 0 8px 18px rgba(139, 29, 29, .25)
 }
+@keyframes toast-in { to { transform: translateY(0); opacity: 1 } }
 
-@keyframes toast-in {
-  to {
-    transform: translateY(0);
-    opacity: 1
-  }
-}
-
-/* === Animaciones === */
+/* Animaciones */
 @keyframes pulse {
-  0% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 0 rgba(74, 222, 128, 0));
-  }
+  50% { transform: scale(1.08); filter: drop-shadow(0 0 10px rgba(74, 222, 128, .45)); }
+}
+.anim-pulse { animation: pulse 1.8s ease-in-out infinite }
+@keyframes floaty { 50% { transform: translateY(-6px); } }
+.anim-float { animation: floaty 3.5s ease-in-out infinite }
+@keyframes sway { 50% { transform: rotate(-6deg) translateY(-2px); } }
+.anim-sway { animation: sway 2.8s ease-in-out infinite; transform-origin: 50% 10% }
+@keyframes fadeInUp { from {opacity:0;transform:translateY(6px)} to {opacity:1;transform:translateY(0)} }
+.fade-in-delayed { animation: fadeInUp .7s ease .15s both }
 
-  50% {
-    transform: scale(1.08);
-    filter: drop-shadow(0 0 10px rgba(74, 222, 128, .45));
-  }
-
-  100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 0 rgba(74, 222, 128, 0));
-  }
+/* === Grid del registro: 2 columnas para Nombre/Apellido, resto full === */
+.form-container.sign-up-container .form .form-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px 12px;         /* menos espacio entre campos */
+  width: 100%;
+}
+.form-container.sign-up-container .form .form-grid .full{
+  grid-column: 1 / -1;   /* ocupa ambas columnas */
 }
 
-.anim-pulse {
-  animation: pulse 1.8s ease-in-out infinite;
+/* Compactar verticalmente solo el registro (para que entren todos los campos) */
+.form-container.sign-up-container .form{
+  padding: 20px;         /* un poco más compacto que el base */
+}
+.form-container.sign-up-container .form .input-group{
+  margin-bottom: 1px;    /* menos separación entre campos */
 }
 
-@keyframes floaty {
-  0% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-6px);
-  }
-
-  100% {
-    transform: translateY(0);
-  }
+/* Alinear los íconos dentro del input (centrados verticalmente) */
+.form-container.sign-up-container .form .input-group.with-icon .input-icon{
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px;
+  opacity: .9;
+  pointer-events: none;
+}
+.form-container.sign-up-container .form .input-group.with-icon input{
+  padding-left: 38px;    /* espacio para el icono */
 }
 
-.anim-float {
-  animation: floaty 3.5s ease-in-out infinite;
+/* Si te queda muy cerca del header, ajustá este padding-top (50–64px) */
+.form-container.sign-up-container{
+  padding-top: 50px;     /* ya lo estabas usando; ajustá a gusto */
 }
 
-@keyframes sway {
-  0% {
-    transform: rotate(0deg) translateY(0);
-  }
-
-  50% {
-    transform: rotate(-6deg) translateY(-2px);
-  }
-
-  100% {
-    transform: rotate(0deg) translateY(0);
-  }
+/* ================== OVERRIDES SOLO REGISTRO ================== */
+/* 1) Grid: Nombre y Apellido en dos columnas; resto full */
+.form-container.sign-up-container .form .form-grid{
+  display:grid !important;
+  grid-template-columns: 1fr 1fr !important;  /* 2 columnas */
+  gap: 2px 8px !important;                    /* ↓↓ separar MUY poco */
+  width:100%;
+}
+.form-container.sign-up-container .form .form-grid .full{
+  grid-column: 1 / -1 !important;             /* ocupar ambas columnas */
 }
 
-.anim-sway {
-  animation: sway 2.8s ease-in-out infinite;
-  transform-origin: 50% 10%;
+/* 2) Compactar espacios entre campos */
+.form-container.sign-up-container .form .input-group{
+  margin-bottom: 2px !important;              /* casi sin espacio */
+  gap: 2px !important;
 }
 
-/* Aparición suave del subtítulo del header */
-@keyframes fadeInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(6px);
+/* 3) Inputs más bajos (altura real), SOLO registro */
+.form-container.sign-up-container .form input{
+  padding: 6px 10px !important;               /* menos alto */
+  height: 36px !important;                    /* fuerza altura total */
+  line-height: 36px !important;               /* centra el texto verticalmente */
+  font-size: 14px !important;
+}
+
+/* 4) Íconos centrados dentro del input */
+.form-container.sign-up-container .form .input-group.with-icon .input-icon{
+  left: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  font-size: 14px !important;
+  pointer-events: none;
+}
+.form-container.sign-up-container .form .input-group.with-icon input{
+  padding-left: 34px !important;              /* espacio para ícono */
+}
+
+/* 5) Card del registro más “corto” (menos padding) */
+.form-container.sign-up-container .form{
+  padding: 14px 16px !important;              /* menos borde interno */
+}
+
+/* 6) Títulos del registro más compactos */
+.form-container.sign-up-container .form h1{
+  margin: 0 0 2px !important;
+  font-size: 22px !important;
+}
+.form-container.sign-up-container .form .subtitle{
+  margin: 0 0 4px !important;
+  font-size: 13px !important;
+}
+
+/* 7) Ajuste de posición del panel de registro (bajarlo o subirlo) */
+.form-container.sign-up-container{
+  padding-top: 52px !important;               /* subí/bajá aquí: 44–64px */
+}
+
+/* 8) Si aún falta lugar en pantallas bajas, compactar más */
+@media (max-height: 760px){
+  .form-container.sign-up-container{ padding-top: 44px !important; }
+  .form-container.sign-up-container .form{
+    padding: 12px 14px !important;
   }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0);
+  .form-container.sign-up-container .form input{
+    height: 34px !important; line-height: 34px !important;
+    padding: 5px 10px !important;
   }
+  .form-container.sign-up-container .form .input-group{ margin-bottom: 2px !important; }
+  .form-container.sign-up-container .form .form-grid{ gap: 2px 8px !important; }
 }
 
-.fade-in-delayed {
-  animation: fadeInUp .7s ease .15s both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-  .anim-pulse,
-  .anim-float,
-  .anim-sway,
-  .fade-in-delayed {
-    animation: none !important;
-  }
-}
