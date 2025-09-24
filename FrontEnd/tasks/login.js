@@ -1,7 +1,8 @@
 // ====== Config ======
+const API_PORT = 3000; // Puerto del backend
 const API_BASE =
-  location.hostname === "localhost" || location.hostname === "127.0.0.1"
-    ? "http://localhost:3000"
+  (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+    ? `http://localhost:${API_PORT}`
     : location.origin;
 
 const container = document.getElementById("container");
@@ -46,11 +47,10 @@ function toast(msg, type = "ok", timeout = 2000) {
 }
 
 // ====== Auth helpers ======
-function setToken(t) { try { localStorage.setItem("token", t); } catch {} }
-function getToken() { try { return localStorage.getItem("token"); } catch { return null; } }
-function clearToken() { try { localStorage.removeItem("token"); } catch {} }
+function setToken(t) { localStorage.setItem("token", t); }
+function getToken() { return localStorage.getItem("token"); }
+function clearToken() { localStorage.removeItem("token"); }
 
-// ⬇️ Cambio mínimo: incluir credenciales para la cookie httpOnly del backend
 async function api(path, opts = {}) {
   const headers = opts.headers || {};
   if (!headers["Content-Type"] && !(opts.body instanceof FormData)) {
@@ -58,15 +58,13 @@ async function api(path, opts = {}) {
   }
   const token = getToken();
   if (token) headers["Authorization"] = `Bearer ${token}`;
-
   const res = await fetch(`${API_BASE}${path}`, {
-    credentials: "include",              // ⬅️ importante para login con cookie
     ...opts,
-    headers
+    headers,
+    credentials: "include" // 👈 importante para cookies
   });
-
   let data = {};
-  try { data = await res.json(); } catch (e) {}
+  try { data = await res.json(); } catch (e) { }
   if (!res.ok) throw data;
   return data;
 }
@@ -101,36 +99,35 @@ signupForm?.addEventListener("submit", async (e) => {
     password: signupPass?.value || ""
   };
   try {
-  const data = await api("/api/register", {
-    method: "POST",
-    body: JSON.stringify(body),
-  });
+    const data = await api("/api/register", { method: "POST", body: JSON.stringify(body) });
+    toast(`Registro exitoso. ¡Bienvenido/a, ${data.user?.profile?.first_name || body.username}!`, "ok");
 
-  // ✅ considerar éxito solo si vino un ID
-  const newUserId = data?.user?.id || data?.user?._id;
-  if (!newUserId) {
-    toast("El servidor no devolvió ID de usuario. Revisa el backend.", "err");
-    return;
+    if (data.token) setToken(data.token);
+
+    const displayName =
+      (data.user?.profile?.first_name) ||
+      (data.user?.username) ||
+      body.profile.first_name ||
+      body.username ||
+      "Usuario";
+
+    localStorage.setItem("displayName", displayName);
+    localStorage.setItem("userName", displayName);
+
+    setTimeout(() => { window.location.href = "selector.html"; }, 1000);
+  } catch (err) {
+    const first = err?.errors?.[0];
+    const msg = err?.msg || err?.message || first?.msg || "Error en el registro";
+    const path = first?.path || "";
+    if (path.includes("profile.first_name")) signupFirstErr.textContent = first.msg;
+    else if (path.includes("profile.last_name")) signupLastErr.textContent = first.msg;
+    else if (path === "username") signupUserErr.textContent = first.msg;
+    else if (path === "email") signupEmailErr.textContent = first.msg;
+    else if (path === "password") signupPassErr.textContent = first.msg;
+    else signupPassErr.textContent = msg;
+    toast(msg, "err");
   }
-
-  toast(`Registro exitoso. ¡Bienvenido/a, ${data.user?.username || body.username}!`, "ok");
-  if (data.token) setToken(data.token);
-  if (data.user?.username) localStorage.setItem("userName", data.user.username);
-
-  setTimeout(() => { window.location.href = "selector.html"; }, 1000);
-} catch (err) {
-  const first = err?.errors?.[0];
-  const msg = err?.msg || err?.message || first?.msg || "Error en el registro";
-  const path = first?.path || "";
-  if (path.includes("profile.first_name")) signupFirstErr.textContent = first.msg;
-  else if (path.includes("profile.last_name")) signupLastErr.textContent = first.msg;
-  else if (path === "username") signupUserErr.textContent = first.msg;
-  else if (path === "email") signupEmailErr.textContent = first.msg;
-  else if (path === "password") signupPassErr.textContent = first.msg;
-  else signupPassErr.textContent = msg;
-  toast(msg, "err");
-}
-});  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
 
 // ====== Login ======
 const signinForm = document.getElementById("signinForm");
@@ -154,16 +151,22 @@ signinForm?.addEventListener("submit", async (e) => {
   try {
     const data = await api("/api/login", { method: "POST", body: JSON.stringify(body) });
 
-    // Guarda si viene token y nombre (no es obligatorio para redirigir)
     if (data.token) setToken(data.token);
-    if (data.user?.username) localStorage.setItem("userName", data.user.username);
+
+    const displayName =
+      (data.user?.profile?.first_name) ||
+      (data.user?.username) ||
+      body.username ||
+      "Usuario";
+
+    localStorage.setItem("displayName", displayName);
+    localStorage.setItem("userName", displayName);
 
     toast("Sesión iniciada correctamente", "ok");
-    // Redirigir siempre al éxito del login
     setTimeout(() => { window.location.href = "selector.html"; }, 900);
   } catch (err) {
     const msg = err?.msg || err?.message || "Credenciales inválidas";
-    if (signinGlobalMsg) { signinGlobalMsg.textContent = msg; signinGlobalMsg.className = "msg error"; }
+    signinGlobalMsg.textContent = msg; signinGlobalMsg.className = "msg error";
     toast(msg, "err");
   }
 });
