@@ -9,63 +9,72 @@
   <link rel="stylesheet" href="styles/home-plantas.css" />
   <link rel="stylesheet" href="styles/inat-plantas.css" />
 
-  <!-- Leaflet (mapa) -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""
-  />
+  <!-- Leaflet + MarkerCluster -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
 </head>
 <body>
+
   <!-- Sidebar / Menú -->
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-logo">🌿</div>
-      <div class="brand-name">InForest</div>
-    </div>
-    <nav class="menu">
-      <a class="menu-item active" href="home-plantas.html">Plantas</a>
-      <a class="menu-item" href="home-insectos.html">Insectos</a>
-      <div class="menu-sep"></div>
-      <a class="menu-item" href="#">Biblioteca</a>
-      <a class="menu-item" href="#">Favoritos</a>
-      <a class="menu-item" href="#">Configuración</a>
-    </nav>
-    <div class="sidebar-foot">
-      <button id="logout" class="btn ghost">Salir</button>
-    </div>
-  </aside>
+ <aside class="sidebar" id="sidebar" aria-label="Menú lateral">
+  <div class="brand">
+    <img src="img/logo.png" alt="Logo InForest" class="logo">
+    <div class="brand-name">InForest</div>
+  </div>
+  <nav class="menu" role="navigation" aria-label="Secciones">
+    <a class="menu-item active" href="home-plantas.html">Plantas</a>
+    <a class="menu-item" href="home-insectos.html">Insectos</a>
+    <div class="menu-sep" role="separator"></div>
+    <a class="menu-item" href="listas.html">Listas</a>
+    <a class="menu-item" href="favorites.html">Favoritos</a>
+    <a class="menu-item" href="#">Configuración</a>
+  </nav>
+  <div class="sidebar-foot">
+    <button id="logout" class="btn ghost" aria-label="Salir">Salir</button>
+  </div>
+</aside>
+
 
   <!-- Main -->
   <div class="main">
     <!-- Topbar -->
     <header class="topbar">
-      <div class="hello">
-        <h1>Plantas – Argentina</h1>
-        <p class="muted">Árboles, herbáceas, nativas e introducidas (datos de iNaturalist).</p>
+      <div class="left">
+        <button id="toggleSidebar" class="icon-btn" aria-pressed="false" aria-label="Mostrar/ocultar menú">☰</button>
+        <div class="hello">
+          <h1>Plantas – Argentina</h1>
+          <p class="muted">Árboles, herbáceas, nativas e introducidas (datos de iNaturalist).</p>
+        </div>
       </div>
-      <a class="btn switch" href="home-insectos.html">Ir a Insectos 🪲</a>
+      <div class="right">
+        <a class="btn switch" href="home-insectos.html" aria-label="Ir a Insectos">Ir a Insectos 🪲</a>
+      </div>
     </header>
 
     <!-- Buscador -->
-    <section class="search-wrap">
+    <section class="search-wrap" role="search">
       <div class="searchbar">
-        <input id="search-input" type="search" placeholder="Buscar especie o nombre común… (ej. jacarandá, ceibo)" />
-        <button id="search-btn" class="btn primary">Buscar</button>
+        <input id="search-input" type="search" placeholder="Buscar especie o nombre común… (ej. jacarandá, ceibo)"
+               autocomplete="off" aria-label="Buscar" />
+        <button id="search-btn" class="btn primary" aria-label="Buscar">Buscar</button>
+        <button id="toggleMap" class="btn ghost" aria-pressed="false" aria-label="Mostrar/ocultar mapa">Mapa</button>
+        <button id="exportJSON" class="btn ghost" aria-label="Exportar JSON">Exportar JSON</button>
       </div>
-      <p class="hint">TIP: probá con nombres comunes o científicos. Los resultados se filtran sobre Argentina.</p>
+      <p class="hint" id="search-hint">TIP: probá con nombres comunes o científicos. Los resultados se filtran sobre Argentina.</p>
+      <div id="search-state" class="search-state" role="status" aria-live="polite"></div>
     </section>
 
     <!-- Resumen + Mapa -->
-    <section class="summary">
+    <section class="summary" aria-label="Resumen de resultados">
       <div class="stat">
         <div class="stat-num" id="stat-total">–</div>
         <div class="stat-label">Total resultados</div>
       </div>
       <div class="stat">
         <div class="stat-num" id="stat-top1">–</div>
-        <div class="stat-label">Especie #1</div>x 
+        <div class="stat-label">Especie #1</div>
       </div>
       <div class="stat">
         <div class="stat-num" id="stat-top2">–</div>
@@ -77,18 +86,14 @@
       </div>
     </section>
 
-    <section class="map-panel">
-      <div id="map" class="map"></div>
+    <section class="map-panel" id="map-panel" aria-label="Mapa de observaciones">
+      <div id="map" class="map" tabindex="0" aria-label="Mapa"></div>
     </section>
 
     <!-- Grilla de resultados -->
-    <main class="content">
+    <main class="content" aria-label="Resultados">
       <section class="cards" id="results-grid"></section>
-      <div class="pager">
-        <button id="prev" class="btn" disabled>&larr; Anterior</button>
-        <span id="pageInfo" class="page-info">Página 1</span>
-        <button id="next" class="btn" disabled>Siguiente &rarr;</button>
-      </div>
+      <div id="sentinel" class="sentinel" aria-hidden="true"></div>
     </main>
 
     <footer class="foot">
@@ -96,12 +101,19 @@
     </footer>
   </div>
 
+  <!-- Modal detalle -->
+  <div id="modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-backdrop" id="modal-close" tabindex="-1"></div>
+    <div class="modal-card" role="document">
+      <button class="modal-x" id="modal-close-2" aria-label="Cerrar">×</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
   <!-- Scripts -->
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""
-  ></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="tasks/home-plantas.js" type="module"></script>
   <script src="tasks/inat-plantas.js" type="module"></script>
 </body>

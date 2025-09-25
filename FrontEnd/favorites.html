@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>InForest — Favoritos</title>
+  <link rel="stylesheet" href="styles/home-plantas.css" />
+  <style>
+    .fav-header{display:flex;gap:10px;align-items:center;padding:16px 22px;border-bottom:1px solid var(--border);background:rgba(8,18,12,.45)}
+    .cards{padding:14px 22px;display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+    .remove-btn{margin-top:8px}
+    .chip-small{display:inline-block;padding:2px 8px;border-radius:10px;border:1px solid var(--border);font-size:12px;opacity:.85;margin-left:6px}
+  </style>
+</head>
+<body>
+  
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Menú lateral">
+  <div class="brand">
+    <img src="img/logo.png" alt="Logo InForest" class="logo">
+    <div class="brand-name">InForest</div>
+  </div>
+  <nav class="menu" role="navigation" aria-label="Secciones">
+    <a class="menu-item active" href="home-plantas.html">Plantas</a>
+    <a class="menu-item" href="home-insectos.html">Insectos</a>
+    <div class="menu-sep" role="separator"></div>
+    <a class="menu-item" href="listas.html">Listas</a>
+    <a class="menu-item" href="favorites.html">Favoritos</a>
+    <a class="menu-item" href="#">Configuración</a>
+  </nav>
+  <div class="sidebar-foot">
+    <button id="logout" class="btn ghost" aria-label="Salir">Salir</button>
+  </div>
+</aside>
+
+  <div class="main">
+    <header class="fav-header">
+      <h1 style="margin:0;flex:1">Favoritos (todos)</h1>
+      <button id="exportAll" class="btn ghost">Exportar TODO en JSON</button>
+    </header>
+
+    <main class="content">
+      <section class="cards" id="grid"></section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { allItems, whichListsContains, removeFromList } from "./tasks/favorites.js";
+    const $ = s => document.querySelector(s);
+    const grid = $("#grid");
+
+    function card(it){
+      const name = it.com || it.sci || "(sin nombre)";
+      const coords = (typeof it.lat==="number" && typeof it.lon==="number")? `${it.lat.toFixed(4)}, ${it.lon.toFixed(4)}`:"-";
+      const gmaps = (typeof it.lat==="number" && typeof it.lon==="number")? `https://www.google.com/maps?q=${it.lat},${it.lon}`: null;
+      const lists = whichListsContains(it.id);
+      return `
+        <article class="card">
+          ${it.photo?`<img src="${it.photo}" alt="" style="height:180px;object-fit:cover;width:100%">`:""}
+          <div class="body">
+            <div class="name">
+              ${name}
+              ${(it.com&&it.sci&&it.com!==it.sci)?`<div style="font-weight:600;color:#bfe9cb;font-size:13px">${it.sci}</div>`:""}
+            </div>
+            <div class="meta">
+              <div>Fecha</div><div>${it.date||"-"}</div>
+              <div>Coords</div><div>${coords}${gmaps?` · <a href="${gmaps}" target="_blank">Google Maps</a>`:""}</div>
+            </div>
+            <div class="meta" style="margin-top:6px">
+              <div>Listas</div>
+              <div>${lists.length? lists.map(n=>`<span class="chip-small">${n}</span>`).join(" ") : "—"}</div>
+            </div>
+            <button class="btn ghost remove-btn" data-id="${it.id}">Quitar de TODAS</button>
+          </div>
+        </article>`;
+    }
+
+    function render(){
+      const arr = allItems();
+      grid.innerHTML = arr.length? arr.map(card).join("") :
+        `<div class="card" style="padding:12px">No tenés favoritos todavía. Andá a Plantas/Insectos y tocá el corazón 🤍.</div>`;
+    }
+
+    grid.addEventListener("click",(e)=>{
+      const btn = e.target.closest(".remove-btn"); if(!btn) return;
+      const id = Number(btn.dataset.id);
+      const lists = whichListsContains(id);
+      if(!lists.length) return;
+      if(!confirm(`Quitar este favorito de ${lists.length} lista(s)?`)) return;
+      lists.forEach(name => removeFromList(name, id));
+      render();
+    });
+
+    $("#exportAll").addEventListener("click", ()=>{
+      const arr = allItems();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(arr,null,2)],{type:"application/json"}));
+      a.download = `favoritos_todos.json`; document.body.appendChild(a);
+      a.click(); URL.revokeObjectURL(a.href); a.remove();
+    });
+
+    render();
+  </script>
+</body>
+</html>
