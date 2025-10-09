@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>InForest — Listas</title>
 
-  <!-- Estilos base del sitio (tema verde que ya usas) -->
+  <!-- Estilos base del sitio -->
   <link rel="stylesheet" href="styles/home-plantas.css" />
-  <!-- Estilos específicos de esta página -->
+  <!-- Estilos específicos -->
   <link rel="stylesheet" href="styles/listas.css" />
 </head>
 <body>
@@ -29,12 +29,34 @@
     </div>
   </aside>
 
+  <!-- Contenido -->
   <div class="main">
-    <!-- Encabezado de la página -->
     <header class="page-header">
       <h1 class="page-title">Mis listas</h1>
-      <input id="newName" placeholder="Nueva lista…" class="input" />
-      <button id="create" class="btn primary">Crear</button>
+
+      <!-- Toolbar: buscador + botón de filtros -->
+      <div class="toolbar">
+        <div class="search-wrap">
+          <input id="filterName" class="input search" placeholder="Buscar lista por nombre…" />
+        </div>
+
+        <button id="filterToggle" class="btn square" aria-expanded="false" aria-controls="filterPanel" title="Filtros">
+          ☰
+        </button>
+
+        <!-- Panel desplegable de filtros -->
+        <div id="filterPanel" class="panel hidden" role="region" aria-label="Filtros">
+          <div class="panel-row">
+            <label class="panel-label">Tipo</label>
+            <select id="filterType" class="select">
+              <option value="todas" selected>Todas</option>
+              <option value="plantas">Plantas</option>
+              <option value="insectos">Insectos</option>
+              <option value="mixta">Mixta</option>
+            </select>
+          </div>
+        </div>
+      </div>
     </header>
 
     <!-- Grilla de listas -->
@@ -44,7 +66,32 @@
     <section id="listContent"></section>
   </div>
 
-  <!-- Scripts (módulos) -->
+  <!-- FAB: botón flotante + panel para crear lista -->
+  <div class="fab-zone">
+    <button id="fabToggle" class="fab" aria-expanded="false" aria-controls="fabPanel" title="Nueva lista">＋</button>
+
+    <div id="fabPanel" class="fab-panel hidden" role="dialog" aria-label="Crear lista">
+      <h3 class="fab-title">Nueva lista</h3>
+      <div class="fab-field">
+        <label>Nombre</label>
+        <input id="newNameFab" class="input" placeholder="Ej. Polinizadores del patio" />
+      </div>
+      <div class="fab-field">
+        <label>Tipo</label>
+        <select id="newTypeFab" class="select">
+          <option value="plantas">plantas</option>
+          <option value="insectos">insectos</option>
+          <option value="mixta" selected>mixta</option>
+        </select>
+      </div>
+      <div class="fab-actions">
+        <button id="createFab" class="btn primary">Crear</button>
+        <button id="cancelFab" class="btn ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
   <script type="module" src="tasks/listas.js"></script>
 </body>
 </html>

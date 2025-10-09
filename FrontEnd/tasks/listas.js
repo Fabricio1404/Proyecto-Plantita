@@ -7,10 +7,28 @@ import {
 const $ = s => document.querySelector(s);
 const listsEl = $("#lists");
 const contentEl = $("#listContent");
-const newName = $("#newName");
-const createBtn = $("#create");
 
-// Icono por nombre de lista (simple heurística)
+/* ===== Controles ===== */
+const filterName = $("#filterName");
+const filterType = $("#filterType");
+const filterToggle = $("#filterToggle");
+const filterPanel = $("#filterPanel");
+
+const fabToggle = $("#fabToggle");
+const fabPanel = $("#fabPanel");
+const newNameFab = $("#newNameFab");
+const newTypeFab = $("#newTypeFab");
+const createFab = $("#createFab");
+const cancelFab = $("#cancelFab");
+
+/* ===== Estado ===== */
+const state = {
+  all: [],
+  q: "",
+  type: "todas",
+};
+
+/* ===== Helpers UI ===== */
 const iconFor = (name) => {
   const n = (name||"").toLowerCase();
   if (n.includes("plaga") || n.includes("insect")) return "🪲";
@@ -23,7 +41,6 @@ function escapeHtml(s=""){
   return s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 }
 
-// Construye el mosaico de 0-4 fotos
 function pickThumbs(list){
   const photos = (list?.items||[]).map(i => i.foto_url).filter(Boolean).slice(0,4);
   const n = photos.length;
@@ -52,6 +69,7 @@ function playlistCardHTML(list){
   const { cls, tiles } = pickThumbs(list);
   const id = list._id;
   const name = escapeHtml(list.name || "(sin nombre)");
+  const type = escapeHtml(list.type || "mixta");
   return `
     <article class="playlist-card" data-id="${id}">
       <div class="thumb ${cls}">
@@ -60,7 +78,11 @@ function playlistCardHTML(list){
       </div>
       <div class="card-body">
         <h3 class="card-title">${name}</h3>
-        <div class="card-sub"><span>${count} elemento(s)</span><span class="dot"></span><span>Lista</span></div>
+        <div class="card-sub">
+          <span>${count} elemento(s)</span><span class="dot"></span>
+          <span>Lista</span><span class="dot"></span>
+          <span class="tag">${type}</span>
+        </div>
         <div class="card-actions">
           <button class="btn compact primary view-btn">Ver</button>
           <button class="btn compact ghost rename-btn">Renombrar</button>
@@ -72,21 +94,36 @@ function playlistCardHTML(list){
   `;
 }
 
+/* ===== Filtro / búsqueda ===== */
+function applyFilters() {
+  const q = state.q.trim().toLowerCase();
+  const t = state.type;
+  let arr = state.all.slice();
+
+  if (t !== "todas") arr = arr.filter(x => (x.type || "mixta") === t);
+  if (q) arr = arr.filter(x => (x.name || "").toLowerCase().includes(q));
+
+  listsEl.innerHTML = arr.length
+    ? arr.map(playlistCardHTML).join("")
+    : `<div class="empty">No hay listas que coincidan con el filtro.</div>`;
+}
+
+/* ===== Render ===== */
 async function renderLists(){
   if (!isLoggedIn()) {
     listsEl.innerHTML = `<div class="empty">Iniciá sesión para ver tus listas.</div>`;
     contentEl.innerHTML = "";
     return;
   }
-  const lists = await getLists();
-  if(!lists.length){
+  state.all = await getLists();
+  if(!state.all.length){
     listsEl.innerHTML = `<div class="empty">Aún no hay listas.</div>`;
     contentEl.innerHTML = "";
     return;
   }
-  listsEl.innerHTML = lists.map(playlistCardHTML).join("");
+  applyFilters();
 
-  // Delegación de eventos sobre la grilla de listas
+  // Delegación de eventos en la grilla
   listsEl.onclick = async (e) => {
     const card = e.target.closest(".playlist-card");
     if (!card) return;
@@ -130,9 +167,7 @@ function cardItemHTML(item, listId){
       ${img}
       <div class="body">
         <div class="name">${name}${sciSmall}</div>
-        <div class="meta">
-          <div>Taxon ID</div><div>${item?.taxon_id ?? "-"}</div>
-        </div>
+        <div class="meta"><div>Taxon ID</div><div>${item?.taxon_id ?? "-"}</div></div>
         <button class="btn ghost remove-btn" data-id="${item?.taxon_id}" data-list="${listId}">Quitar</button>
       </div>
     </article>
@@ -142,10 +177,11 @@ function cardItemHTML(item, listId){
 async function renderListContent(listId){
   const list = await getListById(listId);
   const name = escapeHtml(list?.name || "(sin nombre)");
+  const type = escapeHtml(list?.type || "mixta");
   const items = list?.items || [];
   contentEl.innerHTML = `
     <header class="page-header" style="border-top:1px solid var(--border)">
-      <h2 class="page-title">Lista: ${name}</h2>
+      <h2 class="page-title">Lista: ${name} <span class="tag">${type}</span></h2>
       <button class="btn ghost" id="exportList">Exportar JSON</button>
     </header>
     ${items.length
@@ -167,20 +203,59 @@ async function renderListContent(listId){
     const lId = btn.dataset.list;
     await removeFromList(lId, taxonId);
     await renderListContent(lId);
-    await renderLists(); // refrescar contador en tarjetas
+    await renderLists();
   });
 
   contentEl.scrollIntoView({behavior:"smooth"});
 }
 
-// Crear lista
-createBtn.onclick = async () => {
-  const name = (newName.value || "").trim();
-  if (!name) return;
-  await createList(name, "mixta");
-  newName.value = "";
-  await renderLists();
-};
+/* ===== Interacciones ===== */
+// Búsqueda
+let t=null;
+filterName?.addEventListener("input", ()=>{
+  state.q = filterName.value;
+  clearTimeout(t);
+  t = setTimeout(applyFilters, 200);
+});
 
-// Init
+// Toggle Filtros
+filterToggle?.addEventListener("click", ()=>{
+  const open = filterPanel.classList.toggle("hidden") === false;
+  filterToggle.setAttribute("aria-expanded", String(open));
+});
+
+// Filtro por tipo
+filterType?.addEventListener("change", ()=>{
+  state.type = filterType.value;
+  applyFilters();
+});
+
+// FAB: abrir/cerrar panel
+function closeFab(){
+  fabPanel.classList.add("hidden");
+  fabToggle.setAttribute("aria-expanded","false");
+}
+function openFab(){
+  fabPanel.classList.remove("hidden");
+  fabToggle.setAttribute("aria-expanded","true");
+  setTimeout(()=> newNameFab?.focus(), 40);
+}
+fabToggle?.addEventListener("click", ()=>{
+  const open = fabPanel.classList.contains("hidden");
+  if (open) openFab(); else closeFab();
+});
+cancelFab?.addEventListener("click", closeFab);
+
+// Crear lista desde FAB
+createFab?.addEventListener("click", async ()=>{
+  const name = (newNameFab.value || "").trim();
+  const type = newTypeFab.value || "mixta";
+  if (!name) return;
+  await createList(name, type);
+  newNameFab.value = "";
+  closeFab();
+  await renderLists();
+});
+
+/* ===== Init ===== */
 renderLists();
