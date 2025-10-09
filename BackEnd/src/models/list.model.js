@@ -1,15 +1,9 @@
 import { Schema, model } from "mongoose";
 
-/**
- * Lista de usuario.
- * - owner: usuario dueño (User._id)
- * - name : nombre de la lista (único por usuario)
- * - type : opcional (ej. "plantas" | "insectos" | "mixta")
- * - items: taxa guardados (iNaturalist)
- */
 const ListItemSchema = new Schema(
   {
-    taxon_id: { type: Number, required: true },          // ID iNaturalist
+    taxon_id: { 
+      type: Number, required: true },          // ID iNaturalist
     nombre: { type: String, default: null },             // nombre común (ES) - opcional
     nombre_cientifico: { type: String, required: true }, // nombre científico
     foto_url: { type: String, default: null },
@@ -20,10 +14,22 @@ const ListItemSchema = new Schema(
 
 const ListSchema = new Schema(
   {
-    owner: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
-    name: { type: String, required: true, trim: true },
-    type: { type: String, enum: ["plantas", "insectos", "mixta"], default: "mixta" },
-    items: { type: [ListItemSchema], default: [] },
+    owner: { 
+      type: Schema.Types.ObjectId, 
+      ref: "User", 
+      required: true, 
+      index: true },
+    name: { 
+      type: String, 
+      required: true, 
+      trim: true },
+    type: { 
+      type: String, 
+      enum: ["plantas", "insectos", "mixta"], 
+      default: "mixta" },
+    items: 
+    { type: [ListItemSchema], 
+      default: [] },
   },
   { timestamps: true }
 );
