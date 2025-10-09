@@ -1,4 +1,6 @@
-// iNaturalist — Plantas (Plantae) — SIN favoritos
+// iNaturalist — Plantas (Plantae) — SIN favoritos + Listas de usuario
+import { getLists, createList, addToList, removeFromList, getListById, isLoggedIn } from "./lists-api.js";
+
 const API = "https://api.inaturalist.org/v1";
 const iconic = "Plantae";
 const state = {
@@ -6,7 +8,10 @@ const state = {
   page: 1, per: 60, total: 0,
   placeId: null,
   loading: false,
-  buffer: []
+  buffer: [],
+  lists: [],
+  selectedListId: localStorage.getItem("selected_list_id") || null,
+  selectedListItems: new Set(), // taxon_id de la lista actual (para saber si ya está)
 };
 
 // UI refs
@@ -19,7 +24,7 @@ const statTotal = $("#stat-total");
 const statTop = [$("#stat-top1"), $("#stat-top2"), $("#stat-top3")];
 const sentinel = $("#sentinel");
 
-// Mapa
+// MAPA
 let map, cluster, mapReady=false;
 function initMap(){
   if(mapReady) return;
@@ -38,7 +43,7 @@ async function getArgentina(){
   const u=new URL(API+"/places/autocomplete");
   u.searchParams.set("q","Argentina");
   u.searchParams.set("per_page","5");
-  u.searchParams.set("locale","es");        // <- nombres en español
+  u.searchParams.set("locale","es"); // <- nombres comunes en español
   const d=await fetchJSON(u);
   state.placeId=d.results?.[0]?.id;
   if(!state.placeId) throw new Error("Argentina place_id no encontrado");
@@ -48,10 +53,150 @@ function gmUrl(lat,lon){ return `https://www.google.com/maps?q=${lat},${lon}`; }
 function photoUrl(o){ let p=o?.photos?.[0]?.url||""; return p.includes("square")? p.replace("square","medium"):p; }
 function dateOf(o){ return o?.observed_on || (o?.time_observed_at||"").slice(0,10) || (o?.created_at||"").slice(0,10) || "-"; }
 
-// Tarjeta
+// ====== Listas (carga/estado) ======
+async function ensureListsLoaded() {
+  if (!isLoggedIn()) return;
+  try {
+    state.lists = await getLists();
+    // Si no hay seleccionada, elegir la 1ra
+    if (!state.selectedListId && state.lists.length) {
+      state.selectedListId = state.lists[0]._id;
+      localStorage.setItem("selected_list_id", state.selectedListId);
+    }
+    await fetchSelectedListItems();
+  } catch (e) {
+    console.warn("No se pudieron cargar listas:", e.message);
+  }
+}
+
+async function fetchSelectedListItems() {
+  state.selectedListItems = new Set();
+  if (!state.selectedListId) return;
+  try {
+    const list = await getListById(state.selectedListId);
+    list?.items?.forEach(i => state.selectedListItems.add(Number(i.taxon_id)));
+  } catch (e) {
+    console.warn("No se pudo obtener la lista seleccionada:", e.message);
+  }
+}
+
+function renderListsSelect(container, currentTaxonId) {
+  // container: elemento dentro del modal para UI de listas
+  if (!isLoggedIn()) {
+    container.innerHTML = `<div class="modal-actions">
+      <div class="box" style="border:none;padding:0;color:#cfe9da">
+        Iniciá sesión para usar tus <b>Listas</b>.
+      </div></div>`;
+    return;
+  }
+
+  const hasLists = state.lists?.length > 0;
+  const options = hasLists
+    ? state.lists.map(l => `<option value="${l._id}" ${l._id===state.selectedListId?"selected":""}>${escapeHtml(l.name)} (${l.type})</option>`).join("")
+    : "";
+
+  container.innerHTML = `
+    <div class="modal-actions" style="display:grid; gap:10px">
+      <div class="box" style="background:rgba(255,255,255,.05); border:1px solid rgba(152,210,175,.18); border-radius:10px; padding:10px">
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap: wrap">
+          <label for="list-select" style="font-weight:700">Mi lista:</label>
+          ${hasLists ? `
+            <select id="list-select">${options}</select>
+            <button id="list-add" class="btn primary">${state.selectedListItems.has(currentTaxonId) ? "Quitar de la lista" : "Agregar a mi lista"}</button>
+          ` : `
+            <em>No tenés listas.</em>
+          `}
+          <button id="list-new-toggle" class="btn ghost">Nueva lista</button>
+        </div>
+      </div>
+      <form id="list-new-form" style="display:none; gap:8px; align-items:end">
+        <div>
+          <label>Nombre<br><input id="list-new-name" required placeholder="Ej. Nativas del patio" /></label>
+        </div>
+        <div>
+          <label>Tipo<br>
+            <select id="list-new-type">
+              <option value="plantas" selected>plantas</option>
+              <option value="insectos">insectos</option>
+              <option value="mixta">mixta</option>
+            </select>
+          </label>
+        </div>
+        <button class="btn primary" id="list-new-create" type="submit">Crear</button>
+      </form>
+    </div>
+  `;
+
+  const select = container.querySelector("#list-select");
+  const btnAdd = container.querySelector("#list-add");
+  const toggle = container.querySelector("#list-new-toggle");
+  const form = container.querySelector("#list-new-form");
+  const inputName = container.querySelector("#list-new-name");
+  const inputType = container.querySelector("#list-new-type");
+
+  toggle?.addEventListener("click", () => {
+    form.style.display = form.style.display === "none" ? "grid" : "none";
+  });
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    try {
+      const name = inputName.value.trim();
+      const type = inputType.value;
+      if (!name) return;
+      const created = await createList(name, type);
+      // refrescar listas
+      await ensureListsLoaded();
+      // seleccionar la recién creada
+      state.selectedListId = created._id;
+      localStorage.setItem("selected_list_id", state.selectedListId);
+      // re-render select
+      renderListsSelect(container, currentTaxonId);
+    } catch (err) {
+      alert("No se pudo crear la lista: " + err.message);
+    }
+  });
+
+  select?.addEventListener("change", async () => {
+    state.selectedListId = select.value || null;
+    localStorage.setItem("selected_list_id", state.selectedListId || "");
+    await fetchSelectedListItems();
+    // refrescar label del botón
+    btnAdd.textContent = state.selectedListItems.has(currentTaxonId) ? "Quitar de la lista" : "Agregar a mi lista";
+  });
+
+  btnAdd?.addEventListener("click", async () => {
+    if (!state.selectedListId) return alert("Elegí una lista primero.");
+    try {
+      if (state.selectedListItems.has(currentTaxonId)) {
+        await removeFromList(state.selectedListId, currentTaxonId);
+      } else {
+        // Necesitamos datos del item actual
+        const o = currentModalObservation;
+        const item = {
+          taxon_id: o?.taxon?.id,
+          nombre: o?.taxon?.preferred_common_name || null, // ES
+          nombre_cientifico: o?.taxon?.name,
+          foto_url: photoUrl(o) || null,
+        };
+        await addToList(state.selectedListId, item);
+      }
+      await fetchSelectedListItems();
+      btnAdd.textContent = state.selectedListItems.has(currentTaxonId) ? "Quitar de la lista" : "Agregar a mi lista";
+    } catch (err) {
+      alert("No se pudo actualizar la lista: " + err.message);
+    }
+  });
+}
+
+function escapeHtml(s="") {
+  return s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+// Tarjetas
 function buildCard(o){
-  const sci=o?.taxon?.name||"";                 // científico
-  const com=o?.taxon?.preferred_common_name||""; // común (es)
+  const sci=o?.taxon?.name||""; 
+  const com=o?.taxon?.preferred_common_name||"";
   const display=com||sci||"(sin nombre)";
   const photo=photoUrl(o);
   const lat=o?.geojson?.coordinates?.[1], lon=o?.geojson?.coordinates?.[0];
@@ -73,10 +218,13 @@ function buildCard(o){
     </article>`;
 }
 
-// Modal simple (sin favoritos)
-const modal = $("#modal"), modalContent=$("#modal-content");
+// MODAL
+const modal=$("#modal"), modalContent=$("#modal-content");
+let currentModalObservation = null;
+
 function openModal(o){
-  const sci=o?.taxon?.name||"";
+  currentModalObservation = o;
+  const sci=o?.taxon?.name||""; 
   const com=o?.taxon?.preferred_common_name||"";
   const display=com||sci||"(sin nombre)";
   const lat=o?.geojson?.coordinates?.[1]; const lon=o?.geojson?.coordinates?.[0];
@@ -93,15 +241,23 @@ function openModal(o){
         ${gmaps? `<a class="btn ghost" style="margin-top:8px;display:inline-block" target="_blank" href="${gmaps}">Abrir en Google Maps</a>`:""}
       </div>
     </div>
+    <div id="lists-ui"></div>
   `;
   modal.setAttribute("aria-hidden","false");
+
+  // Render de listas
+  (async () => {
+    await ensureListsLoaded();
+    const taxonId = Number(o?.taxon?.id);
+    const container = modalContent.querySelector("#lists-ui");
+    renderListsSelect(container, taxonId);
+  })();
 }
-function closeModal(){ modal.setAttribute("aria-hidden","true"); }
+function closeModal(){ modal.setAttribute("aria-hidden","true"); currentModalObservation=null; }
 $("#modal-close")?.addEventListener("click", closeModal);
 $("#modal-close-2")?.addEventListener("click", closeModal);
-modal.addEventListener("keydown",(e)=>{ if(e.key==="Escape") closeModal(); });
 
-// Click card => modal
+// EVENTOS cards
 grid.addEventListener("click",(e)=>{
   const card = e.target.closest(".card");
   if(!card) return;
@@ -117,7 +273,7 @@ grid.addEventListener("keydown",(e)=>{
   }
 });
 
-// Resumen + mapa
+// MAPA + RESUMEN
 function summarizePage(list){
   const m = new Map();
   list.forEach(o=>{
@@ -135,14 +291,14 @@ function updateMap(list){
     const lat=o?.geojson?.coordinates?.[1], lon=o?.geojson?.coordinates?.[0];
     if(typeof lat==="number" && typeof lon==="number"){
       const name = o?.taxon?.preferred_common_name || o?.taxon?.name || "(sin nombre)";
-      const m = L.marker([lat,lon]).bindPopup(`<b>${name}</b><br>${dateOf(o)}<br><a href="${gmUrl(lat,lon)}" target="_blank" rel="noopener">Ver en Google Maps</a>`);
+      const m=L.marker([lat,lon]).bindPopup(`<b>${name}</b><br>${dateOf(o)}<br><a href="${gmUrl(lat,lon)}" target="_blank" rel="noopener">Ver en Google Maps</a>`);
       cluster.addLayer(m); bounds.push([lat,lon]);
     }
   });
   if(bounds.length) map.fitBounds(bounds,{padding:[20,20]});
 }
 
-// Carga
+// CARGA
 let canLoadMore=true;
 async function loadPage(page){
   if(state.loading) return;
@@ -153,7 +309,7 @@ async function loadPage(page){
   u.searchParams.set("place_id", placeId);
   u.searchParams.set("iconic_taxa", iconic);
   u.searchParams.set("photos","true");
-  u.searchParams.set("locale","es");        // <- nombres en español
+  u.searchParams.set("locale","es");
   u.searchParams.set("per_page", String(state.per));
   u.searchParams.set("page", String(page));
   if(state.q.trim()) u.searchParams.set("q", state.q.trim());
@@ -169,7 +325,6 @@ async function loadPage(page){
 
   const html = results.map(buildCard).join("");
   if(page===1) grid.innerHTML = html; else grid.insertAdjacentHTML("beforeend", html);
-
   if(page===1) updateMap(results);
   summarizePage(page===1?results:[]);
   state.buffer.push(...results);
@@ -180,7 +335,7 @@ async function loadPage(page){
   const pages = Math.max(1, Math.ceil(state.total/state.per));
   state.page = page; canLoadMore = state.page < pages; state.loading=false;
 }
-// IO
+
 const io=new IntersectionObserver(entries=>{
   entries.forEach(e=>{
     if(e.isIntersecting && canLoadMore && !state.loading) loadPage(state.page+1);
@@ -200,4 +355,5 @@ searchInput.addEventListener("input", ()=>{
 searchBtn.addEventListener("click", ()=>{ state.q=searchInput.value; doSearch(); });
 
 // Init
+ensureListsLoaded();
 loadPage(1);

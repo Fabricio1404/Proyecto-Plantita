@@ -4,234 +4,47 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>InForest — Listas</title>
+
+  <!-- Estilos base del sitio (tema verde que ya usas) -->
   <link rel="stylesheet" href="styles/home-plantas.css" />
-  <style>
-    .page-header{
-      display:flex;gap:10px;align-items:center;padding:16px 22px;
-      border-bottom:1px solid var(--border);background:rgba(8,18,12,.45)
-    }
-    .playlists{
-      padding:18px 22px;
-      display:grid;gap:18px;
-      grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-    }
-    .playlist-card{
-      position:relative; border:1px solid var(--border);
-      border-radius:16px; overflow:hidden;
-      background:linear-gradient(180deg, rgba(18,36,26,.65), rgba(10,24,16,.75));
-      transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-      cursor:pointer;
-    }
-    .playlist-card:hover{
-      transform:translateY(-2px);
-      box-shadow:0 8px 24px rgba(0,0,0,.25);
-      border-color:rgba(191,233,203,.35);
-    }
-    .thumb{
-      position:relative; aspect-ratio:16 / 9;
-      display:grid; gap:2px; background:rgba(255,255,255,.03);
-    }
-    .thumb.one{grid-template-columns:1fr;grid-template-rows:1fr;}
-    .thumb.two{grid-template-columns:1fr 1fr;grid-template-rows:1fr;}
-    .thumb.three{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
-    .thumb.four{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
-    .tile{
-      background:#0f261a center/cover no-repeat;
-    }
-    .tile.fallback{
-      display:flex;align-items:center;justify-content:center;
-      font-size:42px; opacity:.75;
-    }
-    .badge-count{
-      position:absolute;right:8px;bottom:8px;
-      backdrop-filter: blur(4px);
-      background:rgba(0,0,0,.45); color:#fff; font-weight:700;
-      padding:4px 8px; border-radius:999px; font-size:12px;
-      border:1px solid rgba(255,255,255,.18);
-    }
-    .card-body{
-      padding:12px 12px 14px;
-      display:flex;flex-direction:column;gap:6px;
-    }
-    .card-title{
-      font-weight:800; font-size:16px; line-height:1.2; margin:0;
-      color:var(--text);
-      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-    }
-    .card-sub{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:8px}
-    .dot{width:4px;height:4px;border-radius:50%;background:var(--border);display:inline-block}
-    .card-actions{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
-    .btn.compact{padding:8px 10px;border-radius:10px;font-size:13px}
-    .empty{padding:18px 22px;color:var(--muted)}
-    .cards{padding:0 22px 22px;display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
-    .remove-btn{margin-top:8px}
-    .input{min-width:200px;padding:10px;border-radius:10px;border:1px solid var(--border);background:#0a1b12;color:#e8f5ec}
-  </style>
+  <!-- Estilos específicos de esta página -->
+  <link rel="stylesheet" href="styles/listas.css" />
 </head>
 <body>
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar" aria-label="Menú lateral">
-  <div class="brand">
-    <img src="img/logo.png" alt="Logo InForest" class="logo">
-    <div class="brand-name">InForest</div>
-  </div>
-  <nav class="menu" role="navigation" aria-label="Secciones">
-    <a class="menu-item active" href="home-plantas.html">Plantas</a>
-    <a class="menu-item" href="home-insectos.html">Insectos</a>
-    <div class="menu-sep" role="separator"></div>
-    <a class="menu-item" href="listas.html">Listas</a>
-    <a class="menu-item" href="favorites.html">Favoritos</a>
-    <a class="menu-item" href="#">Configuración</a>
-  </nav>
-  <div class="sidebar-foot">
-    <button id="logout" class="btn ghost" aria-label="Salir">Salir</button>
-  </div>
-</aside>
+    <div class="brand">
+      <img src="img/logo.png" alt="Logo InForest" class="logo">
+      <div class="brand-name">InForest</div>
+    </div>
+    <nav class="menu" role="navigation" aria-label="Secciones">
+      <a class="menu-item" href="home-plantas.html">Plantas</a>
+      <a class="menu-item" href="home-insectos.html">Insectos</a>
+      <div class="menu-sep" role="separator"></div>
+      <a class="menu-item active" href="listas.html">Listas</a>
+      <a class="menu-item" href="#">Configuración</a>
+    </nav>
+    <div class="sidebar-foot">
+      <button id="logout" class="btn ghost" aria-label="Salir">Salir</button>
+    </div>
+  </aside>
 
   <div class="main">
+    <!-- Encabezado de la página -->
     <header class="page-header">
-      <h1 style="margin:0;flex:1">Mis listas</h1>
-      <input id="newName" placeholder="Nueva lista…" class="input">
+      <h1 class="page-title">Mis listas</h1>
+      <input id="newName" placeholder="Nueva lista…" class="input" />
       <button id="create" class="btn primary">Crear</button>
     </header>
 
+    <!-- Grilla de listas -->
     <section class="playlists" id="lists"></section>
+
+    <!-- Contenido de una lista seleccionada -->
     <section id="listContent"></section>
   </div>
 
-  <script type="module">
-    import { getLists, getList, createList, renameList, deleteList, exportList, removeFromList } from "./tasks/favorites.js";
-    const $ = s => document.querySelector(s);
-    const listsEl = $("#lists");
-    const contentEl = $("#listContent");
-
-    function pickThumbs(listName){
-      const items = getList(listName);
-      return items.map(i => i.photo).filter(Boolean).slice(0,4);
-    }
-
-    function playlistCardHTML(name, count){
-      const imgs = pickThumbs(name);
-      const n = imgs.length;
-      const cls = n===1?"one":n===2?"two":n===3?"three":n>=4?"four":"one";
-      const icon = name.toLowerCase().includes("plaga")?"🪲":name.toLowerCase().includes("ave")?"🕊️":"🌿";
-
-      let tiles="";
-      if(n===0){
-        tiles = `<div class="tile fallback">${icon}</div>`;
-      } else if(n===1){
-        tiles = `<div class="tile" style="background-image:url('${imgs[0]}')"></div>`;
-      } else if(n===2){
-        tiles = imgs.map(src=>`<div class="tile" style="background-image:url('${src}')"></div>`).join("");
-      } else if(n===3){
-        tiles = `
-          <div class="tile" style="background-image:url('${imgs[0]}')"></div>
-          <div class="tile" style="background-image:url('${imgs[1]}')"></div>
-          <div class="tile" style="background-image:url('${imgs[2]}');grid-column:1/3"></div>
-        `;
-      } else {
-        tiles = imgs.slice(0,4).map(src=>`<div class="tile" style="background-image:url('${src}')"></div>`).join("");
-      }
-
-      return `
-        <article class="playlist-card" data-name="${name}">
-          <div class="thumb ${cls}">
-            ${tiles}
-            <div class="badge-count">${count}</div>
-          </div>
-          <div class="card-body">
-            <h3 class="card-title">${name}</h3>
-            <div class="card-sub"><span>${count} elemento(s)</span><span class="dot"></span><span>Lista</span></div>
-            <div class="card-actions">
-              <button class="btn compact primary view-btn">Ver</button>
-              <button class="btn compact ghost rename-btn">Renombrar</button>
-              <button class="btn compact ghost export-btn">Exportar</button>
-              ${name==="General"?"":`<button class="btn compact ghost delete-btn">Eliminar</button>`}
-            </div>
-          </div>
-        </article>
-      `;
-    }
-
-    function renderLists(){
-      const lists = getLists();
-      if(!lists.length){
-        listsEl.innerHTML = `<div class="empty">Aún no hay listas.</div>`;
-        return;
-      }
-      listsEl.innerHTML = lists.map(l=>playlistCardHTML(l.name,l.count)).join("");
-    }
-
-    function renderListContent(name){
-      const arr = getList(name);
-      contentEl.innerHTML = `
-        <header class="page-header" style="border-top:1px solid var(--border)">
-          <h2 style="margin:0;flex:1">Lista: ${name}</h2>
-          <button class="btn ghost" id="exportList">Exportar JSON</button>
-        </header>
-        ${arr.length
-          ? `<section class="cards" id="grid">${arr.map(it=>cardItem(it,name)).join("")}</section>`
-          : `<div class="empty">Esta lista está vacía.</div>`}
-      `;
-      $("#exportList").onclick=()=>{
-        const json = exportList(name);
-        const a=document.createElement("a");
-        a.href=URL.createObjectURL(new Blob([json],{type:"application/json"}));
-        a.download=`favoritos_${name}.json`;
-        a.click();
-      };
-      $("#grid")?.addEventListener("click",(e)=>{
-        const btn=e.target.closest(".remove-btn"); if(!btn) return;
-        const id=Number(btn.dataset.id); removeFromList(name,id);
-        renderLists(); renderListContent(name);
-      });
-      contentEl.scrollIntoView({behavior:"smooth"});
-    }
-
-    function cardItem(it,listName){
-      const name=it.com||it.sci||"(sin nombre)";
-      const coords=(typeof it.lat==="number"&&typeof it.lon==="number")?`${it.lat.toFixed(4)}, ${it.lon.toFixed(4)}`:"-";
-      const gmaps=(typeof it.lat==="number"&&typeof it.lon==="number")?`https://www.google.com/maps?q=${it.lat},${it.lon}`:null;
-      return `
-        <article class="card">
-          ${it.photo?`<img src="${it.photo}" alt="" style="height:180px;object-fit:cover;width:100%">`:""}
-          <div class="body">
-            <div class="name">${name}${(it.com&&it.sci&&it.com!==it.sci)?`<div style="font-weight:600;color:#bfe9cb;font-size:13px">${it.sci}</div>`:""}</div>
-            <div class="meta">
-              <div>Fecha</div><div>${it.date||"-"}</div>
-              <div>Coords</div><div>${coords}${gmaps?` · <a href="${gmaps}" target="_blank">Google Maps</a>`:""}</div>
-            </div>
-            <button class="btn ghost remove-btn" data-id="${it.id}">Quitar</button>
-          </div>
-        </article>`;
-    }
-
-    listsEl.addEventListener("click",(e)=>{
-      const card=e.target.closest(".playlist-card"); if(!card) return;
-      const name=card.dataset.name;
-      if(e.target.closest(".view-btn")||e.target.closest(".thumb")||e.target.closest(".card-title")){
-        renderListContent(name);
-      } else if(e.target.closest(".rename-btn")){
-        const to=prompt("Nuevo nombre:",name);
-        if(to&&to!==name){ if(renameList(name,to)){renderLists();renderListContent(to);} }
-      } else if(e.target.closest(".export-btn")){
-        const json=exportList(name);
-        const a=document.createElement("a");
-        a.href=URL.createObjectURL(new Blob([json],{type:"application/json"}));
-        a.download=`favoritos_${name}.json`;a.click();
-      } else if(e.target.closest(".delete-btn")){
-        if(confirm(`Eliminar lista ${name}?`)){ if(deleteList(name)){renderLists();contentEl.innerHTML="";} }
-      } else {
-        renderListContent(name);
-      }
-    });
-
-    $("#create").onclick=()=>{
-      const name=$("#newName").value.trim(); if(!name) return;
-      if(createList(name)){ $("#newName").value=""; renderLists(); }
-    };
-
-    renderLists();
-  </script>
+  <!-- Scripts (módulos) -->
+  <script type="module" src="tasks/listas.js"></script>
 </body>
 </html>

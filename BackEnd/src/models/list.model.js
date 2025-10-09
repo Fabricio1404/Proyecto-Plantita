@@ -1,33 +1,34 @@
-import { model, Schema, Types } from "mongoose";
+import { Schema, model } from "mongoose";
+
+/**
+ * Lista de usuario.
+ * - owner: usuario dueño (User._id)
+ * - name : nombre de la lista (único por usuario)
+ * - type : opcional (ej. "plantas" | "insectos" | "mixta")
+ * - items: taxa guardados (iNaturalist)
+ */
+const ListItemSchema = new Schema(
+  {
+    taxon_id: { type: Number, required: true },          // ID iNaturalist
+    nombre: { type: String, default: null },             // nombre común (ES) - opcional
+    nombre_cientifico: { type: String, required: true }, // nombre científico
+    foto_url: { type: String, default: null },
+    notes: { type: String, default: null },
+  },
+  { _id: false, timestamps: { createdAt: true, updatedAt: false } }
+);
 
 const ListSchema = new Schema(
   {
-    list_name: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-    },
-    author: {
-      type: Types.ObjectId,
-      ref: "User",
-      required: true, //La idea es que este campo se rellene automáticamente
-    },
-    plants: [
-      {
-        type: Types.ObjectId,
-        ref: "Plant",
-      },
-    ],
-    insects: [
-      {
-        type: Types.ObjectId,
-        ref: "Insect",
-      },
-    ],
+    owner: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
+    name: { type: String, required: true, trim: true },
+    type: { type: String, enum: ["plantas", "insectos", "mixta"], default: "mixta" },
+    items: { type: [ListItemSchema], default: [] },
   },
-  { versionKey: false }
+  { timestamps: true }
 );
+
+// Unicidad: un mismo usuario no puede repetir nombre de lista
+ListSchema.index({ owner: 1, name: 1 }, { unique: true });
 
 export const ListModel = model("List", ListSchema);

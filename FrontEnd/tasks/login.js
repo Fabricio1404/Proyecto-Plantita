@@ -1,9 +1,10 @@
 // ====== Config ======
-const API_PORT = 3000; // Puerto del backend
+// Prioridad: localStorage.API_BACK > localhost:4000 > location.origin
 const API_BASE =
-  (location.hostname === "localhost" || location.hostname === "127.0.0.1")
-    ? `http://localhost:${API_PORT}`
-    : location.origin;
+  localStorage.getItem("API_BACK") ||
+  ((location.hostname === "localhost" || location.hostname === "127.0.0.1")
+    ? "http://localhost:4000"
+    : location.origin);
 
 const container = document.getElementById("container");
 const signUpBtn = document.getElementById("signUp");
@@ -61,7 +62,7 @@ async function api(path, opts = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
     ...opts,
     headers,
-    credentials: "include" // 👈 importante para cookies
+    credentials: "include" // cookies si tu backend las usa
   });
   let data = {};
   try { data = await res.json(); } catch (e) { }
