@@ -12,7 +12,7 @@ import authRoute from "./src/routes/auth.route.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 /* ===================== CORS ===================== */
 const ALLOWED_ORIGINS = [
@@ -33,13 +33,12 @@ const corsOptions = {
 
 // Habilitar CORS para todas las rutas
 app.use(cors(corsOptions));
-// ✔ Express 5: usar regex en lugar de "*"
 app.options(/.*/, cors(corsOptions));
 /* ================================================= */
 
 app.use(express.json());
 
-// 👇 Pegar ANTES de montar las rutas
+// Middleware de logs
 app.use((req, _res, next) => {
   if (req.method !== "GET") {
     console.log(`[${req.method}] ${req.originalUrl} BODY:`, JSON.stringify(req.body));
@@ -48,7 +47,6 @@ app.use((req, _res, next) => {
   }
   next();
 });
-
 
 /* Rutas */
 app.use("/api", userRoute);
@@ -61,8 +59,5 @@ app.use("/api", authRoute);
 /* Arranque */
 app.listen(PORT, async () => {
   await mongo_DB();
-  console.log(`Servidor funcionando en localhost: ${PORT}`);
-  console.log("LO VIEJO VA ACÁ ↑↑↑↑↑");
-  console.log("---------------------------------------");
-  console.log("LO NUEVO VA ACÁ ↓↓↓↓↓");
+  console.log(`Servidor funcionando en localhost:${PORT}`);
 });

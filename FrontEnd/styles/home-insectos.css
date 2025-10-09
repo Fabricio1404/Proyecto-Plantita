@@ -112,20 +112,10 @@ body{
   .modal-grid{grid-template-columns:1fr}
 }
 
-/* Botón de favorito en tarjeta */
-.card { position: relative; }
-.fav-btn{
-  position:absolute; top:8px; right:8px; z-index:2;
-  border:0; background:rgba(0,0,0,.35); color:#fff; line-height:1;
-  border-radius:10px; cursor:pointer; padding:6px 8px; font-size:16px;
-  backdrop-filter: blur(2px);
-}
-.fav-btn:hover{ background:rgba(0,0,0,.5); }
-
 /* ===== Logo personalizado ===== */
 .brand img.logo {
   width: 42px;
   height: 42px;
-  border-radius: 8px; /* esquinas redondeadas */
-  object-fit: contain; /* asegura que no se deforme */
+  border-radius: 8px;
+  object-fit: contain;
 }

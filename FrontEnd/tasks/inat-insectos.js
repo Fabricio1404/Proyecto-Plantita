@@ -1,6 +1,4 @@
-// iNaturalist — Insectos (Insecta) + favoritos
-import { getLists, createList, addToList, removeFromList, isFavorite, whichListsContains, makeFavItem } from "./favorites.js";
-
+// iNaturalist — Insectos (Insecta) — SIN favoritos
 const API = "https://api.inaturalist.org/v1";
 const iconic = "Insecta";
 const state = {
@@ -32,26 +30,33 @@ window.addEventListener("map-visibility-changed", ()=> setTimeout(()=> map?.inva
 
 // Helpers
 async function fetchJSON(u){ const r=await fetch(u); if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); }
-async function getArgentina(){ if(state.placeId) return state.placeId;
-  const u=new URL(API+"/places/autocomplete"); u.searchParams.set("q","Argentina"); u.searchParams.set("per_page","5");
-  const d=await fetchJSON(u); state.placeId=d.results?.[0]?.id; if(!state.placeId) throw new Error("Argentina place_id no encontrado"); return state.placeId;
+async function getArgentina(){ 
+  if(state.placeId) return state.placeId;
+  const u=new URL(API+"/places/autocomplete");
+  u.searchParams.set("q","Argentina");
+  u.searchParams.set("per_page","5");
+  u.searchParams.set("locale","es");        // <- nombres en español
+  const d=await fetchJSON(u);
+  state.placeId=d.results?.[0]?.id;
+  if(!state.placeId) throw new Error("Argentina place_id no encontrado");
+  return state.placeId;
 }
 function gmUrl(lat,lon){ return `https://www.google.com/maps?q=${lat},${lon}`; }
 function photoUrl(o){ let p=o?.photos?.[0]?.url||""; return p.includes("square")? p.replace("square","medium"):p; }
 function dateOf(o){ return o?.observed_on || (o?.time_observed_at||"").slice(0,10) || (o?.created_at||"").slice(0,10) || "-"; }
 
 function buildCard(o){
-  const sci=o?.taxon?.name||""; const com=o?.taxon?.preferred_common_name||"";
-  const display=com||sci||"(sin nombre)"; const photo=photoUrl(o);
+  const sci=o?.taxon?.name||"";                 // nombre científico
+  const com=o?.taxon?.preferred_common_name||""; // nombre común (es)
+  const display=com||sci||"(sin nombre)";
+  const photo=photoUrl(o);
   const lat=o?.geojson?.coordinates?.[1], lon=o?.geojson?.coordinates?.[0];
   const coordsLabel=(typeof lat==="number"&&typeof lon==="number")? `${lat.toFixed(4)}, ${lon.toFixed(4)}`:"-";
   const gmaps=(typeof lat==="number"&&typeof lon==="number")? gmUrl(lat,lon):null;
-  const fav = isFavorite(o.id);
 
   return `
     <article class="card" tabindex="0" role="button" aria-label="Ver detalle ${display}"
       data-obs='${encodeURIComponent(JSON.stringify(o))}'>
-      <button class="fav-btn" data-id="${o.id}" aria-label="${fav?'Quitar de':'Agregar a'} favoritos" title="${fav?'Quitar de':'Agregar a'} favoritos">${fav?'❤️':'🤍'}</button>
       ${photo?`<img src="${photo}" loading="lazy" alt="">`:`<div class="skeleton skel-img"></div>`}
       <div class="body">
         <div class="name">${display}${com&&sci&&com!==sci?`<div style="font-weight:600;color:#f8e0be;font-size:13px">${sci}</div>`:""}</div>
@@ -64,69 +69,28 @@ function buildCard(o){
     </article>`;
 }
 
-// Modal
+// Modal simple (sin favoritos)
 const modal = $("#modal"), modalContent=$("#modal-content");
 function openModal(o){
-  const sci=o?.taxon?.name||""; const com=o?.taxon?.preferred_common_name||"";
-  const display=com||sci||"(sin nombre)"; const lat=o?.geojson?.coordinates?.[1]; const lon=o?.geojson?.coordinates?.[0];
+  const sci=o?.taxon?.name||"";
+  const com=o?.taxon?.preferred_common_name||"";
+  const display=com||sci||"(sin nombre)";
+  const lat=o?.geojson?.coordinates?.[1]; const lon=o?.geojson?.coordinates?.[0];
   const gmaps=(typeof lat==="number"&&typeof lon==="number")? gmUrl(lat,lon):null;
   const photo=photoUrl(o);
-  const lists = getLists();
-  const inLists = whichListsContains(o.id);
 
   modalContent.innerHTML = `
     ${photo?`<img class="modal-photo" src="${photo}" alt="">`:""}
     <h2 id="modal-title" style="margin:10px 0 6px">${display}</h2>
     ${com&&sci&&com!==sci?`<div style="color:#f8e0be;margin-bottom:8px">${sci}</div>`:""}
     <div class="modal-grid">
-      <div class="box">
-        <b>Fecha:</b> ${dateOf(o)}<br>
-        <b>ID:</b> ${o?.id}<br>
-        <b>En listas:</b> ${inLists.length? inLists.join(", ") : "—"}
-      </div>
-      <div class="box">
-        <b>Coordenadas:</b> ${(lat&&lon)? `${lat.toFixed(5)}, ${lon.toFixed(5)}` : "-"}<br>
+      <div class="box"><b>Fecha:</b> ${dateOf(o)}<br><b>ID:</b> ${o?.id}</div>
+      <div class="box"><b>Coordenadas:</b> ${(lat&&lon)? `${lat.toFixed(5)}, ${lon.toFixed(5)}` : "-"}<br>
         ${gmaps? `<a class="btn ghost" style="margin-top:8px;display:inline-block" target="_blank" href="${gmaps}">Abrir en Google Maps</a>`:""}
       </div>
     </div>
-
-    <div class="modal-actions">
-      <label style="display:flex;gap:6px;align-items:center">
-        Guardar en:
-        <select id="fav-select">
-          ${lists.map(l=>`<option value="${l.name}">${l.name}</option>`).join("")}
-        </select>
-      </label>
-      <button class="btn primary" id="fav-add">Agregar</button>
-      <button class="btn ghost" id="fav-remove">Quitar</button>
-      <input id="fav-new-name" placeholder="Nueva lista…" style="flex:1;min-width:160px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.25);background:#0d1224;color:#e8eefb">
-      <button class="btn ghost" id="fav-new">Crear lista</button>
-    </div>
   `;
   modal.setAttribute("aria-hidden","false");
-
-  $("#fav-add").onclick = ()=>{
-    const list = $("#fav-select").value;
-    const ok = addToList(list, makeFavItem(o, iconic));
-    alert(ok? `Agregado a "${list}"`: "Ya estaba en esa lista");
-    refreshHearts();
-  };
-  $("#fav-remove").onclick = ()=>{
-    const list = $("#fav-select").value;
-    const ok = removeFromList(list, o.id);
-    alert(ok? `Quitado de "${list}"`: "No estaba en esa lista");
-    refreshHearts();
-  };
-  $("#fav-new").onclick = ()=>{
-    const name = $("#fav-new-name").value.trim();
-    if(!name) return;
-    if(createList(name)){
-      alert(`Lista "${name}" creada`);
-      openModal(o);
-    } else {
-      alert("No se pudo crear (¿existe ya?)");
-    }
-  };
 }
 function closeModal(){ modal.setAttribute("aria-hidden","true"); }
 $("#modal-close")?.addEventListener("click", closeModal);
@@ -135,17 +99,6 @@ modal.addEventListener("keydown",(e)=>{ if(e.key==="Escape") closeModal(); });
 
 // Clicks
 grid.addEventListener("click",(e)=>{
-  const heart = e.target.closest(".fav-btn");
-  if (heart) {
-    e.stopPropagation();
-    const id = Number(heart.dataset.id);
-    const card = heart.closest(".card");
-    const o = JSON.parse(decodeURIComponent(card.dataset.obs));
-    if (isFavorite(id)) removeFromList("General", id);
-    else addToList("General", makeFavItem(o, iconic));
-    refreshHearts();
-    return;
-  }
   const card = e.target.closest(".card");
   if(!card) return;
   const o = JSON.parse(decodeURIComponent(card.dataset.obs));
@@ -159,16 +112,6 @@ grid.addEventListener("keydown",(e)=>{
     openModal(o);
   }
 });
-
-function refreshHearts(){
-  grid.querySelectorAll(".fav-btn").forEach(btn=>{
-    const id = Number(btn.dataset.id);
-    const fav = isFavorite(id);
-    btn.textContent = fav ? "❤️" : "🤍";
-    btn.setAttribute("aria-label", fav? "Quitar de favoritos" : "Agregar a favoritos");
-    btn.title = fav? "Quitar de favoritos" : "Agregar a favoritos";
-  });
-}
 
 function summarizePage(list){
   const m=new Map();
@@ -204,6 +147,7 @@ async function loadPage(page){
   u.searchParams.set("place_id", placeId);
   u.searchParams.set("iconic_taxa", iconic);
   u.searchParams.set("photos","true");
+  u.searchParams.set("locale","es");        // <- nombres en español
   u.searchParams.set("per_page", String(state.per));
   u.searchParams.set("page", String(page));
   if(state.q.trim()) u.searchParams.set("q", state.q.trim());
@@ -218,7 +162,6 @@ async function loadPage(page){
 
   const html=results.map(buildCard).join("");
   if(page===1) grid.innerHTML=html; else grid.insertAdjacentHTML("beforeend", html);
-  refreshHearts();
 
   if(page===1) updateMap(results);
   summarizePage(page===1?results:[]);
