@@ -1,0 +1,159 @@
+/* frontend/assets/css/main.css */
+
+/* --- Layout Principal --- */
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* --- Sidebar (Menú Lateral) --- */
+.sidebar {
+    width: 250px;
+    background-color: var(--color-surface);
+    padding: 20px 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    border-right: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.sidebar h3 {
+    text-align: center;
+    color: var(--color-primary);
+    margin-bottom: 30px;
+}
+
+.sidebar nav a {
+    display: block;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: var(--color-text-primary);
+    font-weight: 500;
+    border-left: 5px solid transparent;
+    transition: background-color 0.3s, border-left-color 0.3s;
+}
+
+.sidebar nav a:hover {
+    background-color: var(--color-input-bg);
+}
+
+.sidebar nav a.active {
+    background-color: var(--color-primary);
+    color: white;
+    border-left-color: var(--color-accent);
+}
+
+/* --- Contenido Principal y Header --- */
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    justify-content: flex-end; /* Mueve los elementos a la derecha */
+    align-items: center;
+    padding: 15px 30px;
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+}
+
+.profile-link {
+    text-decoration: none;
+    color: var(--color-text-primary);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    border-radius: 20px;
+    transition: background-color 0.3s;
+}
+
+.profile-link:hover {
+    background-color: var(--color-input-bg);
+}
+
+.profile-link img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+}
+
+/* --- Sección de Contenido (Dashboard, Listas, etc.) --- */
+.content-area {
+    padding: 30px;
+    background-color: var(--color-background-primary);
+    flex-grow: 1;
+}
+
+/* --- Estilos para las tarjetas de especies --- */
+.species-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.species-card {
+    background-color: var(--color-surface);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.species-card:hover {
+    transform: translateY(-3px);
+}
+
+.species-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.species-info {
+    padding: 15px;
+}
+
+.species-info h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: var(--color-primary-dark);
+}
+
+.species-info p {
+    font-size: 0.9em;
+    color: var(--color-text-secondary);
+}
+
+/* --- Mapa Oculto --- */
+.map-container {
+    height: 300px; /* Altura del mapa */
+    background-color: #eee;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    transition: max-height 0.5s ease-out, opacity 0.5s;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+}
+
+.map-container.visible {
+    max-height: 400px; /* Altura máxima cuando está visible */
+    opacity: 1;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+}
+
+#map-toggle {
+    background-color: var(--color-accent);
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}

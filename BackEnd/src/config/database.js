@@ -1,11 +1,20 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 
-export const mongo_DB = async () => {
-  try {
-    mongoose.connect("mongodb://localhost:27017/mi_base_datos");
-    await mongoose.connection.dropDatabase();
-    console.log("Conectado a MongoDB exitosamente");
-  } catch (error) {
-    console.error("Error de conexión:", err);
-  }
+
+const connectDB = async () => {
+    try {
+        if (!process.env.MONGODB_URI) {
+            throw new Error("MONGODB_URI no está definido en las variables de entorno.");
+        }
+        
+        const conn = await mongoose.connect(process.env.MONGODB_URI);
+        
+        console.log(`MongoDB Conectado: ${conn.connection.host}`);
+    } catch (error) {
+        console.error(`Error de conexión a MongoDB: ${error.message}`);
+        
+        process.exit(1);
+    }
 };
+
+module.exports = connectDB;

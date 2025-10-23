@@ -1,99 +1,62 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>InForest — Listas</title>
-
-  <!-- Estilos base del sitio -->
-  <link rel="stylesheet" href="styles/home-plantas.css" />
-  <!-- Estilos específicos -->
-  <link rel="stylesheet" href="styles/listas.css" />
-  
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Listas - InForest</title>
+    <link rel="stylesheet" href="./assets/css/home-style.css">
+    <script>
+      (function() { const savedTheme = localStorage.getItem('userTheme') || 'claro'; document.documentElement.setAttribute('data-theme', savedTheme); })();
+    </script>
 </head>
 <body>
-  <!-- Sidebar -->
+
   <aside class="sidebar" id="sidebar" aria-label="Menú lateral">
-    <div class="brand">
-      <img src="img/logo.png" alt="Logo InForest" class="logo">
-      <div class="brand-name">InForest</div>
-    </div>
+    <div class="brand"> <img src="./assets/img/logo.png" alt="Logo InForest" class="logo"> <div class="brand-name">InForest</div> </div>
     <nav class="menu" role="navigation" aria-label="Secciones">
-      <a class="menu-item" href="home-plantas.html">Plantas</a>
-      <a class="menu-item" href="home-insectos.html">Insectos</a>
-      <div class="menu-sep" role="separator"></div>
-      <a class="menu-item active" href="listas.html">Listas</a>
-      <a class="menu-item" href="#">Configuración</a>
+      <a class="menu-item" href="plantas.html">Plantas</a>
+      <a class="menu-item" href="insectos.html">Insectos</a>
+      <div class="menu-sep"></div>
+      <a class="menu-item active" href="listas.html">Mis Listas</a> <a class="menu-item" href="clases.html">Clases (Classroom)</a>
+      <a class="menu-item" href="seguimiento.html">Observatorio Personal</a>
+      <a class="menu-item" href="comunidad.html">Foros y Ranking</a>
+      <div class="menu-sep"></div>
+      <a class="menu-item" href="perfil.html">Mi Perfil</a>
     </nav>
-    <div class="sidebar-foot">
-      <button id="logout" class="btn ghost" aria-label="Salir">Salir</button>
-    </div>
+    <div class="sidebar-foot"> <button id="logout" class="btn ghost btn-sm" aria-label="Salir">Salir</button> </div>
   </aside>
 
-  <!-- Contenido -->
   <div class="main">
-    <header class="page-header">
-      <h1 class="page-title">Mis listas</h1>
-
-      <!-- Toolbar: buscador + botón de filtros -->
-      <div class="toolbar">
-        <div class="search-wrap">
-          <input id="filterName" class="input search" placeholder="Buscar lista por nombre…" />
-        </div>
-
-        <button id="filterToggle" class="btn square" aria-expanded="false" aria-controls="filterPanel" title="Filtros">
-          ☰
-        </button>
-
-        <!-- Panel desplegable de filtros -->
-        <div id="filterPanel" class="panel hidden" role="region" aria-label="Filtros">
-          <div class="panel-row">
-            <label class="panel-label">Tipo</label>
-            <select id="filterType" class="select">
-              <option value="todas" selected>Todas</option>
-              <option value="plantas">Plantas</option>
-              <option value="insectos">Insectos</option>
-              <option value="mixta">Mixta</option>
-            </select>
-          </div>
-        </div>
-      </div>
+    <header class="topbar">
+      <div class="left"> <button id="toggleSidebar" class="icon-btn" aria-pressed="false" aria-label="Mostrar/ocultar menú">☰</button> <div class="hello"> <h1>Mis Listas de Especies</h1> <p class="muted">Organiza tus colecciones personales.</p> </div> </div>
+      <div class="right"> <div class="profile-section" id="user-profile"> <span class="profile-name" id="username-display-topbar">Usuario</span> <img src="./assets/img/default-avatar.png" alt="Avatar" class="profile-avatar" id="user-avatar"> </div> </div>
     </header>
 
-    <!-- Grilla de listas -->
-    <section class="playlists" id="lists"></section>
+    <section class="content-area">
+        <div style="margin-bottom: 20px;">
+            <button id="create-list-btn" class="btn primary">Crear Nueva Lista</button>
+        </div>
 
-    <!-- Contenido de una lista seleccionada -->
-    <section id="listContent"></section>
+        <div id="create-list-form-container" class="form-card" style="display: none;"> <h3>Nueva Colección</h3>
+            <form id="create-list-form">
+                <div class="input-group"> <label for="list-name">Nombre de la Lista</label> <input type="text" id="list-name" required> </div>
+                <div class="input-group"> <label for="list-description">Descripción</label> <textarea id="list-description"></textarea> </div>
+                <div class="input-group" style="display: flex; align-items: center; gap: 10px;"> <input type="checkbox" id="list-public"> <label for="list-public">Hacer pública (compartible)</label> </div>
+                <button type="submit" class="btn primary">Guardar Lista</button>
+            </form>
+            <div id="list-message-area" class="message-area"></div>
+        </div>
+
+        <div id="user-lists-container" class="cards" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));"> <p>Cargando tus listas...</p>
+        </div>
+
+    </section>
+
+    <footer class="foot"> <small>© 2025 InForest</small> </footer>
   </div>
 
-  <!-- FAB: botón flotante + panel para crear lista -->
-  <div class="fab-zone">
-    <button id="fabToggle" class="fab" aria-expanded="false" aria-controls="fabPanel" title="Nueva lista">＋</button>
-
-    <div id="fabPanel" class="fab-panel hidden" role="dialog" aria-label="Crear lista">
-      <h3 class="fab-title">Nueva lista</h3>
-      <div class="fab-field">
-        <label>Nombre</label>
-        <input id="newNameFab" class="input" placeholder="Ej. Polinizadores del patio" />
-      </div>
-      <div class="fab-field">
-        <label>Tipo</label>
-        <select id="newTypeFab" class="select">
-          <option value="plantas">plantas</option>
-          <option value="insectos">insectos</option>
-          <option value="mixta" selected>mixta</option>
-        </select>
-      </div>
-      <div class="fab-actions">
-        <button id="createFab" class="btn primary">Crear</button>
-        <button id="cancelFab" class="btn ghost">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scripts -->
-  <script type="module" src="tasks/listas.js"></script>
-</body>
+  <script src="./assets/scripts/auth-guard.js"></script>
+  <script src="./assets/scripts/ui-helpers.js"></script>
+  <script src="./assets/scripts/api.js" type="module"></script>
+  <script src="./assets/scripts/listas.js" type="module"></script> </body>
 </html>

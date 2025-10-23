@@ -1,49 +1,65 @@
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import cookieParser from "cookie-parser";
-import { mongo_DB } from "./src/config/database.js";
+// backend/app.js
 
-import userRoute from "./src/routes/user.route.js";
-import projectRoute from "./src/routes/project.route.js";
-import listRoute from "./src/routes/list.route.js";
-import plantRoute from "./src/routes/plant.route.js";
-import insectRoute from "./src/routes/insect.route.js";
-import authRoute from "./src/routes/auth.route.js";
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const dotenv = require('dotenv');
 
+// Carga de variables de entorno (CRÍTICO)
 dotenv.config();
+
+// Importar la función de conexión a la base de datos
+const connectDB = require('./src/config/database');
+
+// Crear el servidor Express
 const app = express();
-const PORT = process.env.PORT || 4000;
 
-const ALLOWED = (process.env.CORS_ORIGINS || "")
-  .split(",")
-  .map(s => s.trim())
-  .filter(Boolean);
+// Conexión a la base de datos
+connectDB();
+
+// --- INICIO DE LA MODIFICACIÓN (CORS) ---
+// 1. Define las opciones de CORS
 const corsOptions = {
-  origin(origin, cb) {
-    if (!origin) return cb(null, true);
-    if (ALLOWED.includes(origin)) return cb(null, true);
-    return cb(new Error("Not allowed by CORS: " + origin));
-  },
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
-  credentials: true,
+    // Especifica el origen exacto de tu frontend (el que dio el error)
+    origin: 'http://127.0.0.1:5500',
+
+    // Habilita el envío de credenciales (cookies, tokens)
+    credentials: true,
+
+    optionsSuccessStatus: 200 // Para navegadores antiguos
 };
+
+// 2. Aplica el middleware de CORS con estas opciones
 app.use(cors(corsOptions));
-app.options(/.*/, cors(corsOptions));
+// --- FIN DE LA MODIFICACIÓN (CORS) ---
 
-app.use(cookieParser());
+// Middlewares Globales
+// app.use(cors()); <-- Esta línea se reemplazó por el bloque de arriba
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../frontend'))); // Servir Frontend
 
-// Montaje de rutas
-app.use("/api", userRoute);
-app.use("/api", projectRoute);
-app.use("/api", listRoute);
-app.use("/api", plantRoute);
-app.use("/api", insectRoute);
-app.use("/api", authRoute);
+// Importar rutas
+const authRoutes = require('./src/routes/auth.routes');
+const apiRoutes = require('./src/routes/api.routes');
+const userRoutes = require('./src/routes/usuarios.routes');
+const inaturalistRoutes = require('./src/routes/inaturalist.routes.js'); // Ya estaba
 
-app.listen(PORT, async () => {
-  await mongo_DB();
-  console.log(`Servidor funcionando en http://localhost:${PORT}`);
+// ===== INICIO DEBUGGING EN APP.JS =====
+// Loguear todas las peticiones que lleguen a /api/v1/inaturalist ANTES de que las maneje el router
+app.use('/api/v1/inaturalist', (req, res, next) => {
+    console.log(`➡️ Petición recibida en app.js para: ${req.originalUrl} (Método: ${req.method})`);
+    next(); // Continúa hacia el archivo inaturalist.routes.js
+});
+// ===== FIN DEBUGGING EN APP.JS =====
+
+// Definición de Endpoints
+app.use('/api/auth', authRoutes);
+app.use('/api/v1', apiRoutes);
+app.use('/api/v1/usuarios', userRoutes);
+app.use('/api/v1/inaturalist', inaturalistRoutes); // Nueva ruta base para iNaturalist (ya estaba)
+
+// Servidor
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+    console.log(`Servidor Express corriendo en modo ${process.env.NODE_ENV} en el puerto ${PORT}`);
 });

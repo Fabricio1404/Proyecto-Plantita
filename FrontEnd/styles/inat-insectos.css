@@ -1,7 +1,0 @@
-/* Tarjetas iNaturalist – Insectos (ámbar/oscuro) */
-.card img{width:100%;height:160px;object-fit:cover;background:#0d1224;display:block}
-.card .body{padding:10px}
-.card .name{font-weight:800;margin:2px 0 6px}
-.card .meta{display:grid;grid-template-columns:90px 1fr;gap:6px;font-size:13px}
-.card .meta div:nth-child(odd){color:#9fb2f0}
-.tag{display:inline-block;background:#26190a;border:1px solid #6b3e0b;color:#f0e1c7;border-radius:10px;padding:4px 8px;font-size:12px;margin-right:6px}

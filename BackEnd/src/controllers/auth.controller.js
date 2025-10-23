@@ -1,103 +1,149 @@
-// Firma directa del JWT con { uid } para que coincida con el middleware
-import jwt from "jsonwebtoken";
-import { UserModel } from "../models/user.model.js";
-import { comparePassword, hashPassword } from "../helpers/bcrypt.helpers.js";
+// backend/src/controllers/auth.controller.js
 
-const JWT_SECRET = process.env.JWT_SECRET || "dev_secret";
-const JWT_EXPIRES = process.env.JWT_EXPIRES || "7d";
+const Usuario = require('../models/Usuario.model.js');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-function signToken(uid, extra = {}) {
-  return jwt.sign({ uid, ...extra }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
-}
-
-/* ============================
-   POST /api/register
-   ============================ */
-export const register = async (req, res) => {
-  try {
-    let { username, email, password, profile } = req.body;
-    if (!username || !email || !password || !profile?.first_name || !profile?.last_name) {
-      return res.status(400).json({ msg: "Faltan campos obligatorios" });
-    }
-    username = String(username).trim();
-    email = String(email).trim().toLowerCase();
-
-    const [existingUser, existingEmail] = await Promise.all([
-      UserModel.findOne({ username }),
-      UserModel.findOne({ email }),
-    ]);
-    if (existingUser) return res.status(400).json({ msg: "Nombre de usuario ya registrado" });
-    if (existingEmail) return res.status(400).json({ msg: "Email ya registrado" });
-
-    const hashedPassword = await hashPassword(password);
-    const user = await UserModel.create({
-      username,
-      email,
-      password: hashedPassword,
-      profile: { first_name: profile.first_name, last_name: profile.last_name },
+// Función auxiliar para generar JWT (sin cambios)
+const generarJWT = (uid, nombre) => {
+    return new Promise((resolve, reject) => {
+        const payload = { uid, nombre };
+        jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: '24h'
+        }, (err, token) => {
+            if (err) {
+                console.log(err);
+                reject('No se pudo generar el token');
+            } else {
+                resolve(token);
+            }
+        });
     });
-
-    const token = signToken(user._id.toString(), { username: user.username });
-
-    return res.status(201).json({
-      ok: true,
-      msg: "Usuario registrado existosamente",
-      user: {
-        id: user._id.toString(),
-        username: user.username,
-        email: user.email,
-        profile: user.profile,
-      },
-      token,
-    });
-  } catch (error) {
-    console.error("register error:", error);
-    return res.status(500).json({ msg: "Error interno del servidor" });
-  }
 };
 
-/* ============================
-   POST /api/login
-   ============================ */
-export const login = async (req, res) => {
-  const { username, email, password } = req.body;
-  try {
-    if (!password || (!username && !email)) {
-      return res.status(400).json({ msg: "Faltan credenciales" });
+const registrarUsuario = async (req, res) => {
+    // Leer datos de la nueva estructura del frontend
+    const { email, password, username } = req.body;
+    const { first_name, last_name } = req.body.profile || {};
+
+    try {
+        // Verificar si el correo O el username ya existen
+        let usuario = await Usuario.findOne({ $or: [{ correo: email }, { username: username }] });
+        
+        if (usuario) {
+            // Devolver un error específico que el frontend 'login.js' pueda entender
+            if (usuario.correo === email) {
+                return res.status(400).json({ 
+                    errors: [{ path: 'email', msg: 'Este correo ya está registrado.' }] 
+                });
+            }
+            if (usuario.username === username) {
+                return res.status(400).json({ 
+                    errors: [{ path: 'username', msg: 'Este nombre de usuario ya está en uso.' }] 
+                });
+            }
+        }
+
+        // Crear nueva instancia de usuario (mapeando a tu schema)
+        usuario = new Usuario({
+            nombre: first_name,   
+            apellido: last_name,  
+            username: username,   
+            correo: email,      
+            password: password
+        });
+
+        // Encriptar la contraseña
+        const salt = bcrypt.genSaltSync();
+        usuario.password = bcrypt.hashSync(password, salt);
+        
+        // Guardar usuario en la base de datos
+        await usuario.save();
+
+        // Respuesta EXITOSA (simplificada para redirigir a login)
+        return res.status(201).json({
+            ok: true,
+            msg: '¡Registro exitoso! Por favor, inicia sesión ahora.'
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        if (error.name === 'ValidationError') {
+            const firstError = Object.values(error.errors)[0];
+            let path = firstError.path; // 'correo', 'username', etc.
+            
+            if (path === 'correo') path = 'email'; 
+            
+            return res.status(400).json({
+                errors: [{ path: path, msg: firstError.message }]
+            });
+        }
+        
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error interno del servidor. Hable con el administrador.'
+        });
     }
-    const query = email
-      ? { email: String(email).trim().toLowerCase() }
-      : { username: String(username).trim() };
-
-    const user = await UserModel.findOne(query);
-    if (!user) return res.status(401).json({ msg: "Credenciales inválidas" });
-
-    const validPassword = await comparePassword(password, user.password);
-    if (!validPassword) return res.status(401).json({ msg: "Credenciales inválidas" });
-
-    const token = signToken(user._id.toString(), { username: user.username });
-
-    // (opcional) cookie httpOnly
-    res.cookie("token", token, { httpOnly: true, maxAge: 1000 * 60 * 60 });
-
-    return res.status(200).json({
-      ok: true,
-      msg: "Login Exitoso",
-      token,
-      user: {
-        id: user._id.toString(),
-        username: user.username,
-        email: user.email,
-        profile: user.profile,
-      },
-    });
-  } catch (error) {
-    console.log("login error:", error);
-    return res.status(500).json({ msg: "Error interno del Servidor" });
-  }
 };
 
-export const logout = async (_req, res) => {
-  res.clearCookie("token");
-  return res.status(200).json({ ok: true, msg: "Logout exitoso" });
+
+const iniciarSesion = async (req, res) => {
+    const { email, username, password } = req.body;
+
+    try {
+        
+        const query = (email) ? { correo: email } : { username: username };
+
+        const usuario = await Usuario.findOne(query).select('+password'); 
+
+        if (!usuario) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Credenciales inválidas. Verifique sus datos.'
+            });
+        }
+
+        // Verificar la contraseña
+        const validPassword = bcrypt.compareSync(password, usuario.password);
+        if (!validPassword) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Credenciales inválidas. Verifique sus datos.'
+            });
+        }
+
+        // Contraseña correcta: generar JWT
+        const token = await generarJWT(usuario.id, usuario.nombre);
+
+        // Respuesta EXITOSA (adaptada al frontend 'login.js')
+        return res.status(200).json({
+            ok: true,
+            msg: 'Inicio de sesión exitoso.',
+            token,
+            // Anidamos la info del usuario como el frontend espera
+            user: {
+                uid: usuario.id,
+                username: usuario.username,
+                profile: {
+                    first_name: usuario.nombre,
+                    last_name: usuario.apellido
+                },
+                rol: usuario.rol,
+                configuracion: usuario.configuracion
+            }
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error interno del servidor.'
+        });
+    }
+};
+
+module.exports = {
+    registrarUsuario,
+    iniciarSesion
 };

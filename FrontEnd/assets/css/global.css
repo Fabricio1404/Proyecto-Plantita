@@ -1,0 +1,42 @@
+:root {
+  --bg: #f5f5f5;
+  --fg: #222;
+  --brand: #2e7d32;
+  --muted: #666;
+  --card: #fff;
+  --border: #ddd;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font-family: system-ui, sans-serif; }
+
+.container { max-width: 960px; margin: 40px auto; padding: 0 16px; }
+
+h1, h2 { margin: 8px 0 16px; }
+
+.btn, .card, button {
+  display: inline-block;
+  padding: 12px 16px;
+  background: var(--brand);
+  color: #fff;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.card {
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
