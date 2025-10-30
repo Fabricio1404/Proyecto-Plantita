@@ -1,38 +1,47 @@
 /* --- ESTILOS PARA EL REGISTRO FENOLÓGICO --- */
-/* Estos estilos son específicos para esta página 
-   y dependen de home-style.css para funcionar. */
 
-/* Contenedor de la grilla de 30 cuadros */
+/* Contenedor de la grilla -> Vuelve a ser GRID */
 .cells-container {
     display: grid;
-    /* Usa las variables de tu proyecto para adaptarse a los temas */
-    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-    gap: 1rem;
+    /* Columnas automáticas, con un mínimo de 180px para que quepan los inputs de clima */
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem; /* Espacio entre cada cuadro */
     padding: 1rem;
-    background-color: var(--input-bg); /* Fondo de input */
-    border-radius: var(--radius-sm); /* Radio pequeño */
+    background-color: var(--input-bg);
+    border-radius: var(--radius-sm);
     margin-bottom: 1rem;
     border: 1px solid var(--border);
 }
 
-/* Wrapper para el cuadro + fecha */
+/* --- ESTILO DE FILA ELIMINADO --- */
+/* .cell-row ya no se usa */
+
+/* Wrapper para el [Cuadro + Fecha + Clima] */
 .cell-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem; /* Espacio entre cuadro, fecha y clima */
+    flex-shrink: 0;
+    /* Añadimos un fondo para que cada "tarjeta" de celda se vea unida */
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    box-shadow: var(--card-shadow);
 }
 
-/* El cuadro fenológico principal */
+/* El cuadro fenológico principal (sin cambios) */
 .phenological-cell {
     position: relative;
     width: 96px;
     height: 96px;
-    border: 2px solid var(--text); /* Borde con color de texto */
-    background: var(--bg2); /* Fondo de tarjeta */
+    border: 2px solid var(--text);
+    background: var(--bg2);
+    flex-shrink: 0; /* No se encoge */
 }
 
-/* Los 4 segmentos de cada lado */
+/* Los 4 segmentos de cada lado (sin cambios) */
 .cell-segment {
     position: absolute;
     cursor: pointer;
@@ -44,24 +53,21 @@
     justify-content: center;
     font-size: 16px; 
     font-weight: bold;
-    color: var(--text); /* Color de texto */
+    color: var(--text);
 }
+.cell-segment:hover { opacity: 0.75; }
 
-.cell-segment:hover {
-    opacity: 0.75;
-}
-
-/* Cuadrado central del cuadro */
+/* Cuadrado central del cuadro (sin cambios) */
 .cell-center {
     position: absolute;
     top: 25%;
     left: 25%;
     width: 50%;
     height: 50%;
-    background-color: var(--input-bg); /* Fondo de input */
+    background-color: var(--input-bg);
 }
 
-/* Input de fecha, adaptado a los estilos de tu proyecto */
+/* Input de fecha (sin cambios) */
 .cell-date-input {
     padding: 0.25rem 0.4rem; 
     border: 1px solid var(--border);
@@ -78,8 +84,61 @@
     background: var(--bg2);
 }
 
+/* --- ESTILOS DE OBSERVACIÓN POR CELDA ELIMINADOS --- */
+/* .cell-observation-group y .cell-observation-textarea ya no se usan */
 
-/* --- Colores de Leyenda --- */
+
+/* --- NUEVO: Grilla para inputs de Clima --- */
+.weather-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 columnas */
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 160px; /* Ancho máximo de la grilla */
+}
+
+.weather-input-group {
+    position: relative;
+}
+
+/* Input pequeño para el clima */
+.weather-input {
+    width: 100%;
+    padding: 6px 8px;
+    font-size: 0.8em;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text);
+    outline: none;
+}
+.weather-input:focus {
+    border-color: var(--primary);
+    background: var(--bg2);
+}
+
+/* --- Textarea de Observación General --- */
+.global-observation-textarea {
+    width: 100%;
+    min-height: 350px; /* <-- MODIFICADO: AHORA ES MÁS GRANDE */
+    resize: vertical;
+    /* Estilos de .input-group textarea */
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text);
+    font-size: 0.95em;
+    outline: none;
+    transition: border-color var(--transition), background var(--transition);
+}
+.global-observation-textarea:focus {
+    border-color: var(--primary);
+    background: var(--bg2);
+}
+
+
+/* --- Colores de Leyenda (sin cambios) --- */
 .legend-color.phase-1 { background-color: #facc15; color: #713f12; }
 .legend-color.phase-2 { background-color: #22c55e; color: #14532d; }
 .legend-color.phase-3 { background-color: #f97316; color: #7c2d12; }
@@ -89,18 +148,16 @@
 
 /* --- ESTILOS PARA EL PDF (CORRECCIÓN DE INPUTS) --- */
 .pdf-text-replacement {
-    font-size: 0.95em; /* Coincide con .input-group */
-    padding: 10px 12px; /* Coincide con .input-group */
+    font-size: 0.95em;
+    padding: 10px 12px;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     background-color: var(--input-bg);
-    min-height: 40px; /* Alto similar al input */
+    min-height: 40px;
     line-height: 1.6;
     word-wrap: break-word;
     color: var(--text);
 }
-
-/* Estilo para las fechas */
 .cell-wrapper .pdf-text-replacement {
     padding: 0.25rem 0.4rem;
     font-size: 0.813rem;
@@ -109,17 +166,96 @@
     min-height: 0;
     height: 25.5px; 
 }
+/* Estilo para reemplazo de input de clima */
+.pdf-text-replacement-weather {
+    padding: 6px 8px;
+    font-size: 0.8em;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text);
+    height: 30.5px;
+}
 
-/* Estilo para el textarea de observaciones */
+/* Estilo para el <pre> de reemplazo */
 pre.pdf-text-replacement {
-    min-height: 100px; /* Coincide con .input-group textarea */
+    min-height: 350px; /* <-- MODIFICADO: Coincide con el textarea */
     font-family: inherit;
     white-space: pre-wrap;
+    font-size: 0.95em;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background-color: var(--input-bg);
+    line-height: 1.6;
+    word-wrap: break-word;
+    color: var(--text);
 }
+
 
 /* Oculta los botones en la impresión del navegador */
 @media print {
     .no-print {
         display: none;
     }
+}
+
+/* --- Estilos para Colapsar (sin cambios) --- */
+.form-card .card-header-collapsible {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: margin-bottom 0.2s ease-out;
+}
+.form-card .header-content-collapsible {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.collapse-toggle-btn {
+    color: var(--muted);
+    transition: transform 0.2s ease-out;
+    display: flex; 
+    align-items: center; 
+}
+.form-card.collapsed .collapse-toggle-btn {
+    transform: rotate(-90deg);
+}
+.form-card.collapsed .card-content-collapsible {
+    display: none;
+}
+.form-card.collapsed .card-header-collapsible {
+    margin-bottom: 0;
+}
+
+/* Estilo para el input del nombre (sin cambios) */
+.registration-name-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 1.3em; 
+    font-weight: 600;
+    color: var(--text);
+    font-family: inherit;
+    padding: 2px 5px;
+    margin: 0;
+    width: 100%;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    transition: border-color 0.2s, background 0.2s;
+}
+.registration-name-input:hover,
+.registration-name-input:focus {
+    border-color: var(--border);
+    background: var(--input-bg);
+}
+h3.registration-name-pdf {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: var(--text);
+    font-family: inherit;
+    margin: 0;
+    padding: 3px 5px;
 }
