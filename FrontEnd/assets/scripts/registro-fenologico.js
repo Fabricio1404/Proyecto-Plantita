@@ -1,89 +1,167 @@
-// Estado de la aplicación
-let sections = [
-    {
-        id: 1,
-        name: "Registro #1",
+// --- 1. IMPORTAR FUNCIONES Y CONFIGURAR ---
+import { protectedFetch } from './api.js';
+
+let sections = []; // Empezar con un array vacío
+let saveTimer; // Temporizador para el auto-guardado
+const token = localStorage.getItem('token'); // Token del usuario
+
+// --- 2. FUNCIONES DE DATOS (CRUD) ---
+
+/**
+ * Carga todos los registros del usuario desde el backend al iniciar la página.
+ */
+async function loadSections() {
+    if (!token) return; // Salir si no está logueado
+    const { ok, data } = await protectedFetch('/registros', token);
+    
+    if (ok && data.registros) {
+        // Mapeamos el _id del backend a 'id' que usa nuestro frontend
+        sections = data.registros.map(reg => ({ ...reg, id: reg._id }));
+    }
+    
+    // Si el usuario no tiene registros, crear uno nuevo por defecto
+    if (sections.length === 0) {
+        await addSection(); // Esperar a que se cree el primero
+    } else {
+        renderSections();
+    }
+}
+
+/**
+ * Guarda UN registro específico en el backend.
+ */
+async function saveSection(sectionId) {
+    const section = sections.find(s => s.id === sectionId);
+    if (!section || !token) return;
+
+    // Preparamos el objeto: quitamos 'id' y dejamos que el backend use '_id'
+    const { id, ...dataToSave } = section; 
+
+    // console.log("Guardando registro:", sectionId);
+    await protectedFetch(`/registros/${sectionId}`, token, {
+        method: 'PUT',
+        body: dataToSave
+    });
+    // (Podríamos añadir un indicador de "Guardado...")
+}
+
+/**
+ * Función "Debounce": espera 1.5s después del último cambio para guardar.
+ * Esto evita 50 llamadas a la API si el usuario escribe rápido.
+ */
+function debouncedSave(sectionId) {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+        saveSection(sectionId);
+    }, 1500); // 1.5 segundos
+}
+
+/**
+ * Crea un nuevo registro en el backend.
+ */
+async function addSection() {
+    // Busca el número más alto para el nombre
+    const highestId = sections.reduce((max, s) => {
+        const num = parseInt(s.name.split('#')[1] || 0);
+        return num > max ? num : max;
+    }, 0);
+
+    const newRecordData = {
+        name: `Registro #${highestId + 1}`, // Nombre por defecto
         lugar: "",
         year: "",
         especie: "",
-        cells: createEmptyCells(),
-        observations: "", // Observación General
+        cells: createEmptyCells(), // Función que ya tenías
+        observations: "",
         isCollapsed: false 
-    }
-];
+    };
 
-// Crear celdas vacías
+    if (token) {
+        // Enviar el nuevo registro al backend
+        const { ok, data } = await protectedFetch('/registros', token, {
+            method: 'POST',
+            body: newRecordData
+        });
+
+        if (ok && data.registro) {
+            // Usar el registro devuelto por el backend (que incluye el _id)
+            sections.push({ ...data.registro, id: data.registro._id });
+        }
+    } else {
+        // Modo offline (si no hay token, solo lo añade localmente)
+        sections.push({ ...newRecordData, id: `local-${Date.now()}` });
+    }
+    renderSections();
+}
+
+/**
+ * Elimina un registro del backend.
+ */
+async function removeSection(id) {
+    if (sections.length <= 1) return; // No permitir borrar el último
+
+    if (token && !id.toString().startsWith('local-')) {
+        const { ok } = await protectedFetch(`/registros/${id}`, token, {
+            method: 'DELETE'
+        });
+        if (!ok) {
+            alert("Error al eliminar el registro.");
+            return;
+        }
+    }
+    
+    sections = sections.filter(s => s.id !== id);
+    renderSections();
+}
+
+// --- 3. FUNCIONES DE ACTUALIZACIÓN DE ESTADO (Ahora llaman a debouncedSave) ---
 function createEmptyCells() {
     return Array(30).fill(null).map(() => ({
-        top: [null, null, null, null],
-        right: [null, null, null, null],
-        bottom: [null, null, null, null],
-        left: [null, null, null, null],
-        date: "",
-        // Objeto de clima
+        top: [null, null, null, null], right: [null, null, null, null], bottom: [null, null, null, null], left: [null, null, null, null], date: "",
         weather: { temp: "", viento: "", humedad: "", presion: "" } 
     }));
 }
-
-// Obtener color de fase
-function getPhaseColor(phase) {
-    const colors = {
-        1: '#facc15',
-        2: '#22c55e',
-        3: '#f97316',
-        4: '#b45309',
-        5: '#a855f7'
-    };
-    return colors[phase] || 'white';
-}
-
-// Obtener nombre de fase
-function getPhaseName(phase) {
-    const names = {
-        1: 'Floración',
-        2: 'Foliación y maduración (fruto)',
-        3: 'Cambio de color de hojas y caída',
-        4: 'Caída de frutos y vainas de hojas',
-        5: 'Fase 5 (m)'
-    };
-    return names[phase] || 'Click para seleccionar fase';
-}
-
-// --- Funciones de actualización de datos ---
 function updateCell(sectionId, cellIndex, position, segmentIndex, phase) {
     const section = sections.find(s => s.id === sectionId);
     if (section) {
         section.cells[cellIndex][position][segmentIndex] = phase;
         renderSections();
+        debouncedSave(sectionId); // <-- GUARDAR
     }
 }
 function updateCellDate(sectionId, cellIndex, date) {
     const section = sections.find(s => s.id === sectionId);
     if (section) section.cells[cellIndex].date = date;
+    debouncedSave(sectionId); // <-- GUARDAR
 }
-// Actualiza la observación GENERAL
 function updateObservations(sectionId, value) {
     const section = sections.find(s => s.id === sectionId);
     if (section) section.observations = value;
+    debouncedSave(sectionId); // <-- GUARDAR
 }
-// Actualiza un campo del clima para una celda
 function updateWeather(sectionId, cellIndex, field, value) {
     const section = sections.find(s => s.id === sectionId);
     if (section) {
         section.cells[cellIndex].weather[field] = value;
+        // Auto-guardar después de rellenar el clima
+        debouncedSave(sectionId); 
     }
+    // No re-renderizar aquí para no perder el foco del input
 }
 function updateLugar(sectionId, value) {
     const section = sections.find(s => s.id === sectionId);
     if (section) section.lugar = value;
+    debouncedSave(sectionId); // <-- GUARDAR
 }
 function updateYear(sectionId, value) {
     const section = sections.find(s => s.id === sectionId);
     if (section) section.year = value;
+    debouncedSave(sectionId); // <-- GUARDAR
 }
 function updateEspecie(sectionId, value) {
     const section = sections.find(s => s.id === sectionId);
     if (section) section.especie = value;
+    debouncedSave(sectionId); // <-- GUARDAR
 }
 function updateSectionName(sectionId, newName) {
     const section = sections.find(s => s.id === sectionId);
@@ -93,17 +171,78 @@ function updateSectionName(sectionId, newName) {
         section.name = `Registro #${section.id}`;
         renderSections();
     }
+    debouncedSave(sectionId); // <-- GUARDAR
 }
 function toggleCollapse(sectionId) {
     const section = sections.find(s => s.id === sectionId);
     if (section) {
         section.isCollapsed = !section.isCollapsed;
         renderSections();
+        debouncedSave(sectionId); // <-- GUARDAR
     }
 }
 
+// --- 4. API DE CLIMA (MODIFICADA) ---
+// Ahora llama a NUESTRO backend
+async function fetchWeather(sectionId, cellIndex, buttonElement) {
+    const section = sections.find(s => s.id === sectionId);
+    if (!section) return;
 
-// Renderizar segmentos de celda (CÓDIGO COMPLETO RESTAURADO)
+    const location = section.lugar;
+    if (!location.trim()) {
+        alert("Por favor, escriba un 'Lugar de Observación' primero.");
+        return;
+    }
+    if (!token) {
+        alert("Debes iniciar sesión para usar esta función.");
+        return;
+    }
+
+    const originalText = buttonElement.innerHTML;
+    buttonElement.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+        </svg>
+    `;
+    buttonElement.disabled = true;
+
+    try {
+        // --- LLAMADA AL BACKEND ---
+        const { ok, data } = await protectedFetch(`/clima?lugar=${location}`, token);
+        
+        if (!ok) {
+            throw new Error(data.msg || "No se pudo encontrar la ubicación.");
+        }
+
+        const weather = data.clima; 
+
+        // Actualiza el estado
+        updateWeather(sectionId, cellIndex, 'temp', weather.temp_c);
+        updateWeather(sectionId, cellIndex, 'viento', weather.wind_kph);
+        updateWeather(sectionId, cellIndex, 'humedad', weather.humidity);
+        updateWeather(sectionId, cellIndex, 'presion', weather.pressure_mb);
+
+        // Vuelve a dibujar
+        renderSections();
+
+    } catch (error) {
+        console.error("Error al traer el clima:", error);
+        alert(`Error: ${error.message}`);
+        buttonElement.innerHTML = originalText;
+        buttonElement.disabled = false;
+    }
+}
+
+// --- 5. FUNCIONES DE RENDERIZADO (Sin cambios lógicos) ---
+
+function getPhaseColor(phase) {
+    const colors = { 1: '#facc15', 2: '#22c55e', 3: '#f97316', 4: '#b45309', 5: '#a855f7' };
+    return colors[phase] || 'white';
+}
+function getPhaseName(phase) {
+    const names = { 1: 'Floración', 2: 'Foliación y maduración (fruto)', 3: 'Cambio de color de hojas y caída', 4: 'Caída de frutos y vainas de hojas', 5: 'Fase 5 (m)' };
+    return names[phase] || 'Click para seleccionar fase';
+}
 function renderSegments(cell, sectionId, cellIndex, position) {
     const phases = cell[position];
     const isHorizontal = position === 'top' || position === 'bottom';
@@ -111,8 +250,6 @@ function renderSegments(cell, sectionId, cellIndex, position) {
     phases.forEach((phase, index) => {
         const segment = document.createElement('div');
         segment.className = 'cell-segment';
-        
-        // --- CÓDIGO RESTAURADO ---
         if (isHorizontal) {
             const left = 25 + (index * 12.5);
             segment.style.cssText = `
@@ -130,19 +267,12 @@ function renderSegments(cell, sectionId, cellIndex, position) {
                 height: 12.5%;
             `;
         }
-        // --- FIN DE CÓDIGO RESTAURADO ---
-
         segment.style.backgroundColor = getPhaseColor(phase);
         segment.title = getPhaseName(phase);
         if (phase) {
             const getPhaseSymbol = (p) => {
                 switch (p) {
-                    case 1: return '●';
-                    case 2: return '-';
-                    case 3: return '~';
-                    case 4: return 'V';
-                    case 5: return 'm';
-                    default: return '';
+                    case 1: return '●'; case 2: return '-'; case 3: return '~'; case 4: return 'V'; case 5: return 'm'; default: return '';
                 }
             };
             segment.textContent = getPhaseSymbol(phase);
@@ -156,16 +286,10 @@ function renderSegments(cell, sectionId, cellIndex, position) {
     });
     return segments;
 }
-
-// Renderiza el cuadro + fecha + clima
 function renderPhenologicalCell(cell, sectionId, cellIndex) {
-    
-    // 1. Wrapper
     const cellWrapper = document.createElement('div');
     cellWrapper.className = 'cell-wrapper';
     cellWrapper.onclick = (e) => e.stopPropagation();
-
-    // 2. Cuadro fenológico
     const cellDiv = document.createElement('div');
     cellDiv.className = 'phenological-cell';
     ['top', 'right', 'bottom', 'left'].forEach(position => {
@@ -176,44 +300,48 @@ function renderPhenologicalCell(cell, sectionId, cellIndex) {
     center.className = 'cell-center';
     cellDiv.appendChild(center);
     cellWrapper.appendChild(cellDiv);
-    
-    // 3. Input de fecha
     const dateInput = document.createElement('input');
     dateInput.type = 'date';
     dateInput.className = 'cell-date-input';
     dateInput.value = cell.date;
     dateInput.onchange = (e) => updateCellDate(sectionId, cellIndex, e.target.value);
     cellWrapper.appendChild(dateInput);
-
-    // 4. Inputs de Clima
     const weatherGrid = document.createElement('div');
     weatherGrid.className = 'weather-inputs';
-
     const createWeatherInput = (field, placeholder) => {
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'weather-input';
         input.id = `weather-${sectionId}-${cellIndex}-${field}`;
         input.placeholder = placeholder;
-        input.value = cell.weather[field];
+        input.value = cell.weather[field] || ''; // Asegurarse de que no sea 'null'
         input.oninput = (e) => updateWeather(sectionId, cellIndex, field, e.target.value);
         const group = document.createElement('div');
         group.className = 'weather-input-group';
         group.appendChild(input);
         return group;
     };
-
     weatherGrid.appendChild(createWeatherInput('temp', 'Temp °C'));
     weatherGrid.appendChild(createWeatherInput('viento', 'Viento km/h'));
     weatherGrid.appendChild(createWeatherInput('humedad', 'Humedad %'));
     weatherGrid.appendChild(createWeatherInput('presion', 'Presión hPa'));
-    
     cellWrapper.appendChild(weatherGrid);
-
+    const weatherButton = document.createElement('button');
+    weatherButton.type = 'button';
+    weatherButton.className = 'btn ghost btn-sm get-weather-btn no-print';
+    weatherButton.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 15.35A5 5 0 0 0 7 20h10a5 5 0 0 0 5-4.65A5.99 5.99 0 0 0 17 8c0-3.31-2.69-6-6-6S5 4.69 5 8a5.99 5.99 0 0 0-3 7.35Z"/>
+        </svg>
+        Traer Clima
+    `;
+    weatherButton.onclick = (e) => {
+        e.stopPropagation();
+        fetchWeather(sectionId, cellIndex, e.currentTarget);
+    };
+    cellWrapper.appendChild(weatherButton);
     return cellWrapper;
 }
-
-// Renderiza la tarjeta de registro completa
 function renderSection(section) {
     const sectionCard = document.createElement('div');
     sectionCard.className = 'form-card'; 
@@ -222,8 +350,6 @@ function renderSection(section) {
     if (section.isCollapsed) {
         sectionCard.classList.add('collapsed');
     }
-
-    // Header (con input de nombre y botones)
     const header = document.createElement('div');
     header.className = 'card-header-collapsible';
     header.onclick = () => toggleCollapse(section.id);
@@ -250,8 +376,6 @@ function renderSection(section) {
     buttonGroup.style.display = 'flex';
     buttonGroup.style.gap = '0.5rem';
     buttonGroup.onclick = (e) => e.stopPropagation(); 
-    
-    // --- CÓDIGO RESTAURADO (Botón PDF) ---
     const pdfBtn = document.createElement('button');
     pdfBtn.className = 'btn primary btn-sm';
     pdfBtn.innerHTML = `
@@ -264,8 +388,6 @@ function renderSection(section) {
     `;
     pdfBtn.onclick = (event) => { event.stopPropagation(); downloadPDF(section.id, event.currentTarget); };
     buttonGroup.appendChild(pdfBtn);
-
-    // --- CÓDIGO RESTAURADO (Botón Eliminar) ---
     if (sections.length > 1) {
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'btn ghost btn-sm'; 
@@ -280,16 +402,10 @@ function renderSection(section) {
         deleteBtn.onclick = (event) => { event.stopPropagation(); removeSection(section.id); };
         buttonGroup.appendChild(deleteBtn);
     }
-    // --- FIN CÓDIGO RESTAURADO ---
-    
     header.appendChild(buttonGroup);
     sectionCard.appendChild(header);
-
-    // Contenido colapsable
     const content = document.createElement('div');
     content.className = 'card-content-collapsible';
-    
-    // Info General
     const infoGrid = document.createElement('div');
     infoGrid.className = 'form-grid';
     const lugarGroup = document.createElement('div');
@@ -329,8 +445,6 @@ function renderSection(section) {
     especieInput.onclick = (e) => e.stopPropagation();
     especieGroup.appendChild(especieInput);
     content.appendChild(especieGroup); 
-
-    // Celdas Fenológicas (Grid)
     const cellsLabel = document.createElement('label');
     cellsLabel.className = 'input-group';
     cellsLabel.innerHTML = 'Registro Fenológico y Climático Diario';
@@ -339,7 +453,6 @@ function renderSection(section) {
     cellsLabel.style.fontWeight = '500';
     cellsLabel.style.fontSize = '0.9em';
     content.appendChild(cellsLabel);
-    
     const cellsContainer = document.createElement('div');
     cellsContainer.className = 'cells-container';
     section.cells.forEach((cell, index) => {
@@ -347,8 +460,6 @@ function renderSection(section) {
         cellsContainer.appendChild(cellElement);
     });
     content.appendChild(cellsContainer);
-    
-    // Textarea de Observación General
     const obsGroup = document.createElement('div');
     obsGroup.className = 'input-group';
     obsGroup.style.marginTop = '1.5rem';
@@ -361,14 +472,10 @@ function renderSection(section) {
     obsTextarea.oninput = (e) => updateObservations(section.id, e.target.value);
     obsTextarea.onclick = (e) => e.stopPropagation();
     obsGroup.appendChild(obsTextarea);
-    
     content.appendChild(obsGroup);
     sectionCard.appendChild(content);
-
     return sectionCard;
 }
-
-// Renderizar todas las secciones
 function renderSections() {
     const container = document.getElementById('sections-container');
     container.innerHTML = '';
@@ -376,55 +483,22 @@ function renderSections() {
         container.appendChild(renderSection(section));
     });
 }
-
-// Agregar sección
-function addSection() {
-    const newId = sections.length > 0 ? Math.max(...sections.map(s => s.id)) + 1 : 1;
-    sections.push({
-        id: newId,
-        name: `Registro #${newId}`,
-        lugar: "",
-        year: "",
-        especie: "",
-        cells: createEmptyCells(),
-        observations: "",
-        isCollapsed: false 
-    });
-    renderSections();
-}
-
-// Eliminar sección
-function removeSection(id) {
-    if (sections.length > 1) {
-        sections = sections.filter(s => s.id !== id);
-        renderSections();
-    }
-}
-
-
-// Función PDF (Actualizada para los nuevos campos)
 async function downloadPDF(sectionId, clickedButton) {
     const element = document.getElementById(`registro-card-${sectionId}`);
     if (!element) return;
-    
     const wasCollapsed = element.classList.contains('collapsed');
     if (wasCollapsed) {
         element.classList.remove('collapsed');
         await new Promise(resolve => requestAnimationFrame(resolve));
     }
-
     const originalBtnText = clickedButton.innerHTML;
     const buttonsToHide = element.querySelectorAll('.no-print');
-
-    // 1. Función de reemplazo
     const createTextReplacement = (value, tag = 'div', baseClass = 'pdf-text-replacement') => {
         const el = document.createElement(tag);
         el.className = baseClass;
         el.innerText = value || ' '; 
         return el;
     };
-
-    // 2. Buscar inputs
     const nameInput = element.querySelector(`#name-${sectionId}`);
     const lugarInput = element.querySelector(`#lugar-${sectionId}`);
     const yearInput = element.querySelector(`#year-${sectionId}`);
@@ -432,22 +506,17 @@ async function downloadPDF(sectionId, clickedButton) {
     const dateInputs = element.querySelectorAll(`.cell-date-input`);
     const weatherInputs = element.querySelectorAll('.weather-input');
     const obsTextarea = element.querySelector(`#obs-${sectionId}`);
-
-    // 3. Crear reemplazos
     const nameReplace = createTextReplacement(nameInput.value, 'h3', 'registration-name-pdf');
     const lugarReplace = createTextReplacement(lugarInput.value);
     const yearReplace = createTextReplacement(yearInput.value);
     const especieReplace = createTextReplacement(especieInput.value);
     const obsReplace = createTextReplacement(obsTextarea.value, 'pre');
-    
     const weatherReplaces = [];
     weatherInputs.forEach(input => {
         const replace = createTextReplacement(input.value);
         replace.classList.add('pdf-text-replacement-weather');
         weatherReplaces.push({ original: input, replacement: replace });
     });
-
-    // 4. Reemplazar
     nameInput.style.display = 'none';
     nameInput.parentElement.appendChild(nameReplace);
     lugarInput.style.display = 'none';
@@ -469,8 +538,6 @@ async function downloadPDF(sectionId, clickedButton) {
         input.parentElement.appendChild(replace);
         dateReplaces.push({ original: input, replacement: replace });
     });
-
-    // Preparar UI
     clickedButton.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
             <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
@@ -480,24 +547,14 @@ async function downloadPDF(sectionId, clickedButton) {
     buttonsToHide.forEach(btnGroup => {
         btnGroup.style.visibility = 'hidden';
     });
-    
-    // Tomar "foto"
     const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        width: element.offsetWidth,
-        height: element.offsetHeight,
-        backgroundColor: null 
+        scale: 2, useCORS: true, width: element.offsetWidth, height: element.offsetHeight, backgroundColor: null 
     });
-
-    // 5. Restaurar botones
     buttonsToHide.forEach(btnGroup => {
         btnGroup.style.visibility = 'visible';
     });
     clickedButton.innerHTML = originalBtnText;
     clickedButton.disabled = false;
-
-    // 6. Restaurar inputs
     nameInput.style.display = '';
     nameReplace.remove();
     lugarInput.style.display = '';
@@ -516,12 +573,9 @@ async function downloadPDF(sectionId, clickedButton) {
         item.original.style.display = '';
         item.replacement.remove();
     });
-    
     if (wasCollapsed) {
         element.classList.add('collapsed');
     }
-
-    // 7. Crear PDF (con lógica de múltiples páginas)
     const imgData = canvas.toDataURL('image/png');
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p', 'mm', 'a4');
@@ -551,9 +605,9 @@ async function downloadPDF(sectionId, clickedButton) {
     pdf.save(`${section.name.replace(/ /g, '_')}.pdf`);
 }
 
-
-// Inicializar
+// --- 6. INICIALIZACIÓN ---
 document.addEventListener('DOMContentLoaded', () => {
+    // CSS para la animación de carga del botón
     const style = document.createElement('style');
     style.innerHTML = `
         @keyframes spin {
@@ -563,6 +617,9 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     document.head.appendChild(style);
     
-    renderSections();
+    // Cargar los registros guardados del usuario
+    loadSections();
+    
+    // Asignar el botón de "Agregar Nuevo"
     document.getElementById('add-section-btn').onclick = addSection;
 });

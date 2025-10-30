@@ -17,28 +17,18 @@ const app = express();
 // Conexión a la base de datos
 connectDB();
 
-// --- INICIO DE LA MODIFICACIÓN (CORS) ---
-// 1. Define las opciones de CORS
+// --- Opciones de CORS (Como lo tenías) ---
 const corsOptions = {
-    // Especifica los orígenes permitidos
     origin: [
-        'http://127.0.0.1:5500', // El que tenías
-        'http://127.0.0.1:5501'  // <-- AÑADE ESTA LÍNEA
+        'http://127.0.0.1:5500',
+        'http://127.0.0.1:5501'
     ],
-
-    // Habilita el envío de credenciales (cookies, tokens)
     credentials: true,
-
-    optionsSuccessStatus: 200 // Para navegadores antiguos
+    optionsSuccessStatus: 200
 };
-// ...
-
-// 2. Aplica el middleware de CORS con estas opciones
 app.use(cors(corsOptions));
-// --- FIN DE LA MODIFICACIÓN (CORS) ---
 
 // Middlewares Globales
-// app.use(cors()); <-- Esta línea se reemplazó por el bloque de arriba
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend'))); // Servir Frontend
 
@@ -46,21 +36,27 @@ app.use(express.static(path.join(__dirname, '../frontend'))); // Servir Frontend
 const authRoutes = require('./src/routes/auth.routes');
 const apiRoutes = require('./src/routes/api.routes');
 const userRoutes = require('./src/routes/usuarios.routes');
-const inaturalistRoutes = require('./src/routes/inaturalist.routes.js'); // Ya estaba
+const inaturalistRoutes = require('./src/routes/inaturalist.routes.js');
+// --- AÑADIR ESTAS DOS LÍNEAS ---
+const climaRoutes = require('./src/routes/clima.routes');
+const registroRoutes = require('./src/routes/registros.routes');
 
-// ===== INICIO DEBUGGING EN APP.JS =====
-// Loguear todas las peticiones que lleguen a /api/v1/inaturalist ANTES de que las maneje el router
+
+// ===== DEBUGGING (Como lo tenías) =====
 app.use('/api/v1/inaturalist', (req, res, next) => {
     console.log(`➡️ Petición recibida en app.js para: ${req.originalUrl} (Método: ${req.method})`);
-    next(); // Continúa hacia el archivo inaturalist.routes.js
+    next(); 
 });
-// ===== FIN DEBUGGING EN APP.JS =====
+
 
 // Definición de Endpoints
 app.use('/api/auth', authRoutes);
 app.use('/api/v1', apiRoutes);
 app.use('/api/v1/usuarios', userRoutes);
-app.use('/api/v1/inaturalist', inaturalistRoutes); // Nueva ruta base para iNaturalist (ya estaba)
+app.use('/api/v1/inaturalist', inaturalistRoutes);
+// --- AÑADIR ESTAS DOS LÍNEAS ---
+app.use('/api/v1/clima', climaRoutes);
+app.use('/api/v1/registros', registroRoutes);
 
 // Servidor
 const PORT = process.env.PORT || 4000;
