@@ -20,14 +20,18 @@ connectDB();
 // --- INICIO DE LA MODIFICACIÓN (CORS) ---
 // 1. Define las opciones de CORS
 const corsOptions = {
-    // Especifica el origen exacto de tu frontend (el que dio el error)
-    origin: 'http://127.0.0.1:5500',
+    // Especifica los orígenes permitidos
+    origin: [
+        'http://127.0.0.1:5500', // El que tenías
+        'http://127.0.0.1:5501'  // <-- AÑADE ESTA LÍNEA
+    ],
 
     // Habilita el envío de credenciales (cookies, tokens)
     credentials: true,
 
     optionsSuccessStatus: 200 // Para navegadores antiguos
 };
+// ...
 
 // 2. Aplica el middleware de CORS con estas opciones
 app.use(cors(corsOptions));

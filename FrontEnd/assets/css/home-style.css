@@ -1,18 +1,18 @@
 /* --- VARIABLES GLOBALES Y TEMA CLARO (DEFAULT) --- */
 :root, html[data-theme="claro"] { /* Aplica a :root y específicamente a claro */
   /* Paleta Claro */
-  --bg: #f4f7f6;         /* Fondo principal muy claro */
+  --bg: #f0f4f2;         /* --- MODIFICADO --- (Antes #f4f7f6) Un poco más oscuro */
   --bg2: #ffffff;        /* Fondo secundario (cards, sidebar) */
   --text: #1a2e25;       /* Texto principal oscuro */
   --muted: #5a7066;      /* Texto secundario/apagado */
-  --border: #d8e0db;     /* Bordes sutiles */
+  --border: #dde2df;     /* --- MODIFICADO --- (Antes #d8e0db) */
   --primary: #16a34a;    /* Verde primario */
   --primary-strong: #15803d;
   --primary-light: #22c55e;
   --accent: #0ea5e9;     /* Azul cielo como acento */
   --shadow-color: rgba(40, 60, 50, 0.15); /* Sombra suave */
   --card-shadow: 0 4px 10px -2px var(--shadow-color);
-  --input-bg: #e9eeeb;   /* Fondo inputs */
+  --input-bg: #e6ece9;   /* --- MODIFICADO --- (Antes #e9eeeb) */
 
   /* Radios y Transiciones */
   --radius: 12px;
@@ -25,7 +25,7 @@ html[data-theme="oscuro"] {
   --bg: #0a110e;
   --bg2: #0f1a15;
   --text: #e1eee8;
-  --muted: #8ca89a;
+  --muted: #9cb7a9;      /* --- MODIFICADO --- (Antes #8ca89a) Más claro para legibilidad */
   --border: #253a31;
   --primary: #22c55e; /* Mantenemos verde brillante */
   --primary-strong: #16a34a;
@@ -37,11 +37,11 @@ html[data-theme="oscuro"] {
 
 /* --- TEMA ECOLÓGICO --- */
 html[data-theme="ecologico"] {
-  --bg: #f0fdf4;         /* Verde muy pálido */
+  --bg: #e6fcf5;         /* --- MODIFICADO --- (Antes #f0fdf4) Más oscuro para reducir brillo */
   --bg2: #ffffff;
   --text: #14532d;       /* Verde oscuro para texto */
   --muted: #15803d;
-  --border: #a7f3d0;     /* Borde verde claro */
+  --border: #bbf7d0;     /* --- MODIFICADO --- (Antes #a7f3d0) */
   --primary: #16a34a;
   --primary-strong: #14532d;
   --primary-light: #22c55e;
@@ -107,6 +107,12 @@ body[data-page-theme="insectos"] .btn.switch { background: linear-gradient(180de
 .btn.switch:hover { filter: brightness(1.1); }
 .btn.secondary { background: var(--input-bg); color: var(--muted); border: 1px solid var(--border); }
 .btn.secondary:hover { background: var(--border); color: var(--text); }
+/* (Añadidos para el registro fenológico) */
+.btn.btn-danger { background: #ef4444; color: white; box-shadow: 0 2px 8px -1px rgba(239, 68, 68, 0.4); }
+.btn.btn-danger:hover { background: #dc2626; }
+.btn.btn-success { background: #22c55e; color: white; box-shadow: 0 2px 8px -1px rgba(34, 197, 94, 0.4); }
+.btn.btn-success:hover { background: #16a34a; }
+
 
 /* --- Área de Contenido General --- */
 .content-area { padding: 24px; }
@@ -148,7 +154,8 @@ body[data-page-theme="insectos"] .btn.switch { background: linear-gradient(180de
 .content { padding: 0 24px 24px; display: grid; gap: 18px; }
 .cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } /* Tamaño base */
 
-/* Estilo Tarjeta Overlay */
+/* (Resto del archivo .css sin cambios...) */
+/* ... */
 .card { position: relative; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); background: var(--bg2); aspect-ratio: 3 / 4; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; box-shadow: var(--card-shadow); }
 .card:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 15px -3px var(--shadow-color); border-color: color-mix(in srgb, var(--primary) 50%, transparent); }
 .card img { width: 100%; height: 100%; object-fit: cover; display: block; background: var(--input-bg); }
@@ -183,10 +190,56 @@ input[type="file"] { font-size: 0.85em; color: var(--muted); margin-top: 5px; di
 #theme-options .theme-btn[data-theme="ecologico"]:not(.active):hover { background-color: #bbf7d0; }
 
 /* --- OTROS (Detail, Lightbox, Responsive, Footer, Leaflet) --- */
-.detail-tabs { margin-bottom: 20px; padding: 0 24px; border-bottom: 1px solid var(--border);} .detail-tabs .tab-btn { border-radius: 8px 8px 0 0; border-bottom: 0; margin-bottom: -1px; background: transparent; border-color: transparent; padding: 8px 12px; font-size: 13px;} .detail-tabs .tab-btn:hover { background: var(--input-bg); } .detail-tabs .tab-btn.active { background: var(--bg); border-color: var(--border); border-bottom-color: var(--bg); color: var(--primary);} .tab-panel { animation: fadeIn 0.3s ease-out; display: none; } .tab-panel.show { display: block; } @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } } .tab-panel h3 { margin: 1.6em 0 0.9em; font-weight: 600; font-size: 1.1em; color: var(--muted); border-bottom: 1px solid var(--border); padding-bottom: 5px;} .tab-panel h3:first-child { margin-top: 0; } #tab-overview .cards { margin-top: 12px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;} #tab-overview .cards img { height: 100px; } .wiki-article { margin-top: 15px; line-height: 1.7; font-size: 0.9em; color: var(--text); } .wiki-article h2, .wiki-article h3, .wiki-article h4 { margin: 1.1em 0 0.5em; color: var(--muted); font-weight: 600; } .wiki-article a { color: var(--primary); text-decoration: none; } .wiki-article a:hover { text-decoration: underline; } .wiki-article img { max-width: 100%; height: auto; border-radius: 6px; margin: 10px 0; border: 1px solid var(--border); } .wiki-article table { margin: 12px 0; width: auto; max-width: 100%; border-collapse: collapse; font-size: 0.85em; } .wiki-article th, .wiki-article td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; } .wiki-article th { background: var(--card); font-weight: 600; } .taxonomy { list-style: none; padding: 0; } .taxonomy li { margin-bottom: 5px; font-size: 0.9em; } .taxonomy strong { color: var(--muted); margin-right: 6px; }
+.detail-tabs { margin-bottom: 20px; padding: 0 24px; border-bottom: 1px solid var(--border);} 
+.detail-tabs .tab-btn { 
+  border-radius: 8px 8px 0 0; 
+  border-bottom: 0; 
+  margin-bottom: -1px; 
+  background: transparent; 
+  border-color: transparent; 
+  padding: 8px 12px; 
+  font-size: 13px;
+  color: var(--muted); /* --- MODIFICADO --- (Añadido) */
+} 
+.detail-tabs .tab-btn:hover { background: var(--input-bg); } 
+.detail-tabs .tab-btn.active { 
+  background: var(--bg); 
+  border-color: var(--border); 
+  border-bottom-color: var(--bg); 
+  color: var(--primary);
+} 
+.tab-panel { animation: fadeIn 0.3s ease-out; display: none; } .tab-panel.show { display: block; } @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } } .tab-panel h3 { margin: 1.6em 0 0.9em; font-weight: 600; font-size: 1.1em; color: var(--muted); border-bottom: 1px solid var(--border); padding-bottom: 5px;} .tab-panel h3:first-child { margin-top: 0; } #tab-overview .cards { margin-top: 12px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;} #tab-overview .cards img { height: 100px; } .wiki-article { margin-top: 15px; line-height: 1.7; font-size: 0.9em; color: var(--text); } .wiki-article h2, .wiki-article h3, .wiki-article h4 { margin: 1.1em 0 0.5em; color: var(--muted); font-weight: 600; } .wiki-article a { color: var(--primary); text-decoration: none; } .wiki-article a:hover { text-decoration: underline; } .wiki-article img { max-width: 100%; height: auto; border-radius: 6px; margin: 10px 0; border: 1px solid var(--border); } .wiki-article table { margin: 12px 0; width: auto; max-width: 100%; border-collapse: collapse; font-size: 0.85em; } .wiki-article th, .wiki-article td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; } .wiki-article th { background: var(--card); font-weight: 600; } .taxonomy { list-style: none; padding: 0; } .taxonomy li { margin-bottom: 5px; font-size: 0.9em; } .taxonomy strong { color: var(--muted); margin-right: 6px; }
 .modal { position: fixed; inset: 0; display: none; place-items: center; z-index: 100; } .modal[aria-hidden="false"] { display: grid; } .modal-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, .8); backdrop-filter: blur(4px); cursor: pointer; } .modal-card { position: relative; width: min(800px, 90vw); max-height: 90vh; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; color: var(--text); box-shadow: var(--shadow); overflow-y: auto; } .modal-x { position: absolute; top: 10px; right: 10px; border: 0; background: transparent; color: #fff; font-size: 28px; cursor: pointer; line-height: 1; padding: 5px; } .lb__btn { position:absolute; top: 50%; transform: translateY(-50%); width:44px; height:44px; border-radius:50%; background: rgba(255,255,255,0.1); border:1px solid var(--border); color: var(--text); display:grid; place-items:center; font-size:28px; cursor:pointer; user-select:none; box-shadow: var(--shadow); z-index: 1; } .lb__btn:hover { background: rgba(255,255,255,0.2); } .lb__prev { left: 15px; } .lb__next { right: 15px; } #lb-img { display: block; max-width: 100%; max-height: 80vh; margin: auto; border-radius: var(--radius-sm); } #lb-cap { text-align: center; color: var(--muted); margin-top: 15px; font-size: 14px; }
 @media (max-width: 980px){ .sidebar{position:fixed; top:0; left:0; height:100%; transform:translateX(-100%);} .sidebar.shown { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.4); } .main{margin-left:0} .topbar .icon-btn { display: block; } }
 @media (max-width: 720px){ .searchbar{grid-template-columns:1fr auto;} .searchbar #toggleMap { grid-column: 1 / 2; grid-row: 2; justify-self: start; margin-top: 8px;} .modal-card { width: 95vw; padding: 15px;} .cards{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))} .card img { height: auto; aspect-ratio: 3/4; } .card .species-info { padding: 15px 8px 6px 8px; } .card .species-info h4 { font-size: 0.8em; } .card .species-info p { font-size: 0.7em; } .topbar { padding: 10px 15px; } .search-wrap, .summary, .map-panel, .content, .detail-tabs { padding-left: 15px; padding-right: 15px; } .profile-name { display: none; } .profile-avatar { width: 30px; height: 30px; } }
 @media (max-width: 480px) { .summary { grid-template-columns: 1fr 1fr; gap: 8px; } .stat { padding: 10px 12px; } .stat-num { font-size: 16px; } .stat-label { font-size: 10px; } .cards{grid-template-columns: 1fr 1fr;} .card img { height: auto; aspect-ratio: 3/4; } .hello h1 { font-size: 15px; } .muted { font-size: 11px; } .btn.switch { font-size: 11px; padding: 7px 9px; } .searchbar { padding: 8px; } .searchbar input { padding: 9px 12px; font-size: 13px; } .lb__btn { width: 32px; height: 32px; font-size: 22px; } .lb__prev { left: 5px; } .lb__next { right: 5px; } .topbar .right { gap: 6px; } .profile-avatar { width: 28px; height: 28px; } }
 .foot { padding: 15px 24px; text-align: center; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 20px;}
 .leaflet-container{ background: var(--bg2); font: inherit; color: inherit; border-radius: var(--radius); } .leaflet-control-zoom a{ background: var(--card); border: 1px solid var(--border); color: var(--text); } .leaflet-control-zoom a:hover{ background: var(--input-bg); } .leaflet-popup-content-wrapper { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow); } .leaflet-popup-tip { background: var(--card); } .popupbox{ display:flex; gap:10px; align-items:flex-start; } .popupbox__img{ width:80px; height:60px; object-fit:cover; border-radius: var(--radius-sm); border:1px solid var(--border); background:var(--bg2); } .popupbox__body{ display:grid; gap:3px } .popupbox__title{ font-weight:600; font-size: 1em; } .popupbox__sci{ font-style:italic; color: var(--muted); font-size: 0.85em } .popupbox__meta{ font-size: 0.8em; opacity:.85 } .popupbox .btn-sm { margin-top: 6px; }
+
+/* --- Leyenda Específica para Registro Fenológico --- */
+/* (Esto puede ir en home-style.css o en registro-fenologico.css) */
+.legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 0.75rem;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--input-bg);
+}
+.legend-color {
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}

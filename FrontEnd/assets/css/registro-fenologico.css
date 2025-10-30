@@ -1,0 +1,125 @@
+/* --- ESTILOS PARA EL REGISTRO FENOLÓGICO --- */
+/* Estos estilos son específicos para esta página 
+   y dependen de home-style.css para funcionar. */
+
+/* Contenedor de la grilla de 30 cuadros */
+.cells-container {
+    display: grid;
+    /* Usa las variables de tu proyecto para adaptarse a los temas */
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--input-bg); /* Fondo de input */
+    border-radius: var(--radius-sm); /* Radio pequeño */
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+}
+
+/* Wrapper para el cuadro + fecha */
+.cell-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* El cuadro fenológico principal */
+.phenological-cell {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    border: 2px solid var(--text); /* Borde con color de texto */
+    background: var(--bg2); /* Fondo de tarjeta */
+}
+
+/* Los 4 segmentos de cada lado */
+.cell-segment {
+    position: absolute;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px; 
+    font-weight: bold;
+    color: var(--text); /* Color de texto */
+}
+
+.cell-segment:hover {
+    opacity: 0.75;
+}
+
+/* Cuadrado central del cuadro */
+.cell-center {
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    width: 50%;
+    height: 50%;
+    background-color: var(--input-bg); /* Fondo de input */
+}
+
+/* Input de fecha, adaptado a los estilos de tu proyecto */
+.cell-date-input {
+    padding: 0.25rem 0.4rem; 
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.813rem; 
+    width: 120px;
+    background: var(--input-bg);
+    color: var(--text);
+    outline: none;
+    text-align: center;
+}
+.cell-date-input:focus {
+    border-color: var(--primary);
+    background: var(--bg2);
+}
+
+
+/* --- Colores de Leyenda --- */
+.legend-color.phase-1 { background-color: #facc15; color: #713f12; }
+.legend-color.phase-2 { background-color: #22c55e; color: #14532d; }
+.legend-color.phase-3 { background-color: #f97316; color: #7c2d12; }
+.legend-color.phase-4 { background-color: #b45309; color: #451a03; }
+.legend-color.phase-5 { background-color: #a855f7; color: #f5f3ff; }
+
+
+/* --- ESTILOS PARA EL PDF (CORRECCIÓN DE INPUTS) --- */
+.pdf-text-replacement {
+    font-size: 0.95em; /* Coincide con .input-group */
+    padding: 10px 12px; /* Coincide con .input-group */
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background-color: var(--input-bg);
+    min-height: 40px; /* Alto similar al input */
+    line-height: 1.6;
+    word-wrap: break-word;
+    color: var(--text);
+}
+
+/* Estilo para las fechas */
+.cell-wrapper .pdf-text-replacement {
+    padding: 0.25rem 0.4rem;
+    font-size: 0.813rem;
+    width: 120px;
+    text-align: center;
+    min-height: 0;
+    height: 25.5px; 
+}
+
+/* Estilo para el textarea de observaciones */
+pre.pdf-text-replacement {
+    min-height: 100px; /* Coincide con .input-group textarea */
+    font-family: inherit;
+    white-space: pre-wrap;
+}
+
+/* Oculta los botones en la impresión del navegador */
+@media print {
+    .no-print {
+        display: none;
+    }
+}
