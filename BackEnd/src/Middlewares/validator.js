@@ -1,5 +1,3 @@
-// backend/src/middlewares/validator.js
-
 const { validationResult } = require('express-validator');
 
 const validarCampos = (req, res, next) => {

@@ -1,11 +1,7 @@
-// backend/src/helpers/clima.helper.js
-
 const CLIMA_API_URL = 'https://api.openweathermap.org/data/2.5/weather'; 
 
 /**
- * Consulta una API de clima para obtener datos basados en coordenadas.
- * NOTA: Esta función es un placeholder. La implementación real requiere 
- * una clave de API válida y un manejo de errores robusto.
+ 
  * @param {number} lat Latitud.
  * @param {number} lng Longitud.
  * @returns {Promise<{temperatura: number, humedad: number, clima: string}>} Datos del clima.

@@ -1,5 +1,3 @@
-// backend/src/helpers/inaturalist.helper.js (VERSIÓN GLOBAL ESTABLE)
-
 const INATURALIST_API_URL = 'https://api.inaturalist.org/v1/observations';
 
 const buscarEspecies = async (taxonName, query = '') => {

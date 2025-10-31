@@ -1,5 +1,3 @@
-// backend/src/controllers/clases.controller.js
-
 const Clase = require('../models/Clase.model');
 const Usuario = require('../models/Usuario.model');
 

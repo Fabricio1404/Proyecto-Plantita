@@ -4,7 +4,7 @@
   if (!token) location.href = "./login.html";
 })();
 
-// ===== Imágenes aleatorias por tarjeta =====
+// Imágenes aleatorias por tarjeta
 const plantImages = [
   "./assets/img/selector/planta1.jpg",
   "./assets/img/selector/planta2.jpg",
@@ -13,7 +13,6 @@ const plantImages = [
   "./assets/img/selector/planta5.jpg",
 
 ];
-
 const insectImages = [
   "./assets/img/selector/insecto1.jpg",
   "./assets/img/selector/insecto2.jpg",
@@ -29,11 +28,10 @@ function getRandomImage(images) {
 // Asignar imágenes al cargar
 const imgPlants = document.getElementById("img-plants");
 const imgInsects = document.getElementById("img-insects");
-
 if (imgPlants) imgPlants.style.backgroundImage = `url('${getRandomImage(plantImages)}')`;
 if (imgInsects) imgInsects.style.backgroundImage = `url('${getRandomImage(insectImages)}')`;
 
-// ===== Navegación =====
+// Navegación
 document.getElementById("card-plants")?.addEventListener("click", () => {
   location.href = "./plantas.html";
 });
@@ -41,7 +39,7 @@ document.getElementById("card-insects")?.addEventListener("click", () => {
   location.href = "./insectos.html";
 });
 
-// ===== Logout =====
+// Logout
 document.getElementById("btnLogout")?.addEventListener("click", () => {
   localStorage.removeItem("token");
   location.href = "./auth.html";

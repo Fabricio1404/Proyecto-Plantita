@@ -1,5 +1,3 @@
-// backend/src/routes/inaturalist.routes.js
-
 const { Router } = require('express');
 const { validarJWT } = require('../middlewares/auth'); 
 const {
@@ -8,9 +6,7 @@ const {
     getFullTaxonDetails
 } = require('../controllers/inaturalist.controller');
 
-// ===== INICIO DEBUGGING =====
-console.log('✅ Archivo de rutas iNaturalist cargado y usado.');
-// ===== FIN DEBUGGING =====
+console.log('Archivo de rutas iNaturalist cargado y usado.');
 
 const router = Router();
 

@@ -1,5 +1,3 @@
-// backend/src/models/Usuario.model.js
-
 const mongoose = require('mongoose');
 
 const UsuarioSchema = new mongoose.Schema({

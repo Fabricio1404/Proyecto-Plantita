@@ -1,9 +1,6 @@
-// backend/src/routes/api.routes.js
-
 const { Router } = require('express');
 const { validarJWT } = require('../middlewares/auth');
 
-// --- INICIO DE LA MODIFICACIÓN ---
 // Controladores importados
 const listasCtrl = require('../controllers/listas.controller');
 const obsCtrl = require('../controllers/observaciones.controller');
@@ -11,7 +8,6 @@ const clasesCtrl = require('../controllers/clases.controller');
 
 const router = Router();
 
-// --- MIDDLEWARE DE AUTENTICACIÓN (TODO AQUÍ REQUIERE TOKEN) ---
 router.use(validarJWT);
 
 

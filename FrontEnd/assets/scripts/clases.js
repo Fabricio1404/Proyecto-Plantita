@@ -1,5 +1,3 @@
-// frontend/assets/scripts/clases.js
-
 import { createClase, joinClase, getMisClases } from './api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -15,6 +13,7 @@ function setupClassForms() {
     const joinContainer = document.getElementById('join-class-container');
     const createContainer = document.getElementById('create-class-container');
     
+    // Toggle para mostrar formularios
     joinBtn.addEventListener('click', () => {
         joinContainer.style.display = joinContainer.style.display === 'none' ? 'block' : 'none';
         createContainer.style.display = 'none';
@@ -27,9 +26,7 @@ function setupClassForms() {
         document.getElementById('create-message-area').textContent = '';
     });
     
-    // -------------------
-    // Unirse a Clase
-    // -------------------
+    // --- Unirse a Clase ---
     document.getElementById('join-class-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const code = document.getElementById('class-code').value.trim();
@@ -48,16 +45,13 @@ function setupClassForms() {
         }
     });
 
-    // -------------------
-    // Crear Clase
-    // -------------------
+    // --- Crear Clase ---
     document.getElementById('create-class-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('class-name').value.trim();
         const messageArea = document.getElementById('create-message-area');
         messageArea.textContent = 'Creando clase...';
 
-        // NOTA: La lógica de rol de profesor debe ser verificada en el backend
         const response = await createClase(name);
         
         if (response.ok) {
@@ -71,10 +65,9 @@ function setupClassForms() {
     });
 }
 
-// -------------------------------------------------------------------
-// CARGA Y VISUALIZACIÓN DE CLASES
-// -------------------------------------------------------------------
-
+/**
+ * Carga y visualización de clases
+ */
 async function loadMisClases() {
     const container = document.getElementById('classes-container');
     container.innerHTML = '<p>Buscando tus clases...</p>';

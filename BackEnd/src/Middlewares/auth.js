@@ -1,5 +1,3 @@
-// backend/src/middlewares/auth.js
-
 const jwt = require('jsonwebtoken');
 
 const validarJWT = (req, res, next) => {

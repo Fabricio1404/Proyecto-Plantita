@@ -1,5 +1,3 @@
-/* frontend/assets/css/main.css */
-
 /* --- Layout Principal --- */
 .app-layout {
     display: flex;
@@ -51,7 +49,7 @@
 
 .header {
     display: flex;
-    justify-content: flex-end; /* Mueve los elementos a la derecha */
+    justify-content: flex-end;
     align-items: center;
     padding: 15px 30px;
     background-color: var(--color-surface);
@@ -131,7 +129,7 @@
 
 /* --- Mapa Oculto --- */
 .map-container {
-    height: 300px; /* Altura del mapa */
+    height: 300px;
     background-color: #eee;
     margin-bottom: 20px;
     border-radius: 8px;
@@ -142,7 +140,7 @@
 }
 
 .map-container.visible {
-    max-height: 400px; /* Altura máxima cuando está visible */
+    max-height: 400px;
     opacity: 1;
     padding: 10px;
     border: 1px solid var(--color-border);

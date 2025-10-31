@@ -1,5 +1,3 @@
-// backend/src/routes/usuarios.routes.js
-
 const { Router } = require('express');
 const { validarJWT } = require('../middlewares/auth');
 const { obtenerPerfil, actualizarPerfil, actualizarTema } = require('../controllers/usuarios.controller');

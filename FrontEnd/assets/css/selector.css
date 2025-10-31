@@ -1,6 +1,4 @@
-/* ==============================================
-   Variables globales
-   ============================================== */
+/* --- Variables globales --- */
 :root {
   --bg: #0f172a;
   --card: #111827;
@@ -9,9 +7,7 @@
   --accent2: #06b6d4;
 }
 
-/* ==============================================
-   Reset básico
-   ============================================== */
+/* --- Reset básico --- */
 * {
   box-sizing: border-box;
 }
@@ -27,18 +23,14 @@ body {
   color: var(--text);
 }
 
-/* ==============================================
-   Contenedor principal
-   ============================================== */
+/* --- Contenedor principal --- */
 .container {
   max-width: 1100px;
   margin: 0 auto;
   padding: 24px;
 }
 
-/* ==============================================
-   Header
-   ============================================== */
+/* --- Header --- */
 .header {
   display: flex;
   align-items: center;
@@ -59,29 +51,23 @@ body {
   color: var(--text);
 }
 
-/* ==============================================
-   Sección hero
-   ============================================== */
+/* --- Sección hero --- */
 .hero {
   text-align: center;
   padding: 40px 12px 0;   
   margin-bottom: 10px;    
 }
 
-/* ==============================================
-   Grid de tarjetas
-   ============================================== */
+/* --- Grid de tarjetas --- */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
-  margin-top: 10px;       /* 🔹 antes era 24px, lo achicamos */
+  margin-top: 10px;
 }
 
 
-/* ==============================================
-   Tarjetas
-   ============================================== */
+/* --- Tarjetas --- */
 .card {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03));
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -97,14 +83,12 @@ body {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* ==============================================
-   Imagen dentro de la tarjeta
-   ============================================== */
+/* --- Imagen dentro de la tarjeta --- */
 .card-img {
   width: 100%;
-  height: 220px;              /* más alto para fotos verticales */
+  height: 220px;
   border-radius: 12px;
-  background-size: cover;     /* cubre toda la caja */
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   margin-bottom: 12px;
@@ -112,10 +96,10 @@ body {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25) inset;
 }
 
-/* ===== Logo personalizado ===== */
+/* --- Logo personalizado --- */
 .brand img.logo {
   width: 42px;
   height: 42px;
-  border-radius: 8px; /* esquinas redondeadas */
-  object-fit: contain; /* asegura que no se deforme */
+  border-radius: 8px;
+  object-fit: contain;
 }

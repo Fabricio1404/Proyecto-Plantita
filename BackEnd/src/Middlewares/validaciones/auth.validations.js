@@ -1,5 +1,3 @@
-// backend/src/middlewares/validaciones/auth.validations.js
-
 const { body } = require('express-validator');
 
 const validarRegistro = [

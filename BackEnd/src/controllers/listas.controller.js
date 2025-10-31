@@ -1,5 +1,3 @@
-// backend/src/controllers/listas.controller.js
-
 const Lista = require('../models/Lista.model');
 
 

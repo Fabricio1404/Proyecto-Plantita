@@ -1,5 +1,3 @@
-// backend/src/models/Lista.model.js
-
 const mongoose = require('mongoose');
 
 const ListaSchema = new mongoose.Schema({

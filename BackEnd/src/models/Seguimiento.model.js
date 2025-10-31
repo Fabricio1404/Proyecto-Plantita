@@ -1,5 +1,3 @@
-// backend/src/models/Seguimiento.model.js
-
 const mongoose = require('mongoose');
 
 const ObservacionSchema = new mongoose.Schema({

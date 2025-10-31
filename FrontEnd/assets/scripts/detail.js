@@ -1,27 +1,21 @@
-// frontend/assets/scripts/detail.js
-
-// ===== INICIO CAMBIO 1: Definir URL del Backend =====
-const BACKEND_URL = "http://localhost:4000"; // URL base de tu servidor Node.js
-const API_BASE_PATH = "/api/v1/inaturalist"; // Ruta relativa DENTRO del backend
-// ===== FIN CAMBIO 1 =====
-
-console.log("detail.js (versión backend) cargado");
+import { protectedFetch } from './api.js';
 
 const $ = (s) => document.querySelector(s);
 const params = new URLSearchParams(location.search);
 const taxonId = params.get("id");
 
-// --- Volver a la sección de origen (plantas o insectos) ---
-(() => {
+// Configura el botón "Volver"
+(function setupBackButton() {
   const backBtn = document.getElementById('back-button');
   if (!backBtn) return;
-  const from = new URLSearchParams(location.search).get('from');
-  // Si tenemos el origen, seteamos el href y click
+  const from = params.get('from');
+  
   let target = null;
   if (from === 'plantas') target = 'plantas.html';
   else if (from === 'insectos') target = 'insectos.html';
-  // Configurar
+  
   if (target) backBtn.setAttribute('href', target);
+  
   backBtn.addEventListener('click', (e) => {
     if (target) {
       e.preventDefault();
@@ -33,8 +27,7 @@ const taxonId = params.get("id");
   });
 })();
 
-
-// UI refs
+// Referencias a elementos de la UI
 const title = $("#title");
 const subtitle = $("#subtitle");
 const aboutDiv = $("#about");
@@ -43,11 +36,10 @@ const obsCount = $("#obs-count");
 const recentGrid = $("#recent");
 const badgesDiv = $("#badges");
 const namesDiv = $("#names");
-// const synonymsDiv = $("#synonyms"); // Asegúrate que este ID exista en tu HTML si lo usas
 
 let map, clusterLayer;
 
-/* ---------- Map ---------- */
+/* --- Mapa (Leaflet) --- */
 function initMap() {
   map = L.map("detail-map", { zoomControl: true, minZoom: 3 });
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(map);
@@ -61,6 +53,7 @@ function initMap() {
 }
 initMap();
 
+/* --- Pestañas (Tabs) --- */
 function switchTabs() {
   document.querySelectorAll(".detail-tabs .tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -69,55 +62,19 @@ function switchTabs() {
       btn.classList.add("active");
       const tabPanel = document.getElementById(btn.dataset.tab);
       if (tabPanel) tabPanel.classList.add("show");
+      // Refresca el tamaño del mapa si se abre esa pestaña
       if (btn.dataset.tab === "tab-map") setTimeout(() => map.invalidateSize(), 250);
     });
   });
 }
 switchTabs();
 
-/* ---------- Helpers ---------- */
-// ===== INICIO CAMBIO 2: fetchAPI usa BACKEND_URL =====
-async function fetchAPI(relativePath) { // Ahora recibe la ruta relativa
-  const token = localStorage.getItem('token');
-  if (!token) {
-    console.error("No token found, redirecting to auth.");
-    return window.location.href = 'auth.html'; // Asegúrate que auth-guard.js también redirija
-  }
-
-  const fullUrl = BACKEND_URL + relativePath; // Construye la URL completa
-  console.log("📞 Calling Backend:", fullUrl); // Log para ver la URL
-
-  try {
-      const res = await fetch(fullUrl, {
-          headers: {
-              'x-token': token // Usamos el header 'x-token' que tu backend espera
-          }
-      });
-
-      if (res.status === 401) {
-          console.error("Token invalid (401), redirecting to auth.");
-          localStorage.clear();
-          return window.location.href = 'auth.html';
-      }
-      if (!res.ok) {
-          const errorData = await res.json().catch(() => ({}));
-          console.error(`Error de red: ${res.status} ${res.statusText}`, errorData);
-          throw new Error(errorData.msg || `Error de red: ${res.statusText}`);
-      }
-      return res.json();
-  } catch(error) {
-      console.error("Fetch API Error:", error);
-      throw error; // Re-lanza para que loadTaxon lo capture
-  }
-}
-// ===== FIN CAMBIO 2 =====
-
+// Helpers de renderizado
 const BADGE = (t) => `<span class="badge">${t}</span>`;
 const CHIP  = (t) => `<span class="badge" title="${t}">${t}</span>`;
 function escapeHTML(s){ return s?.replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])) || ""; }
 
-
-/* ---------- Mini-gráficos (sin cambios) ---------- */
+/* --- Mini-gráficos de Estacionalidad --- */
 function renderBarSeries(containerId, labels, values, unitLabel) {
   const max = Math.max(1, ...values);
   const bars = labels.map((lab, i) => {
@@ -133,13 +90,13 @@ function renderBarSeries(containerId, labels, values, unitLabel) {
   if(el) el.innerHTML = `<div style="display:flex;gap:10px;align-items:flex-end">${bars}</div>`;
 }
 
-/* ---------- Lightbox (sin cambios) ---------- */
+/* --- Lightbox (Zoom de fotos) --- */
 let LB = { list: [], idx: 0, el: null, img: null, cap: null };
 function initLightbox(){
   LB.el  = document.getElementById("lightbox");
   LB.img = document.getElementById("lb-img");
   LB.cap = document.getElementById("lb-cap");
-  if (!LB.el) { console.warn("Lightbox element not found"); return; }
+  if (!LB.el) return;
   LB.el.addEventListener("click", (e)=>{
     if (e.target.hasAttribute("data-lb-close")) closeLB();
     if (e.target.hasAttribute("data-lb-prev"))  prevLB();
@@ -166,7 +123,7 @@ function closeLB(){ if (LB.el) LB.el.setAttribute("aria-hidden","true"); if (LB.
 function prevLB(){ openLB(LB.idx-1); }
 function nextLB(){ openLB(LB.idx+1); }
 
-/* ---------- Main (TOTALMENTE MODIFICADO) ---------- */
+/* --- Función Principal de Carga de Datos --- */
 async function loadTaxon() {
   if (!taxonId) {
       if (title) title.textContent = "Error";
@@ -174,15 +131,18 @@ async function loadTaxon() {
       return;
   }
 
-  // ===== INICIO CAMBIO 3: Construir ruta relativa =====
-  const relativePath = `${API_BASE_PATH}/detail/${taxonId}`;
-  // ===== FIN CAMBIO 3 =====
+  const token = localStorage.getItem('token');
+  if (!token) return; // auth-guard.js debería haber redirigido
+
+  // Define la ruta relativa a la API v1
+  const relativePath = `/inaturalist/detail/${taxonId}`;
 
   try {
-      // 1) Llamar a nuestro backend. ¡Una sola vez!
-      const R = await fetchAPI(relativePath); // Llama con la ruta relativa
-      if (!R || !R.taxon) {
-          throw new Error("No se pudo cargar el taxón desde el backend.");
+      // 1) Llamar a nuestro backend una sola vez
+      const { ok, data: R } = await protectedFetch(relativePath, token);
+      
+      if (!ok || !R.taxon) {
+          throw new Error(R.msg || "No se pudo cargar el taxón desde el backend.");
       }
 
       const t = R.taxon;
@@ -191,7 +151,7 @@ async function loadTaxon() {
       if (title) title.textContent = t.preferred_common_name || "—";
       if (subtitle) subtitle.textContent = t.name || "";
 
-      // 3) Renderizar "Acerca de" (HTML viene sanitizado del backend)
+      // 3) Renderizar "Acerca de"
       if (aboutDiv) {
           aboutDiv.innerHTML = `
             ${t.wikipedia_url ? `<p><a href="${t.wikipedia_url}" target="_blank" rel="noopener">Fuente: Wikipedia</a> ${R.wikipedia?.lang ? `<small style="opacity:.75">(idioma: ${R.wikipedia.lang.toUpperCase()})</small>` : ""}</p>` : ""}
@@ -210,7 +170,7 @@ async function loadTaxon() {
 
       // 5) Taxonomía
       const ranks = ["kingdom","phylum","class","order","family","genus","species"];
-      const ancestors = (t.ancestors || []).filter((a) => a.rank && ranks.includes(a.rank)); // Added check for a.rank
+      const ancestors = (t.ancestors || []).filter((a) => a.rank && ranks.includes(a.rank));
       if (taxList) {
           taxList.innerHTML = ancestors.concat([{ name: t.name, rank: "species" }])
             .map((a) => `<li><strong>${a.rank}:</strong> ${a.name}</li>`).join("");
@@ -258,7 +218,7 @@ async function loadTaxon() {
       const totalObsAR = obs.total_results || 0;
       if (obsCount) obsCount.textContent = `${totalObsAR.toLocaleString("es-AR")} observaciones en Argentina`;
 
-      clusterLayer.clearLayers(); // Limpia marcadores anteriores si los hubiera
+      clusterLayer.clearLayers();
       (obs.results || []).forEach((r) => {
         if (!r.geojson?.coordinates) return;
         const [lng, lat] = r.geojson.coordinates;
@@ -266,7 +226,7 @@ async function loadTaxon() {
         const thumb = p?.url ? p.url.replace("square","small") : "";
         const common = t.preferred_common_name || r.species_guess || "—";
         const date = (r.observed_on || "").split("T")[0] || "";
-        const gmapsUrl = `https://maps.google.com/?q=${lat},${lng}`; // Correct Google Maps URL
+        const gmapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
 
         const html = `
           <div class="popupbox">
@@ -284,7 +244,7 @@ async function loadTaxon() {
         clusterLayer.addLayer(m);
       });
       if (clusterLayer.getLayers().length) {
-        try { map.fitBounds(clusterLayer.getBounds().pad(0.2)); } catch(err) { console.warn("Error fitting map bounds:", err); }
+        try { map.fitBounds(clusterLayer.getBounds().pad(0.2)); } catch(err) { /* Ignorar error si no hay marcadores */ }
       }
 
       // 9) Estacionalidad (mes/hora, AR)
@@ -325,16 +285,17 @@ async function loadTaxon() {
                   <p class="sci">${escapeHTML(sci)}</p>
                 </div>
               </article>
-            `; // Added species-card class
+            `;
           }).join("");
           similarGrid.innerHTML = cards;
+          
+          // Recarga la página al hacer clic en una especie similar
           similarGrid.addEventListener("click",(e)=>{
-            const card = e.target.closest(".species-card"); // Busca por .species-card
+            const card = e.target.closest(".species-card");
             if(!card) return;
             const id = card.dataset.id;
             if (id) {
-                console.log(`Similar species clicked, reloading detail.html?id=${id}`);
-                location.href = `detail.html?id=${id}`; // Recarga la página con el nuevo ID
+                location.href = `detail.html?id=${id}`;
             }
           });
       }

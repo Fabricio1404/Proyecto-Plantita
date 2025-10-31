@@ -1,4 +1,3 @@
-// frontend/assets/scripts/api.js (solo la parte relevante)
 export const API_V1_URL = (window.API_V1_URL) || 'http://localhost:4000/api/v1';
 
 export const protectedFetch = async (endpoint, token, options = {}) => {

@@ -5,11 +5,8 @@ const RegistroFenologico = require('../models/RegistroFenologico');
 
 const router = Router();
 
-// --- Proteger todas las rutas ---
-// De aquí para abajo, todas las rutas requerirán un token válido
 router.use(validarJWT);
 
-// GET /api/v1/registros (Obtener todos los registros del usuario)
 router.get('/', async (req, res) => {
     try {
         const registros = await RegistroFenologico.find({ user: req.uid })
@@ -21,7 +18,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-// POST /api/v1/registros (Crear un nuevo registro)
 router.post('/', async (req, res) => {
     try {
         const nuevoRegistro = new RegistroFenologico(req.body);
@@ -37,7 +33,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-// PUT /api/v1/registros/:id (Actualizar un registro completo)
 router.put('/:id', async (req, res) => {
     const registroId = req.params.id;
     try {
@@ -65,7 +60,6 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// DELETE /api/v1/registros/:id (Eliminar un registro)
 router.delete('/:id', async (req, res) => {
     const registroId = req.params.id;
     try {

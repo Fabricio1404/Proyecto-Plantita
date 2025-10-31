@@ -1,5 +1,3 @@
-// backend/src/controllers/observaciones.controller.js
-
 const Seguimiento = require('../models/Seguimiento.model');
 const { obtenerClimaPorCoordenadas } = require('../helpers/clima.helper');
 const { generarPDFInforme } = require('../helpers/generadorInformes.helper');

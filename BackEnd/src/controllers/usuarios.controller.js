@@ -1,5 +1,3 @@
-// backend/src/controllers/usuarios.controller.js
-
 const Usuario = require('../models/Usuario.model');
 const bcrypt = require('bcryptjs');
 

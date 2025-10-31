@@ -1,5 +1,3 @@
-// backend/src/models/Clase.model.js
-
 const mongoose = require('mongoose');
 
 const ClaseSchema = new mongoose.Schema({

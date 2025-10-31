@@ -1,5 +1,4 @@
-// ====== Config ======
-// Prioridad: localStorage.API_BACK > localhost:4000 > location.origin
+// Determina la URL base de la API
 const API_BASE =
   localStorage.getItem("API_BACK") ||
   ((location.hostname === "localhost" || location.hostname === "127.0.0.1")
@@ -12,6 +11,7 @@ const signInBtn = document.getElementById("signIn");
 const linkToSignUp = document.getElementById("linkToSignUp");
 const linkToSignIn = document.getElementById("linkToSignIn");
 
+// Funciones para animar el panel de Login/Registro
 function openSignup() {
   container?.classList.add("right-panel-active");
   if (location.hash !== "#signup") history.replaceState(null, "", "#signup");
@@ -25,13 +25,13 @@ signInBtn?.addEventListener("click", openSignin);
 linkToSignUp?.addEventListener("click", e => { e.preventDefault(); openSignup(); });
 linkToSignIn?.addEventListener("click", e => { e.preventDefault(); openSignin(); });
 
-// Activar registro si viene ?mode=signup o #signup
+// Activar registro si la URL lo indica
 (function initMode() {
   const params = new URLSearchParams(location.search);
   if (params.get("mode") === "signup" || location.hash === "#signup") openSignup();
 })();
 
-// ====== Toast helpers ======
+// --- Helpers de UI ---
 function ensureToastWrap() {
   let w = document.querySelector(".toast-wrap");
   if (!w) { w = document.createElement("div"); w.className = "toast-wrap"; document.body.appendChild(w); }
@@ -47,7 +47,7 @@ function toast(msg, type = "ok", timeout = 2000) {
   setTimeout(() => { el.remove(); }, timeout + 250);
 }
 
-// ====== Auth helpers ======
+// --- Helpers de Autenticación ---
 function setToken(t) { localStorage.setItem("token", t); }
 function getToken() { return localStorage.getItem("token"); }
 function clearToken() { localStorage.removeItem("token"); }
@@ -62,7 +62,7 @@ async function api(path, opts = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
     ...opts,
     headers,
-    credentials: "include" // cookies si tu backend las usa
+    credentials: "include"
   });
   let data = {};
   try { data = await res.json(); } catch (e) { }
@@ -70,7 +70,7 @@ async function api(path, opts = {}) {
   return data;
 }
 
-// ====== Registro ======
+// --- Manejador de Registro ---
 const signupForm = document.getElementById("signupForm");
 const signupFirst = document.getElementById("signup-firstname");
 const signupLast = document.getElementById("signup-lastname");
@@ -83,15 +83,12 @@ const signupLastErr  = document.getElementById("signup-lastname-error");
 const signupUserErr  = document.getElementById("signup-username-error");
 const signupEmailErr = document.getElementById("signup-email-error");
 const signupPassErr  = document.getElementById("signup-password-error");
-// (NUEVO) Referencia al error global
 const signupGlobalErr = document.getElementById("signup-global-error");
 
 function clearSignupErrors() {
-  // (NUEVO) Limpia también el error global
   [signupFirstErr, signupLastErr, signupUserErr, signupEmailErr, signupPassErr, signupGlobalErr].forEach(el => { if (el) el.textContent = ""; });
 }
 
-// (Modo: Redirige a Login)
 signupForm?.addEventListener("submit", async (e) => {
   e.preventDefault(); clearSignupErrors();
   const body = {
@@ -104,7 +101,6 @@ signupForm?.addEventListener("submit", async (e) => {
     password: signupPass?.value || ""
   };
   try {
-    // (Ruta corregida)
     const data = await api("/api/auth/register", { method: "POST", body: JSON.stringify(body) });
     
     toast(data.msg || "Registro exitoso. Inicia sesión.", "ok");
@@ -118,10 +114,9 @@ signupForm?.addEventListener("submit", async (e) => {
     const msg = err?.msg || err?.message || first?.msg || "Error en el registro";
     const path = first?.path || "";
     
-    toast(msg, "err"); // El toast sigue igual
+    toast(msg, "err");
 
-    // --- INICIO DE LA CORRECCIÓN DE ERRORES ---
-    // (Reemplazamos el 'if/else' por un 'switch' más limpio)
+    // Asigna el mensaje de error al campo correspondiente
     switch (path) {
       case 'profile.first_name':
         signupFirstErr.textContent = msg;
@@ -132,23 +127,20 @@ signupForm?.addEventListener("submit", async (e) => {
       case 'username':
         signupUserErr.textContent = msg;
         break;
-      case 'email': // <-- Ahora el error de email irá aquí
+      case 'email':
         signupEmailErr.textContent = msg;
         break;
       case 'password':
         signupPassErr.textContent = msg;
         break;
       default:
-        // Si el path no coincide, va al error global
         signupGlobalErr.textContent = msg;
     }
-    // --- FIN DE LA CORRECCIÓN DE ERRORES ---
   }
 });
 
 
-// ====== Login ======
-// (Esta sección no se modifica)
+// --- Manejador de Login ---
 const signinForm = document.getElementById("signinForm");
 const signinUserOrEmail = document.getElementById("signin-email"); 
 const signinPass = document.getElementById("signin-password");
@@ -163,16 +155,18 @@ function clearSigninErrors() {
 signinForm?.addEventListener("submit", async (e) => {
   e.preventDefault(); clearSigninErrors();
   const val = (signinUserOrEmail?.value || "").trim();
+  
+  // Permite iniciar sesión con email o username
   const body = val.includes("@")
     ? { email: val.toLowerCase(), password: signinPass?.value || "" }
     : { username: val, password: signinPass?.value || "" };
 
   try {
-    // (Ruta corregida)
     const data = await api("/api/auth/login", { method: "POST", body: JSON.stringify(body) });
 
     if (data.token) setToken(data.token);
 
+    // Guarda datos del usuario en localStorage para usarlos en otras páginas
     const displayName =
       (data.user?.profile?.first_name) ||
       (data.user?.username) ||
@@ -181,7 +175,6 @@ signinForm?.addEventListener("submit", async (e) => {
 
     localStorage.setItem("displayName", displayName);
     localStorage.setItem("userName", displayName);
-    
     localStorage.setItem('uid', data.user.uid);
     localStorage.setItem('rol', data.user.rol);
     if (data.user.configuracion) {

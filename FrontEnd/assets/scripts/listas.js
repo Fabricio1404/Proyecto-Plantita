@@ -1,5 +1,3 @@
-// frontend/assets/scripts/listas.js
-
 import { getListas, createLista } from './api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -61,7 +59,7 @@ async function loadUserLists() {
 }
 
 function createListCard(list) {
-    const visibility = list.publica ? 'Pública 🌐' : 'Privada 🔒';
+    const visibility = list.publica ? 'Pública ' : 'Privada ';
     const speciesCount = list.especies.length;
     
     return `

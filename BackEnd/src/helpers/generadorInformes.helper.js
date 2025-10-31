@@ -1,5 +1,3 @@
-// backend/src/helpers/generadorInformes.helper.js
-
 const PDFDocument = require('pdfkit');
 
 /**

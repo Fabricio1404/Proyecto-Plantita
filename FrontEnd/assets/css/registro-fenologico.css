@@ -1,47 +1,40 @@
-/* --- ESTILOS PARA EL REGISTRO FENOLÓGICO --- */
+/* --- Estilos para Registro Fenológico --- */
 
-/* Contenedor de la grilla -> Vuelve a ser GRID */
 .cells-container {
     display: grid;
-    /* Columnas automáticas, con un mínimo de 180px para que quepan los inputs de clima */
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 1.5rem; /* Espacio entre cada cuadro */
+    gap: 1.5rem; 
     padding: 1rem;
     background-color: var(--input-bg);
     border-radius: var(--radius-sm);
     margin-bottom: 1rem;
     border: 1px solid var(--border);
+    page-break-inside: avoid;
 }
 
-/* --- ESTILO DE FILA ELIMINADO --- */
-/* .cell-row ya no se usa */
-
-/* Wrapper para el [Cuadro + Fecha + Clima] */
 .cell-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem; /* Espacio entre cuadro, fecha y clima */
+    gap: 0.75rem; 
     flex-shrink: 0;
-    /* Añadimos un fondo para que cada "tarjeta" de celda se vea unida */
     background: var(--bg2);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 0.75rem;
     box-shadow: var(--card-shadow);
+    page-break-inside: avoid;
 }
 
-/* El cuadro fenológico principal (sin cambios) */
 .phenological-cell {
     position: relative;
     width: 96px;
     height: 96px;
     border: 2px solid var(--text);
     background: var(--bg2);
-    flex-shrink: 0; /* No se encoge */
+    flex-shrink: 0; 
 }
 
-/* Los 4 segmentos de cada lado (sin cambios) */
 .cell-segment {
     position: absolute;
     cursor: pointer;
@@ -57,7 +50,6 @@
 }
 .cell-segment:hover { opacity: 0.75; }
 
-/* Cuadrado central del cuadro (sin cambios) */
 .cell-center {
     position: absolute;
     top: 25%;
@@ -67,7 +59,6 @@
     background-color: var(--input-bg);
 }
 
-/* Input de fecha (sin cambios) */
 .cell-date-input {
     padding: 0.25rem 0.4rem; 
     border: 1px solid var(--border);
@@ -84,45 +75,54 @@
     background: var(--bg2);
 }
 
-/* --- ESTILOS DE OBSERVACIÓN POR CELDA ELIMINADOS --- */
-/* .cell-observation-group y .cell-observation-textarea ya no se usan */
-
-
-/* --- NUEVO: Grilla para inputs de Clima --- */
+/* Grilla para inputs de Clima */
 .weather-inputs {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 columnas */
+    grid-template-columns: 1fr 1fr; 
     gap: 0.5rem;
     width: 100%;
-    max-width: 160px; /* Ancho máximo de la grilla */
+    max-width: 160px; 
 }
 
 .weather-input-group {
     position: relative;
-}
-
-/* Input pequeño para el clima */
-.weather-input {
-    width: 100%;
-    padding: 6px 8px;
-    font-size: 0.8em;
+    display: flex; 
+    align-items: center;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     background: var(--input-bg);
-    color: var(--text);
-    outline: none;
+    transition: border-color var(--transition), background var(--transition);
 }
-.weather-input:focus {
+.weather-input-group:focus-within {
     border-color: var(--primary);
     background: var(--bg2);
 }
 
-/* --- Textarea de Observación General --- */
+.weather-input {
+    width: 100%;
+    flex-grow: 1; 
+    padding: 6px 0 6px 8px; 
+    font-size: 0.8em;
+    border: none; 
+    background: transparent; 
+    color: var(--text);
+    outline: none;
+    min-width: 30px; 
+}
+
+.weather-unit {
+    padding: 0 8px; 
+    font-size: 0.8em;
+    color: var(--muted);
+    font-weight: 500;
+    white-space: nowrap; 
+}
+
+/* Textarea de Observación General */
 .global-observation-textarea {
     width: 100%;
-    min-height: 350px; /* <-- MODIFICADO: AHORA ES MÁS GRANDE */
+    min-height: 350px; 
     resize: vertical;
-    /* Estilos de .input-group textarea */
     padding: 10px 12px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
@@ -136,17 +136,18 @@
     border-color: var(--primary);
     background: var(--bg2);
 }
+.global-observation-group {
+    page-break-inside: avoid;
+}
 
-
-/* --- Colores de Leyenda (sin cambios) --- */
+/* Colores de Leyenda */
 .legend-color.phase-1 { background-color: #facc15; color: #713f12; }
 .legend-color.phase-2 { background-color: #22c55e; color: #14532d; }
 .legend-color.phase-3 { background-color: #f97316; color: #7c2d12; }
 .legend-color.phase-4 { background-color: #b45309; color: #451a03; }
 .legend-color.phase-5 { background-color: #a855f7; color: #f5f3ff; }
 
-
-/* --- ESTILOS PARA EL PDF (CORRECCIÓN DE INPUTS) --- */
+/* ESTILOS PARA EL PDF (Reemplazo de Inputs) */
 .pdf-text-replacement {
     font-size: 0.95em;
     padding: 10px 12px;
@@ -166,20 +167,31 @@
     min-height: 0;
     height: 25.5px; 
 }
-/* Estilo para reemplazo de input de clima */
 .pdf-text-replacement-weather {
-    padding: 6px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; 
+    padding: 6px 8px; 
     font-size: 0.8em;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     background: var(--input-bg);
-    color: var(--text);
     height: 30.5px;
+    box-sizing: border-box; 
+}
+.pdf-weather-value {
+    flex-grow: 1;
+    color: var(--text);
+}
+.pdf-weather-unit {
+    color: var(--muted);
+    font-weight: 500;
+    white-space: nowrap;
+    padding-left: 4px;
 }
 
-/* Estilo para el <pre> de reemplazo */
 pre.pdf-text-replacement {
-    min-height: 350px; /* <-- MODIFICADO: Coincide con el textarea */
+    min-height: 350px; 
     font-family: inherit;
     white-space: pre-wrap;
     font-size: 0.95em;
@@ -192,15 +204,14 @@ pre.pdf-text-replacement {
     color: var(--text);
 }
 
-
-/* Oculta los botones en la impresión del navegador */
+/* Ocultar elementos en Impresión/PDF */
 @media print {
     .no-print {
         display: none;
     }
 }
 
-/* --- Estilos para Colapsar (sin cambios) --- */
+/* Estilos para Colapsar Tarjeta */
 .form-card .card-header-collapsible {
     display: flex;
     justify-content: space-between;
@@ -230,7 +241,7 @@ pre.pdf-text-replacement {
     margin-bottom: 0;
 }
 
-/* Estilo para el input del nombre (sin cambios) */
+/* Estilo para el input del nombre del Registro */
 .registration-name-input {
     background: transparent;
     border: none;
@@ -258,4 +269,20 @@ h3.registration-name-pdf {
     font-family: inherit;
     margin: 0;
     padding: 3px 5px;
+}
+
+/* Estilo para el botón de "Traer Clima" */
+.get-weather-btn {
+    width: 100%;
+    max-width: 160px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    font-size: 0.8em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+.get-weather-btn svg {
+    flex-shrink: 0;
 }

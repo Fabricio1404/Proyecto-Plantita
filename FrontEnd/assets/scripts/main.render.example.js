@@ -1,4 +1,3 @@
-// frontend/assets/scripts/main.js (extracto de render)
 import { getEspecies } from './api.js';
 
 const currentPath = window.location.pathname;
@@ -31,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       grid.innerHTML = `<p>Error (${status}). ¿Iniciaste sesión? ¿El backend en ${window.API_V1_URL || 'http://localhost:4000/api/v1'} está levantado?</p>`;
       return;
     }
-    const items = data.data || data; // soportar ambas formas
+    const items = data.data || data;
     if (!items.length) {
       grid.innerHTML = '<p>No se encontraron resultados.</p>';
       return;

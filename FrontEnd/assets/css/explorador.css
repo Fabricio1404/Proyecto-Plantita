@@ -1,4 +1,4 @@
-/* -------- Reset mínimo -------- */
+/* --- Reset mínimo --- */
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body, h1, h2, h3, h4, h5, h6, p, ul { margin: 0; }
@@ -6,7 +6,7 @@ img { max-width: 100%; display: block; }
 button { font: inherit; }
 
 /* =========================================================
-   TOKENS
+   TOKENS (Variables)
    ========================================================= */
 :root{
   /* Tipografía */
@@ -124,7 +124,7 @@ h1{ font-size: clamp(22px, 2.4vw, 30px); font-weight: 800; }
 .tab-panel{ display: none; }
 .tab-panel.show{ display: block; }
 
-/* Buscador (explorador.html) */
+/* Buscador */
 .searchbar{ display:flex; gap:8px; align-items:center; margin: 10px 0 14px; }
 .searchbar input{
   flex:1; background: var(--bg-3); border:1px solid var(--line); color: var(--text);
@@ -195,7 +195,7 @@ img[data-skeleton]{
 }
 @keyframes shimmer{ 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
-/* Listas de taxonomía (detail.html) */
+/* Listas de taxonomía */
 .taxonomy{
   list-style: none; padding: 0; margin: 0; display: grid; gap: 6px;
 }
@@ -205,7 +205,7 @@ img[data-skeleton]{
 }
 .taxonomy strong{ color: var(--text-2); }
 
-/* “Acerca de” (detail.html) */
+/* “Acerca de” */
 #about h4 { margin:14px 0 6px; font-weight:800; color: var(--text-2) }
 #about p { line-height:1.75; margin:8px 0 }
 #about details{
@@ -215,7 +215,7 @@ img[data-skeleton]{
 #about details > summary{ list-style:none; font-weight:700; color: var(--muted); cursor:pointer; }
 #about details[open] > summary{ margin-bottom: 8px; }
 
-/* Ficha técnica (detail.html) */
+/* Ficha técnica */
 .factbox{
   display:grid; grid-template-columns: 1fr; gap:8px;
   padding:12px; border:1px solid var(--line); border-radius: var(--radius-md);
