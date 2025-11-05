@@ -1,30 +1,30 @@
+// backend/src/routes/api.routes.js
 const { Router } = require('express');
 const { validarJWT } = require('../middlewares/auth');
 
-// Controladores importados
 const listasCtrl = require('../controllers/listas.controller');
-const obsCtrl = require('../controllers/observaciones.controller');
 const clasesCtrl = require('../controllers/clases.controller');
 
 const router = Router();
-
 router.use(validarJWT);
 
-
-
-// LISTAS (COLECCIONES)
+// --- RUTAS DE LISTAS (COLECCIONES) ---
 router.post('/listas', listasCtrl.crearLista);
 router.get('/listas', listasCtrl.obtenerListasUsuario);
 router.post('/listas/:listaId/especies', listasCtrl.agregarEspecie);
 router.get('/listas/:listaId/compartir', listasCtrl.compartirLista);
+router.put('/listas/:listaId', listasCtrl.actualizarLista);
+router.delete('/listas/:listaId', listasCtrl.eliminarLista);
 
-// OBSERVATORIO (SEGUIMIENTO)
-router.post('/seguimiento', obsCtrl.crearSeguimiento);
-router.get('/seguimiento', obsCtrl.obtenerSeguimientosUsuario);
-router.post('/seguimiento/:idSeguimiento/observar', obsCtrl.registrarObservacion);
-router.get('/seguimiento/:idSeguimiento/informe', obsCtrl.descargarInforme);
+// ===== INICIO NUEVA RUTA =====
+// Ruta para eliminar una especie específica de una lista
+router.delete('/listas/:listaId/especies/:especieId', listasCtrl.quitarEspecieDeLista);
+// ===== FIN NUEVA RUTA =====
 
-// CLASES (CLASSROOM)
+// --- RUTA GET ID (Debe ir al final de /listas/:listaId/...) ---
+router.get('/listas/:listaId', listasCtrl.obtenerListaPorId);
+
+// --- RUTAS DE CLASES (CLASSROOM) ---
 router.post('/clases', clasesCtrl.crearClase);
 router.post('/clases/unirse', clasesCtrl.unirseAClase);
 router.get('/clases', clasesCtrl.obtenerMisClases);

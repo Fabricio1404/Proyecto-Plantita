@@ -17,8 +17,9 @@
       <a class="menu-item" href="plantas.html">Plantas</a>
       <a class="menu-item" href="insectos.html">Insectos</a>
       <div class="menu-sep"></div>
-      <a class="menu-item active" href="listas.html">Mis Listas</a> <a class="menu-item" href="clases.html">Clases (Classroom)</a>
-      <a class="menu-item" href="registro-fenologico.html">Observatorio Personal</a>
+      <a class="menu-item active" href="listas.html">Mis Listas</a>
+      <a class="menu-item" href="clases.html">Clases (Classroom)</a>
+      <a class="menu-item" href="seguimiento.html">Observatorio Personal</a>
       <a class="menu-item" href="comunidad.html">Foros y Ranking</a>
       <div class="menu-sep"></div>
       <a class="menu-item" href="perfil.html">Mi Perfil</a>
@@ -37,26 +38,50 @@
             <button id="create-list-btn" class="btn primary">Crear Nueva Lista</button>
         </div>
 
-        <div id="create-list-form-container" class="form-card" style="display: none;"> <h3>Nueva Colección</h3>
-            <form id="create-list-form">
-                <div class="input-group"> <label for="list-name">Nombre de la Lista</label> <input type="text" id="list-name" required> </div>
-                <div class="input-group"> <label for="list-description">Descripción</label> <textarea id="list-description"></textarea> </div>
-                <div class="input-group" style="display: flex; align-items: center; gap: 10px;"> <input type="checkbox" id="list-public"> <label for="list-public">Hacer pública (compartible)</label> </div>
+        <div id="create-list-form-container" class="form-card" style="display: none;">
+            <h3>Nueva Colección</h3>
+            <form id="create-list-form" novalidate>
+                <div class="input-group"> <label for="list-name">Nombre de la Lista *</label> <input type="text" id="list-name" required> </div>
+                <div class="input-group"> <label for="list-description">Descripción (Opcional)</label> <textarea id="list-description" rows="3"></textarea> </div>
+                <div class="input-group" style="display: flex; align-items: center; gap: 10px;"> <input type="checkbox" id="list-public" style="width: auto;"> <label for="list-public">Hacer pública (compartible)</label> </div>
                 <button type="submit" class="btn primary">Guardar Lista</button>
             </form>
-            <div id="list-message-area" class="message-area"></div>
+            <div id="list-message-area" class="message-area" style="margin-top: 15px;"></div>
         </div>
 
-        <div id="user-lists-container" class="cards" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));"> <p>Cargando tus listas...</p>
+        <h3>Mis Listas Creadas</h3>
+        <div id="user-lists-container" class="cards" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+            <p>Cargando tus listas...</p>
         </div>
-
     </section>
 
     <footer class="foot"> <small>© 2025 InForest</small> </footer>
   </div>
 
+  <div id="edit-list-modal" class="modal" aria-hidden="true" style="display: none;"> <div class="modal-backdrop" data-modal-close></div>
+    <div class="modal-card form-card"> <button class="modal-x" data-modal-close>×</button>
+        <h3>Editar Colección</h3>
+        <form id="edit-list-form" novalidate>
+            <input type="hidden" id="edit-list-id"> <div class="input-group">
+                <label for="edit-list-name">Nombre de la Lista *</label>
+                <input type="text" id="edit-list-name" required>
+            </div>
+            <div class="input-group">
+                <label for="edit-list-description">Descripción</label>
+                <textarea id="edit-list-description" rows="3"></textarea>
+            </div>
+            <div class="input-group" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="edit-list-public" style="width: auto;">
+                <label for="edit-list-public">Hacer pública (compartible)</label>
+            </div>
+            <button type="submit" class="btn primary">Actualizar Lista</button>
+        </form>
+        <div id="edit-list-message-area" class="message-area" style="margin-top: 15px;"></div>
+    </div>
+  </div>
   <script src="./assets/scripts/auth-guard.js"></script>
   <script src="./assets/scripts/ui-helpers.js"></script>
   <script src="./assets/scripts/api.js" type="module"></script>
-  <script src="./assets/scripts/listas.js" type="module"></script> </body>
+  <script src="./assets/scripts/listas.js" type="module"></script>
+</body>
 </html>
