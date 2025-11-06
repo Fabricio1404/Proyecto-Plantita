@@ -35,9 +35,10 @@ const authRoutes = require('./src/routes/auth.routes');
 const apiRoutes = require('./src/routes/api.routes');
 const userRoutes = require('./src/routes/usuarios.routes');
 const inaturalistRoutes = require('./src/routes/inaturalist.routes.js');
-// --- AÑADIR ESTAS DOS LÍNEAS ---
 const climaRoutes = require('./src/routes/clima.routes');
 const registroRoutes = require('./src/routes/registros.routes');
+// --- AÑADIR LA RUTA DE CLASES ---
+const clasesRoutes = require('./src/routes/clases.routes'); // <-- AÑADIR ESTA LÍNEA
 
 
 // ===== DEBUGGING (Como lo tenías) =====
@@ -52,9 +53,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/v1', apiRoutes);
 app.use('/api/v1/usuarios', userRoutes);
 app.use('/api/v1/inaturalist', inaturalistRoutes);
-// --- AÑADIR ESTAS DOS LÍNEAS ---
 app.use('/api/v1/clima', climaRoutes);
 app.use('/api/v1/registros', registroRoutes);
+// --- USAR LA RUTA DE CLASES ---
+app.use('/api/v1/clases', clasesRoutes); // <-- AÑADIR ESTA LÍNEA
 
 // Servidor
 const PORT = process.env.PORT || 4000;

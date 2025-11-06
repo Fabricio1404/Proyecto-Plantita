@@ -45,7 +45,7 @@ function setupClassForms() {
                 loadMisClases();
             }, 1000);
         } else {
-            // Asumiendo que el backend envía 'msg' en el cuerpo del error
+            // CORREGIDO: Añadido 'response.data?.msg'
             messageArea.innerHTML = `<p style="color: red;">Error: ${response.data?.msg || 'Código incorrecto.'}</p>`;
         }
     });
@@ -60,13 +60,15 @@ function setupClassForms() {
         const response = await createClase(name);
         
         if (response.ok) {
-            messageArea.innerHTML = `<p style="color: green;">Clase '${name}' creada. Código: <strong>${response.clase.codigoAcceso}</strong></p>`;
+            // CORREGIDO: Añadido 'response.data.clase'
+            messageArea.innerHTML = `<p style="color: green;">Clase '${name}' creada. Código: <strong>${response.data.clase.codigoAcceso}</strong></p>`;
             document.getElementById('create-class-form').reset();
             setTimeout(() => {
                 createContainer.style.display = 'none';
                 loadMisClases();
             }, 2000); // Dar tiempo a leer el código
         } else {
+            // CORREGIDO: Añadido 'response.data?.msg'
             messageArea.innerHTML = `<p style="color: red;">Error: ${response.data?.msg || 'No se pudo crear.'}</p>`;
         }
     });
@@ -82,13 +84,16 @@ async function loadMisClases() {
     const response = await getMisClases();
 
     if (response.ok) {
-        if (response.clases.length === 0) {
+        // CORREGIDO: Añadido 'response.data.clases'
+        if (response.data.clases.length === 0) {
             container.innerHTML = '<p>No estás inscrito en ninguna clase. Únete a una o crea una.</p>';
             return;
         }
 
-        container.innerHTML = response.clases.map(clase => createClassCard(clase)).join('');
+        // CORREGIDO: Añadido 'response.data.clases'
+        container.innerHTML = response.data.clases.map(clase => createClassCard(clase)).join('');
     } else {
+        // CORREGIDO: Añadido 'response.data?.msg'
         container.innerHTML = `<p style="color: red;">Error al cargar clases: ${response.data?.msg || 'Error'}</p>`;
     }
 }
