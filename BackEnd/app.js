@@ -1,3 +1,5 @@
+// backend/app.js
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -15,7 +17,7 @@ const app = express();
 // Conexión a la base de datos
 connectDB();
 
-// --- Opciones de CORS (Como lo tenías) ---
+// --- Opciones de CORS (COMPLETO) ---
 const corsOptions = {
     origin: [
         'http://127.0.0.1:5500',
@@ -28,7 +30,13 @@ app.use(cors(corsOptions));
 
 // Middlewares Globales
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../frontend'))); // Servir Frontend
+
+// --- SERVIR CARPETAS PÚBLICAS ---
+// Servir Frontend
+app.use(express.static(path.join(__dirname, '../frontend')));
+// Servir archivos subidos (Uploads)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// ----------------------------------
 
 // Importar rutas
 const authRoutes = require('./src/routes/auth.routes');
@@ -37,11 +45,10 @@ const userRoutes = require('./src/routes/usuarios.routes');
 const inaturalistRoutes = require('./src/routes/inaturalist.routes.js');
 const climaRoutes = require('./src/routes/clima.routes');
 const registroRoutes = require('./src/routes/registros.routes');
-// --- AÑADIR LA RUTA DE CLASES ---
-const clasesRoutes = require('./src/routes/clases.routes'); // <-- AÑADIR ESTA LÍNEA
+const clasesRoutes = require('./src/routes/clases.routes'); 
 
 
-// ===== DEBUGGING (Como lo tenías) =====
+// ===== DEBUGGING (Opcional, pero útil) =====
 app.use('/api/v1/inaturalist', (req, res, next) => {
     console.log(`➡️ Petición recibida en app.js para: ${req.originalUrl} (Método: ${req.method})`);
     next(); 
@@ -55,8 +62,7 @@ app.use('/api/v1/usuarios', userRoutes);
 app.use('/api/v1/inaturalist', inaturalistRoutes);
 app.use('/api/v1/clima', climaRoutes);
 app.use('/api/v1/registros', registroRoutes);
-// --- USAR LA RUTA DE CLASES ---
-app.use('/api/v1/clases', clasesRoutes); // <-- AÑADIR ESTA LÍNEA
+app.use('/api/v1/clases', clasesRoutes); 
 
 // Servidor
 const PORT = process.env.PORT || 4000;

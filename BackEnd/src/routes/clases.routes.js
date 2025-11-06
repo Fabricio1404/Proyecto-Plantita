@@ -2,15 +2,17 @@
 
 const { Router } = require('express');
 const { validarJWT } = require('../middlewares/auth'); 
-// Quitamos 'check' y 'validarCampos' que no encontramos
-// const { check } = require('express-validator');
-// const { validarCampos } = require('../middlewares/validar-campos'); 
+
+// --- MODIFICACIÓN: Importar los dos gestores ---
+const { uploadMaterial, uploadTarea } = require('../Middlewares/file-upload');
 
 const {
     crearClase,
     unirseAClase,
     obtenerMisClases,
-    obtenerClasePorId
+    obtenerClasePorId,
+    agregarMaterial,
+    agregarTarea
 } = require('../controllers/clases.controller');
 
 const router = Router();
@@ -20,33 +22,31 @@ router.use(validarJWT);
 
 
 // GET /api/v1/clases/
-// Obtener todas las clases del usuario
 router.get('/', obtenerMisClases);
 
 // POST /api/v1/clases/
-// Crear una nueva clase
-router.post(
-    '/',
-    // Quitamos la validación de aquí también para ser consistentes
-    crearClase
-);
+router.post('/', crearClase);
 
 // POST /api/v1/clases/unirse
-// Unirse a una clase existente
+router.post('/unirse', unirseAClase);
+
+// GET /api/v1/clases/:id
+router.get('/:id', obtenerClasePorId);
+
+// POST /api/v1/clases/:id/materiales
 router.post(
-    '/unirse',
-    // Quitamos la validación de aquí también
-    unirseAClase
+    '/:id/materiales',
+    uploadMaterial, // <-- Usa el gestor de materiales
+    agregarMaterial
 );
 
-// --- RUTA MODIFICADA ---
-// GET /api/v1/clases/:id
-// Obtener los detalles de una clase específica
-// Quitamos el array de validación
-router.get(
-    '/:id',
-    obtenerClasePorId
+// --- MODIFICACIÓN: Usar el gestor de tareas ---
+// POST /api/v1/clases/:id/tareas
+router.post(
+    '/:id/tareas',
+    uploadTarea, // <-- Usa el nuevo gestor de tareas
+    agregarTarea
 );
-// ----------------------------------------------------
+// ---------------------------------
 
 module.exports = router;

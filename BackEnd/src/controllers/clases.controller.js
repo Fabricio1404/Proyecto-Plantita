@@ -1,12 +1,11 @@
 // backend/src/controllers/clases.controller.js
 
 const Clase = require('../models/Clase.model');
-const Usuario = require('../models/Usuario.model'); // Asegúrate de que este modelo se usa o quítalo si no.
+const Usuario = require('../models/Usuario.model'); 
 
 const generarCodigo = () => {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
 };
-
 
 const crearClase = async (req, res) => {
     const { nombre } = req.body;
@@ -29,7 +28,7 @@ const crearClase = async (req, res) => {
             nombre,
             codigoAcceso,
             profesor: profesorId,
-            alumnos: [profesorId] // El profesor también es alumno/miembro
+            alumnos: [profesorId] 
         });
 
         await nuevaClase.save();
@@ -45,7 +44,6 @@ const crearClase = async (req, res) => {
         res.status(500).json({ ok: false, msg: 'Error al crear la clase.' });
     }
 };
-
 
 const unirseAClase = async (req, res) => {
     const { codigoAcceso } = req.body;
@@ -81,12 +79,10 @@ const unirseAClase = async (req, res) => {
     }
 };
 
-
 const obtenerMisClases = async (req, res) => {
     const usuarioId = req.uid;
 
     try {
-        // Traemos solo el nombre del profesor
         const clases = await Clase.find({ alumnos: usuarioId })
                                   .populate('profesor', 'nombre apellido'); 
 
@@ -102,23 +98,18 @@ const obtenerMisClases = async (req, res) => {
     }
 };
 
-// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
 const obtenerClasePorId = async (req, res) => {
     const { id } = req.params;
     const usuarioId = req.uid;
 
     try {
-        // Buscamos la clase por su ID
         const clase = await Clase.findById(id)
-                                 .populate('profesor', 'nombre apellido email') // Traemos más datos del profe
-                                 .populate('alumnos', 'nombre apellido'); // Traemos los nombres de los alumnos
+                                 .populate('profesor', 'nombre apellido email') 
+                                 .populate('alumnos', 'nombre apellido'); 
 
         if (!clase) {
             return res.status(404).json({ ok: false, msg: 'Clase no encontrada.' });
         }
-
-        // Verificamos que el usuario que la pide sea parte de la clase
-        // Convertimos los IDs de Mongoose a string para comparar
         const esMiembro = clase.alumnos.some(alumno => alumno._id.toString() === usuarioId);
 
         if (!esMiembro) {
@@ -132,19 +123,122 @@ const obtenerClasePorId = async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        // Manejo por si el ID no es un ObjectId válido de Mongoose
         if (error.kind === 'ObjectId') {
              return res.status(404).json({ ok: false, msg: 'Clase no encontrada (ID inválido).' });
         }
         res.status(500).json({ ok: false, msg: 'Error al obtener la clase.' });
     }
 };
-// --- FIN FUNCIÓN NUEVA ---
 
+const agregarMaterial = async (req, res) => {
+    const { id: claseId } = req.params;
+    const profesorId = req.uid;
+    const { titulo, descripcion } = req.body;
+
+    if (!req.file) {
+        if (req.multerError) {
+             return res.status(400).json({ ok: false, msg: req.multerError });
+        }
+        return res.status(400).json({ ok: false, msg: 'No se subió ningún archivo o el formato no es válido.' });
+    }
+
+    if (!titulo) {
+        return res.status(400).json({ ok: false, msg: 'El título es obligatorio.' });
+    }
+
+    try {
+        const clase = await Clase.findById(claseId);
+        if (!clase) {
+            return res.status(404).json({ ok: false, msg: 'Clase no encontrada.' });
+        }
+
+        if (clase.profesor.toString() !== profesorId) {
+            return res.status(403).json({ ok: false, msg: 'No tienes permiso para añadir material a esta clase.' });
+        }
+
+        const urlArchivo = req.file.path.replace(/\\/g, '/');
+
+        const nuevoMaterial = {
+            titulo,
+            descripcion,
+            urlArchivo: urlArchivo, 
+            fechaPublicacion: new Date()
+        };
+
+        clase.materiales.push(nuevoMaterial);
+        await clase.save();
+        
+        res.status(201).json({
+            ok: true,
+            msg: 'Material añadido con éxito.',
+            clase
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ ok: false, msg: 'Error al añadir el material.' });
+    }
+};
+
+// --- FUNCIÓN 'agregarTarea' (COMPLETAMENTE MODIFICADA) ---
+const agregarTarea = async (req, res) => {
+    const { id: claseId } = req.params;
+    const profesorId = req.uid;
+    
+    // Datos de texto vienen de req.body
+    const { titulo, descripcion, fechaVencimiento } = req.body;
+    
+    // Archivo (opcional) viene de req.file
+    const archivo = req.file; 
+
+    if (!titulo) {
+        return res.status(400).json({ ok: false, msg: 'El título de la tarea es obligatorio.' });
+    }
+
+    // Error de Multer (si el archivo es de tipo incorrecto)
+    if (req.multerError) {
+        return res.status(400).json({ ok: false, msg: req.multerError });
+    }
+
+    try {
+        const clase = await Clase.findById(claseId);
+        if (!clase) {
+            return res.status(404).json({ ok: false, msg: 'Clase no encontrada.' });
+        }
+
+        if (clase.profesor.toString() !== profesorId) {
+            return res.status(403).json({ ok: false, msg: 'No tienes permiso para añadir tareas a esta clase.' });
+        }
+
+        const nuevaTarea = {
+            titulo,
+            descripcion,
+            fechaVencimiento: fechaVencimiento ? new Date(fechaVencimiento) : null,
+            // Guardamos la ruta del archivo SOLO SI se subió uno
+            urlArchivo: archivo ? archivo.path.replace(/\\/g, '/') : null
+        };
+
+        clase.tareas.push(nuevaTarea);
+        await clase.save();
+        
+        res.status(201).json({
+            ok: true,
+            msg: 'Tarea añadida con éxito.',
+            clase // Devolvemos la clase actualizada
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ ok: false, msg: 'Error al añadir la tarea.' });
+    }
+};
+// --- FIN FUNCIÓN MODIFICADA ---
 
 module.exports = {
     crearClase,
     unirseAClase,
     obtenerMisClases,
-    obtenerClasePorId // <-- NO OLVIDES EXPORTARLA
+    obtenerClasePorId,
+    agregarMaterial,
+    agregarTarea
 };

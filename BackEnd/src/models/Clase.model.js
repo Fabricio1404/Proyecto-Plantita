@@ -33,7 +33,11 @@ const ClaseSchema = new mongoose.Schema({
         titulo: String,
         descripcion: String,
         fechaVencimiento: Date,
-        // Puede incluir un campo para requerir un informe de seguimiento
+        
+        // --- MODIFICACIÓN AQUÍ ---
+        urlArchivo: String, // Enlace al archivo de la tarea (ej. PDF de instrucciones)
+        // -------------------------
+
         requiereInformeSeguimiento: { type: Boolean, default: false }
     }]
 }, {

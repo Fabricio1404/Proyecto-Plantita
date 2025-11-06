@@ -1,8 +1,39 @@
 // frontend/assets/scripts/api.js
 const API_V1_URL = 'http://localhost:4000/api/v1';
 
-// --- 1. Helper Fetch ---
-export const protectedFetch = async (endpoint, token, options = {}) => { const headers = { 'Content-Type': 'application/json', 'x-token': token, ...options.headers }; try { const url = `${API_V1_URL}${endpoint}`; const response = await fetch(url, { method: options.method || 'GET', headers: headers, body: (options.body && options.method !== 'GET') ? JSON.stringify(options.body) : undefined, }); if (response.status === 401) { console.error("❌ Error 401: Token inválido."); localStorage.clear(); window.location.href = 'auth.html'; return { ok: false, status: 401, data: { msg: "Token inválido" } }; } const data = await response.json().catch(() => ({ msg: `Respuesta no JSON: ${response.statusText}` })); return { ok: response.ok, status: response.status, data }; } catch (e) { console.error('❌ Error de red en protectedFetch:', e); return { ok: false, status: 0, data: { msg: `Fallo de conexión: ${e.message}` } }; } };
+// --- 1. Helper Fetch (MODIFICADO PARA FORMDATA) ---
+export const protectedFetch = async (endpoint, token, options = {}) => {
+    // Si el body es FormData, NO pongas 'Content-Type: json'
+    const headers = { 'x-token': token, ...options.headers };
+    if (!(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+    }
+
+    try {
+        const url = `${API_V1_URL}${endpoint}`;
+        const body = (options.body && options.method !== 'GET') 
+            ? (options.body instanceof FormData ? options.body : JSON.stringify(options.body))
+            : undefined;
+
+        const response = await fetch(url, { 
+            method: options.method || 'GET', 
+            headers: headers, 
+            body: body, 
+        });
+        
+        if (response.status === 401) { 
+            console.error("❌ Error 401: Token inválido."); 
+            localStorage.clear(); 
+            window.location.href = 'auth.html'; 
+            return { ok: false, status: 401, data: { msg: "Token inválido" } }; 
+        }
+        const data = await response.json().catch(() => ({ msg: `Respuesta no JSON: ${response.statusText}` }));
+        return { ok: response.ok, status: response.status, data };
+    } catch (e) {
+        console.error('❌ Error de red en protectedFetch:', e);
+        return { ok: false, status: 0, data: { msg: `Fallo de conexión: ${e.message}` } };
+    }
+};
 
 // --- 2. Funciones iNaturalist ---
 export const getEspecies = async (taxon, query = '', page = 1) => { const token = localStorage.getItem('token'); if (!token) return { ok: false, status: 401, data: { msg: "Token no encontrado" } }; const taxaIds = (taxon === 'plantas') ? "47126" : (taxon === 'insectos') ? "47158,47119,48222" : ""; const params = new URLSearchParams(); if (taxaIds) params.set('taxon_id', taxaIds); if (query) params.set('q', query); params.set('rank', 'species'); params.set('order_by', 'observations_count'); params.set('order', 'desc'); params.set('per_page', '30'); params.set('page', page); return protectedFetch(`/inaturalist/taxa?${params.toString()}`, token); };
@@ -20,15 +51,22 @@ export const deleteEspecieFromLista = (listaId, especieId) => { const token = lo
 export const createClase = (n) => { const t=localStorage.getItem('token'); if(!t) return Promise.resolve({ok:!1,data:{msg:"Token requerido"}}); return protectedFetch('/clases',t,{method:'POST',body:{nombre:n}});};
 export const joinClase = (c) => { const t=localStorage.getItem('token'); if(!t) return Promise.resolve({ok:!1,data:{msg:"Token requerido"}}); return protectedFetch('/clases/unirse',t,{method:'POST',body:{codigoAcceso:c}});};
 export const getMisClases = () => { const t=localStorage.getItem('token'); if(!t) return Promise.resolve({ok:!1,data:{msg:"Token requerido"}}); return protectedFetch('/clases',t);};
+export const getClasePorId = (id) => { const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/clases/${id}`, t); };
+export const addMaterialAClase = (claseId, formData) => { const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/clases/${claseId}/materiales`, t, { method: 'POST', body: formData }); };
 
-// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
-/** Obtiene todos los detalles de una clase específica por su ID */
-export const getClasePorId = (id) => {
+// --- FUNCIÓN 'addTareaAClase' (MODIFICADA) ---
+/** Añade una tarea a una clase específica */
+export const addTareaAClase = (claseId, formData) => {
+    // Ahora recibe FormData en lugar de JSON
     const t = localStorage.getItem('token');
     if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
-    return protectedFetch(`/clases/${id}`, t); 
+    
+    return protectedFetch(`/clases/${claseId}/tareas`, t, {
+        method: 'POST',
+        body: formData // <-- Enviar el FormData
+    });
 };
-// --- FIN FUNCIÓN NUEVA ---
+// --- FIN FUNCIÓN MODIFICADA ---
 
 // --- 5. Funciones Perfil ---
 export const getProfile = () => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, status: 401, data: { msg: "Token no encontrado" } }); return protectedFetch('/usuarios/perfil', t); };

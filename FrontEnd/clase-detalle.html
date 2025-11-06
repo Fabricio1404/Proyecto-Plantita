@@ -72,7 +72,7 @@
             <h3>Miembros de la Clase</h3>
             <p id="alumnos-count">Cargando...</p>
             <ul id="alumnos-list" class="taxonomy">
-                </ul>
+            </ul>
         </div>
 
     </section>
@@ -80,6 +80,62 @@
     <footer class="foot"> <small>© 2025 InForest</small> </footer>
   </div>
 
+  <div id="add-material-modal" class="modal" aria-hidden="true" style="display: none;">
+    <div class="modal-backdrop" data-modal-close></div>
+    <div class="modal-card form-card">
+        <button class="modal-x" data-modal-close>×</button>
+        <h3>Subir Nuevo Material</h3>
+        <form id="material-form" novalidate> 
+            <div class="input-group">
+                <label for="material-titulo">Título *</label>
+                <input type="text" id="material-titulo" required>
+            </div>
+            <div class="input-group">
+                <label for="material-descripcion">Descripción (Opcional)</label>
+                <textarea id="material-descripcion" rows="3"></textarea>
+            </div>
+            <div class="input-group">
+                <label for="material-archivo">Archivo *</label>
+                <input type="file" id="material-archivo" required>
+                <small class="muted" style="font-size: 0.8em;">Selecciona un PDF, DOCX, JPG, PNG, etc. (Máx 100MB)</small>
+            </div>
+            <button type="submit" class="btn primary">Guardar Material</button>
+        </form>
+        <div id="material-message-area" class="message-area" style="margin-top: 15px;"></div>
+    </div>
+  </div>
+
+  <div id="add-task-modal" class="modal" aria-hidden="true" style="display: none;">
+    <div class="modal-backdrop" data-modal-close-task></div>
+    <div class="modal-card form-card">
+        <button class="modal-x" data-modal-close-task>×</button>
+        <h3>Crear Nueva Tarea</h3>
+        
+        <form id="task-form" novalidate>
+            <div class="input-group">
+                <label for="task-titulo">Título *</label>
+                <input type="text" id="task-titulo" required>
+            </div>
+            <div class="input-group">
+                <label for="task-descripcion">Descripción / Instrucciones (Opcional)</label>
+                <textarea id="task-descripcion" rows="4"></textarea>
+            </div>
+            <div class="input-group">
+                <label for="task-fecha">Fecha de Vencimiento (Opcional)</label>
+                <input type="date" id="task-fecha">
+            </div>
+
+            <div class="input-group">
+                <label for="task-archivo">Adjuntar Archivo (Opcional)</label>
+                <input type="file" id="task-archivo">
+                <small class="muted" style="font-size: 0.8em;">Adjunta un PDF, DOCX, imagen, etc. (Máx 100MB)</small>
+            </div>
+            <button type="submit" class="btn primary">Guardar Tarea</button>
+        </form>
+        
+        <div id="task-message-area" class="message-area" style="margin-top: 15px;"></div>
+    </div>
+  </div>
   <script src="./assets/scripts/auth-guard.js"></script>
   <script src="./assets/scripts/ui-helpers.js"></script>
   <script src="./assets/scripts/api.js" type="module"></script>
