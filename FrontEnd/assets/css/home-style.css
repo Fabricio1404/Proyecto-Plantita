@@ -238,3 +238,51 @@ input[type="file"] { font-size: 0.85em; color: var(--muted); margin-top: 5px; di
     font-size: 0.875rem;
     flex-shrink: 0;
 }
+
+
+/* --- ESTILOS PARA PÁGINA DE LISTAS (listas.html) --- */
+
+/* 1. Anulamos la proporción de aspecto (aspect-ratio) de las tarjetas de imagen.
+  2. Hacemos que la tarjeta ocupe el 100% de la altura que le asigne el grid.
+  3. La convertimos en un contenedor flex para que su contenido se pueda estirar.
+*/
+.list-card {
+  aspect-ratio: unset; /* Anula la proporción 3:4 de las tarjetas de especie */
+  height: 100%; /* Ocupa toda la altura de su fila en el grid */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 4. Anulamos los estilos de superposición (gradiente oscuro, texto blanco)
+     que hereda de ".card .species-info".
+*/
+.list-card .species-info {
+  position: static; /* Anula 'position: absolute' */
+  background: none; /* Quita el gradiente oscuro */
+  color: var(--text); /* Restaura el color de texto normal */
+  padding: 16px;
+  
+  /* 5. Convertimos el contenido en flex y hacemos que crezca */
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* ¡Importante! Hace que este div llene la tarjeta */
+}
+
+/* 6. Nos aseguramos de que el texto no sea blanco */
+.list-card .species-info h4,
+.list-card .species-info p {
+  color: inherit; /* Hereda el color de texto de .species-info */
+  text-shadow: none; /* Quita la sombra de texto */
+}
+
+.list-card .species-info p.muted {
+  color: var(--muted); /* Asegura que los textos 'muted' se vean correctos */
+}
+
+/* 7. ¡La clave! Usamos 'margin-top: auto' en el div de los botones
+     para empujarlo automáticamente hasta el fondo del contenedor.
+*/
+.list-card .species-info div[style*="margin-top"] {
+  margin-top: auto; /* Empuja este bloque de botones al fondo */
+  padding-top: 16px; /* Añade un espacio para que no se pegue a la descripción */
+}

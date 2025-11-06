@@ -1,3 +1,4 @@
+// backend/src/models/Lista.model.js
 const mongoose = require('mongoose');
 
 const ListaSchema = new mongoose.Schema({
@@ -15,7 +16,6 @@ const ListaSchema = new mongoose.Schema({
         type: String,
         default: 'Lista personal de especies favoritas o en estudio.'
     },
-    // Almacena los IDs de las observaciones de iNaturalist (como números o strings)
     especies: [{
         inaturalist_id: {
             type: String, 
@@ -23,15 +23,18 @@ const ListaSchema = new mongoose.Schema({
         },
         nombreComun: String,
         nombreCientifico: String,
-        // Opcional: para saber si es planta o insecto
         taxon: {
             type: String,
             enum: ['plantas', 'insectos']
+        },
+        // --- CAMBIO: Añadido campo para la imagen ---
+        imageUrl: { 
+            type: String 
         }
     }],
     publica: {
         type: Boolean,
-        default: false // Por defecto, las listas son privadas
+        default: false
     }
 }, {
     timestamps: true

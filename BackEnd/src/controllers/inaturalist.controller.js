@@ -1,5 +1,12 @@
 // backend/src/controllers/inaturalist.controller.js
 
+// ----- 1. IMPORTAR Y CONFIGURAR EL CACHÉ -----
+const NodeCache = require('node-cache');
+// stdTTL = "Standard Time To Live" (Tiempo de Vida Estándar)
+// Guardamos los resultados de iNaturalist por 12 horas (43200 segundos)
+const inatCache = new NodeCache({ stdTTL: 43200 });
+// --------------------------------------------------
+
 const axios = require('axios');
 const API = "https://api.inaturalist.org/v1";
 const ARG = "7190"; // Argentina
@@ -11,15 +18,12 @@ const DOMPurify = createDOMPurify(window);
 
 /* --- Helpers --- */
 
-// ===== INICIO DE LA MODIFICACIÓN (Arreglo Wikipedia 403) =====
 // Configuración de Axios con User-Agent para Wikipedia
 const axiosOptions = {
     headers: {
-        // Identificamos nuestra app para que Wikipedia no nos bloquee
         'User-Agent': 'InForestApp/1.0 (info@inforest.com) axios/1.0'
     }
 };
-// ===== FIN DE LA MODIFICACIÓN =====
 
 // Función para buscar en Wikipedia (usada por getFullTaxonDetails)
 async function fetchWikipedia(taxonName, wikipediaUrl) {
@@ -29,7 +33,7 @@ async function fetchWikipedia(taxonName, wikipediaUrl) {
     // 1. Intentar en Español
     try {
         const url = `https://es.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(sourceTitle)}&prop=text&format=json&redirects=1&origin=*`;
-        const { data } = await axios.get(url, axiosOptions); // <-- Usar opciones
+        const { data } = await axios.get(url, axiosOptions);
         const html = data?.parse?.text?.["*"] || "";
         if (html) {
             const clean = DOMPurify.sanitize(html, { USE_PROFILES: { html: true }, FORBID_TAGS: ['script', 'style', 'iframe', 'video'], FORBID_ATTR: ['onerror', 'onload'] });
@@ -40,7 +44,7 @@ async function fetchWikipedia(taxonName, wikipediaUrl) {
     // 2. Fallback a Inglés
     try {
         const url = `https://en.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(sourceTitle)}&prop=text&format=json&redirects=1&origin=*`;
-        const { data } = await axios.get(url, axiosOptions); // <-- Usar opciones
+        const { data } = await axios.get(url, axiosOptions);
         const html = data?.parse?.text?.["*"] || "";
         if (html) {
             const clean = DOMPurify.sanitize(html, { USE_PROFILES: { html: true }, FORBID_TAGS: ['script', 'style', 'iframe', 'video'], FORBID_ATTR: ['onerror', 'onload'] });
@@ -85,12 +89,29 @@ const getObservations = (req, res) => {
 
 // Controlador de Detalle (con manejo de errores internos)
 const getFullTaxonDetails = async (req, res) => {
-    console.log(`🚀 Se alcanzó getFullTaxonDetails! ID solicitado: ${req.params.id}`);
     const { id } = req.params;
     if (!id) return res.status(400).json({ msg: 'ID de taxón requerido' });
 
-    let R = {};
+    // ----- 2. DEFINIR CLAVE DE CACHÉ -----
+    // Creamos una "llave" única para este ID de taxón
+    const cacheKey = `detail-${id}`;
+    
     try {
+        // ----- 3. REVISAR EL CACHÉ PRIMERO -----
+        const cachedData = inatCache.get(cacheKey);
+        
+        // ¡SI EXISTE EN CACHÉ, LO DEVOLVEMOS AL INSTANTE!
+        if (cachedData) {
+            console.log(`[Cache HIT] Devolviendo datos cacheados para el ID: ${id}`);
+            return res.json(cachedData); // Fin de la ejecución, súper rápido
+        }
+
+        // --- SI NO ESTÁ EN CACHÉ (Cache MISS), HACEMOS EL TRABAJO LENTO ---
+        console.log(`[Cache MISS] Buscando datos nuevos en iNaturalist para el ID: ${id}`);
+        // (Tu log original '🚀 Se alcanzó...' estaba aquí)
+
+        let R = {}; // Objeto de Respuesta
+        
         // --- 1. Datos base del Taxón (CRÍTICO) ---
         const taxonApiUrl = `${API}/taxa/${id}`;
         const taxonParams = { locale: 'es', preferred_place_id: ARG, all_names: 'true' };
@@ -127,6 +148,7 @@ const getFullTaxonDetails = async (req, res) => {
         R.listed_taxa = listedData?.results?.[0];
 
         // 4. Observaciones recientes
+        // !--- CORRECCIÓN DE TIPEO AQUÍ ---!
         const recentData = await safeAxiosGet(`${API}/observations`, { place_id: ARG, verifiable: 'true', order: 'desc', order_by: 'created_at', taxon_id: id, per_page: 18 }, 'Obs Recientes');
         R.recent_observations = recentData?.results;
 
@@ -154,7 +176,11 @@ const getFullTaxonDetails = async (req, res) => {
         const similarData = await safeAxiosGet(`${API}/taxa/similar`, { taxon_id: id, per_page: 24 }, 'Similares');
         R.similar = similarData?.results;
 
-        console.log('✅✅✅ Enviando respuesta (posiblemente parcial) al frontend.');
+        // ----- 4. GUARDAR EN CACHÉ ANTES DE DEVOLVER -----
+        // Guardamos el objeto 'R' completo en el caché para la próxima vez
+        inatCache.set(cacheKey, R);
+
+        console.log('✅✅✅ Enviando respuesta (nueva, ahora cacheados) al frontend.');
         res.json(R);
 
     } catch (error) {

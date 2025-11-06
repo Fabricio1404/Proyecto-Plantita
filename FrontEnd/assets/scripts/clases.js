@@ -1,3 +1,5 @@
+// frontend/assets/scripts/clases.js
+
 import { createClase, joinClase, getMisClases } from './api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -38,10 +40,13 @@ function setupClassForms() {
         if (response.ok) {
             messageArea.innerHTML = `<p style="color: green;">Unido con éxito a la clase!</p>`;
             document.getElementById('join-class-form').reset();
-            joinContainer.style.display = 'none';
-            loadMisClases();
+            setTimeout(() => {
+                joinContainer.style.display = 'none';
+                loadMisClases();
+            }, 1000);
         } else {
-            messageArea.innerHTML = `<p style="color: red;">Error: ${response.msg}</p>`;
+            // Asumiendo que el backend envía 'msg' en el cuerpo del error
+            messageArea.innerHTML = `<p style="color: red;">Error: ${response.data?.msg || 'Código incorrecto.'}</p>`;
         }
     });
 
@@ -55,12 +60,14 @@ function setupClassForms() {
         const response = await createClase(name);
         
         if (response.ok) {
-            messageArea.innerHTML = `<p style="color: green;">Clase '${name}' creada. Código: ${response.clase.codigoAcceso}</p>`;
+            messageArea.innerHTML = `<p style="color: green;">Clase '${name}' creada. Código: <strong>${response.clase.codigoAcceso}</strong></p>`;
             document.getElementById('create-class-form').reset();
-            createContainer.style.display = 'none';
-            loadMisClases();
+            setTimeout(() => {
+                createContainer.style.display = 'none';
+                loadMisClases();
+            }, 2000); // Dar tiempo a leer el código
         } else {
-            messageArea.innerHTML = `<p style="color: red;">Error: ${response.msg}</p>`;
+            messageArea.innerHTML = `<p style="color: red;">Error: ${response.data?.msg || 'No se pudo crear.'}</p>`;
         }
     });
 }
@@ -82,7 +89,7 @@ async function loadMisClases() {
 
         container.innerHTML = response.clases.map(clase => createClassCard(clase)).join('');
     } else {
-        container.innerHTML = `<p style="color: red;">Error al cargar clases: ${response.msg}</p>`;
+        container.innerHTML = `<p style="color: red;">Error al cargar clases: ${response.data?.msg || 'Error'}</p>`;
     }
 }
 
@@ -90,13 +97,28 @@ function createClassCard(clase) {
     // Verificar si el profesor es el mismo usuario
     const esProfesor = clase.profesor._id === localStorage.getItem('uid');
     
+    // Usamos las clases de .list-card que ya estilizamos para que se vea bien
     return `
-        <div class="species-card class-card">
-            <h4>${clase.nombre}</h4>
-            <p><strong>Código:</strong> ${clase.codigoAcceso}</p>
-            <p><strong>Profesor:</strong> ${clase.profesor.nombre} ${clase.profesor.apellido} (${esProfesor ? 'Tú' : 'Otro'})</p>
-            <p><strong>Alumnos:</strong> ${clase.alumnos.length}</p>
-            <button class="btn btn-primary" style="margin-top: 10px;">Ver Contenido</button>
+        <div class="card list-card">
+            <div class="species-info">
+                
+                <h4 style="color: var(--text); text-shadow: none;">${clase.nombre}</h4>
+                
+                <p class="muted" style="color: var(--muted); text-shadow: none; font-size: 0.9em; margin-bottom: 8px;">
+                    <strong>Código:</strong> ${clase.codigoAcceso}
+                </p>
+                <p class="muted" style="color: var(--muted); text-shadow: none; font-size: 0.9em; margin-bottom: 8px;">
+                    <strong>Profesor:</strong> ${clase.profesor.nombre} ${clase.profesor.apellido} ${esProfesor ? '(Tú)' : ''}
+                </p>
+                <p class="muted" style="color: var(--muted); text-shadow: none; font-size: 0.9em; margin-bottom: 16px;">
+                    <strong>Alumnos:</strong> ${clase.alumnos.length}
+                </p>
+                
+                <a href="clase-detalle.html?id=${clase._id}" class="btn primary" style="margin-top: auto;">
+                    Ver Contenido
+                </a>
+
+            </div>
         </div>
     `;
 }

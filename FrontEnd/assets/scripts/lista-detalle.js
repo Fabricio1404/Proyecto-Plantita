@@ -1,7 +1,7 @@
 // frontend/assets/scripts/lista-detalle.js
+// v3: Renderiza tarjetas con estilo overlay y botón de quitar
 
-// Importa SÓLO las funciones necesarias de api.js
-import { getListaPorId, deleteEspecieFromLista } from './api.js'; 
+import { getListaPorId, deleteEspecieFromLista } from './api.js';
 
 // --- Selectores DOM ---
 const $ = (s) => document.querySelector(s);
@@ -9,23 +9,17 @@ const listNameTitle = $('#list-name-title');
 const listDescriptionSubtitle = $('#list-description-subtitle');
 const speciesContainer = $('#list-species-container');
 
-// Obtener el ID de la lista desde la URL
 const params = new URLSearchParams(location.search);
 const listaId = params.get("id");
 
-/**
- * Función para escapar HTML y prevenir XSS
- */
-function escapeHTML(s){
-    if (s == null) return '';
-    return String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-}
+/** Escapar HTML */
+function escapeHTML(s){ if (s == null) return ''; return String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
 
 /** Carga los detalles y las especies de la lista */
 async function loadListaDetalle() {
     if (!listaId) {
         if (listNameTitle) listNameTitle.textContent = "Error";
-        if (listDescriptionSubtitle) listDescriptionSubtitle.textContent = "No se proporcionó ID de lista.";
+        if (listDescriptionSubtitle) listDescriptionSubtitle.textContent = "ID de lista no válido.";
         if (speciesContainer) speciesContainer.innerHTML = `<p class="error">Error: ID de lista no válido.</p>`;
         return;
     }
@@ -41,7 +35,6 @@ async function loadListaDetalle() {
         if (listNameTitle) listNameTitle.textContent = escapeHTML(lista.nombre);
         if (listDescriptionSubtitle) listDescriptionSubtitle.textContent = escapeHTML(lista.descripcion) || (lista.publica ? 'Lista pública' : 'Lista privada');
 
-        // Renderizar especies
         if (lista.especies.length === 0) {
             speciesContainer.innerHTML = '<p>Esta lista está vacía. Añade especies desde la página de detalles.</p>';
             return;
@@ -49,53 +42,66 @@ async function loadListaDetalle() {
         
         speciesContainer.innerHTML = lista.especies.map(specie => createSpeciesCard(specie)).join('');
         
-        // Añadir listener para quitar especies
         setupRemoveListeners();
-
     } else {
-        // Muestra el error 404 (Not Found) o 403 (Forbidden)
         speciesContainer.innerHTML = `<p class="error">Error al cargar la lista: ${response.data?.msg || 'No se pudo cargar.'}</p>`;
         if (listNameTitle) listNameTitle.textContent = "Error";
         if (listDescriptionSubtitle) listDescriptionSubtitle.textContent = response.data?.msg || 'Error';
     }
 }
 
-/** Crea el HTML para una tarjeta de especie (estilo 'list-card') */
+// ===== INICIO TARJETA OVERLAY (MODIFICADO) =====
+/** Crea el HTML para una tarjeta de especie (estilo overlay) */
 function createSpeciesCard(specie) {
-    // specie aquí es el sub-documento guardado en tu Lista.model.js
-    const taxonOrigen = specie.taxon || 'plantas'; // Default a plantas si no se guardó
+    const defaultImg = './assets/img/default-placeholder.jpg'; // Un placeholder
+    // Usa la imageUrl guardada, o el placeholder si no existe
+    const imageUrl = specie.imageUrl || defaultImg;
     
+    // Genera el mismo HTML que 'main.js' para el estilo overlay
     return `
-        <div class="card list-card" data-inat-id="${specie.inaturalist_id}">
+        <article class="card" data-inat-id="${specie.inaturalist_id}" data-action="view" role="button" tabindex="0">
+            <img src="${imageUrl}" alt="${escapeHTML(specie.nombreComun)}" loading="lazy" data-skeleton>
+            
             <div class="species-info">
-                <h4>${escapeHTML(specie.nombreComun || 'Especie')}</h4>
+                <h4>${escapeHTML(specie.nombreComun)}</h4>
                 <p>(${escapeHTML(specie.nombreCientifico)})</p>
-                <p class="muted" style="font-size: 0.85em; margin-top: 10px;">
-                    Taxón: ${escapeHTML(specie.taxon)}
-                </p>
-                
-                <div style="margin-top: 15px; display: flex; gap: 8px;">
-                    <a href="detail.html?id=${specie.inaturalist_id}&from=${taxonOrigen}" class="btn btn-sm secondary" data-action="view-detail">Ver Detalles</a>
-                    <button class="btn btn-sm ghost btn-danger btn-remove-from-list" data-action="remove" data-id="${specie.inaturalist_id}">Quitar</button>
-                </div>
             </div>
-        </div>
+            
+            <button class="btn btn-sm btn-danger btn-remove-from-list" 
+                    data-action="remove" 
+                    data-id="${specie.inaturalist_id}" 
+                    title="Quitar de la lista"
+                    style="position: absolute; top: 8px; right: 8px; z-index: 2; padding: 2px 6px; font-size: 10px; opacity: 0.8; cursor: pointer;">
+                Quitar
+            </button>
+        </article>
     `;
 }
+// ===== FIN TARJETA OVERLAY =====
 
-/** Añade listeners para los botones "Quitar" */
+/** Añade listeners para "Quitar" o "Ver Detalles" */
 function setupRemoveListeners() {
     if (!speciesContainer) return;
     
     speciesContainer.addEventListener('click', (e) => {
-        const target = e.target.closest('button[data-action="remove"]');
-        if (!target) return;
-        
-        const inatId = target.dataset.id;
+        const targetButton = e.target.closest('button[data-action="remove"]');
+        const targetCard = e.target.closest('.card');
+        if (!targetCard) return;
+
+        const inatId = targetCard.dataset.inatId;
         if (!inatId) return;
 
-        // Lógica para quitar especie
-        handleRemoveSpecies(listaId, inatId, target);
+        // Si hizo clic en el botón "Quitar"
+        if (targetButton) {
+            e.preventDefault(); // Detener la navegación
+            e.stopPropagation(); // Detener la navegación
+            handleRemoveSpecies(listaId, inatId, targetButton);
+            return;
+        }
+
+        // Si hizo clic en cualquier otra parte de la tarjeta
+        // Redirige a la página de detalle
+        window.location.href = `detail.html?id=${inatId}&from=listas`;
     });
 }
 
@@ -105,29 +111,26 @@ async function handleRemoveSpecies(listaId, inatId, button) {
     const speciesName = card.querySelector('h4').textContent;
 
     if (confirm(`¿Quitar "${speciesName}" de esta lista?`)) {
-        button.textContent = 'Quitando...';
+        button.textContent = '...';
         button.disabled = true;
         
-        // Debes crear esta función en api.js y el endpoint en el backend
-        // const response = await deleteEspecieFromLista(listaId, inatId); 
-        
-        // Simulación (borra esta línea cuando implementes el backend)
-        const response = { ok: false, data: { msg: "Función 'Quitar Especie' no implementada en el backend." } }; 
+        const response = await deleteEspecieFromLista(listaId, inatId); 
         
         if (response.ok) {
-            card.style.transition = 'opacity 0.3s ease-out';
+            card.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
             card.style.opacity = '0';
+            card.style.transform = 'scale(0.95)';
             setTimeout(() => card.remove(), 300);
         } else {
-            alert(`Error: ${response.data.msg}`);
+            alert(`Error: ${response.data.msg || 'No se pudo quitar la especie.'}`);
             button.textContent = 'Quitar';
             button.disabled = false;
         }
     }
 }
 
+
 // --- Inicialización ---
 document.addEventListener('DOMContentLoaded', () => {
-    // ui-helpers.js se carga primero (asumido en el HTML)
     loadListaDetalle();
 });

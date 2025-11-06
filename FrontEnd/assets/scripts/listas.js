@@ -3,7 +3,6 @@
 
 import { getListas, createLista, updateLista, deleteLista } from './api.js';
 
-// --- Selectores del Modal de Edición ---
 const editModal = document.getElementById('edit-list-modal');
 const editForm = document.getElementById('edit-list-form');
 const editMessageArea = document.getElementById('edit-list-message-area');

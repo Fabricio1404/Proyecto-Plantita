@@ -5,38 +5,37 @@ const API_V1_URL = 'http://localhost:4000/api/v1';
 export const protectedFetch = async (endpoint, token, options = {}) => { const headers = { 'Content-Type': 'application/json', 'x-token': token, ...options.headers }; try { const url = `${API_V1_URL}${endpoint}`; const response = await fetch(url, { method: options.method || 'GET', headers: headers, body: (options.body && options.method !== 'GET') ? JSON.stringify(options.body) : undefined, }); if (response.status === 401) { console.error("❌ Error 401: Token inválido."); localStorage.clear(); window.location.href = 'auth.html'; return { ok: false, status: 401, data: { msg: "Token inválido" } }; } const data = await response.json().catch(() => ({ msg: `Respuesta no JSON: ${response.statusText}` })); return { ok: response.ok, status: response.status, data }; } catch (e) { console.error('❌ Error de red en protectedFetch:', e); return { ok: false, status: 0, data: { msg: `Fallo de conexión: ${e.message}` } }; } };
 
 // --- 2. Funciones iNaturalist ---
-export const getEspecies = async (taxon, query = '') => { const token = localStorage.getItem('token'); if (!token) return { ok: false, status: 401, data: { msg: "Token no encontrado" } }; const taxaIds = (taxon === 'plantas') ? "47126" : (taxon === 'insectos') ? "47158,47119,48222" : ""; const params = new URLSearchParams(); if (taxaIds) params.set('taxon_id', taxaIds); if (query) params.set('q', query); params.set('rank', 'species'); params.set('order_by', 'observations_count'); params.set('order', 'desc'); params.set('per_page', '30'); return protectedFetch(`/inaturalist/taxa?${params.toString()}`, token); };
+export const getEspecies = async (taxon, query = '', page = 1) => { const token = localStorage.getItem('token'); if (!token) return { ok: false, status: 401, data: { msg: "Token no encontrado" } }; const taxaIds = (taxon === 'plantas') ? "47126" : (taxon === 'insectos') ? "47158,47119,48222" : ""; const params = new URLSearchParams(); if (taxaIds) params.set('taxon_id', taxaIds); if (query) params.set('q', query); params.set('rank', 'species'); params.set('order_by', 'observations_count'); params.set('order', 'desc'); params.set('per_page', '30'); params.set('page', page); return protectedFetch(`/inaturalist/taxa?${params.toString()}`, token); };
 
-// --- 3. Funciones Listas, Clases ---
+// --- 3. Funciones Listas ---
 export const createLista = (n, d, p) => { const t=localStorage.getItem('token'); if(!t) return Promise.resolve({ok:!1,data:{msg:"Token requerido"}}); return protectedFetch('/listas',t,{method:'POST',body:{nombre:n,descripcion:d,publica:p}});};
 export const getListas = () => { const t=localStorage.getItem('token'); if(!t) return Promise.resolve({ok:!1,data:{msg:"Token requerido"}}); return protectedFetch('/listas',t);};
 export const addEspecieToLista = (id, data) => { const t=localStorage.getItem('token'); if(!t) return Promise.resolve({ok:!1,data:{msg:"Token requerido"}}); return protectedFetch(`/listas/${id}/especies`,t,{method:'POST',body:data});};
 export const updateLista = (id, data) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/listas/${id}`, t, { method: 'PUT', body: data }); };
 export const deleteLista = (id) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/listas/${id}`, t, { method: 'DELETE' }); };
 export const getListaPorId = (id) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/listas/${id}`, t); };
+export const deleteEspecieFromLista = (listaId, especieId) => { const token = localStorage.getItem('token'); if (!token) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/listas/${listaId}/especies/${especieId}`, token, { method: 'DELETE' }); };
 
-// ===== INICIO NUEVA FUNCIÓN =====
-/** Elimina una especie específica de una lista */
-export const deleteEspecieFromLista = (listaId, especieId) => {
-    const token = localStorage.getItem('token');
-    if (!token) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
-    // Llama a DELETE /api/v1/listas/:listaId/especies/:especieId
-    return protectedFetch(`/listas/${listaId}/especies/${especieId}`, token, {
-        method: 'DELETE'
-    });
-};
-// ===== FIN NUEVA FUNCIÓN =====
-
+// --- 4. Funciones Clases ---
 export const createClase = (n) => { const t=localStorage.getItem('token'); if(!t) return Promise.resolve({ok:!1,data:{msg:"Token requerido"}}); return protectedFetch('/clases',t,{method:'POST',body:{nombre:n}});};
 export const joinClase = (c) => { const t=localStorage.getItem('token'); if(!t) return Promise.resolve({ok:!1,data:{msg:"Token requerido"}}); return protectedFetch('/clases/unirse',t,{method:'POST',body:{codigoAcceso:c}});};
 export const getMisClases = () => { const t=localStorage.getItem('token'); if(!t) return Promise.resolve({ok:!1,data:{msg:"Token requerido"}}); return protectedFetch('/clases',t);};
 
-// --- 4. Funciones Perfil ---
+// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
+/** Obtiene todos los detalles de una clase específica por su ID */
+export const getClasePorId = (id) => {
+    const t = localStorage.getItem('token');
+    if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
+    return protectedFetch(`/clases/${id}`, t); 
+};
+// --- FIN FUNCIÓN NUEVA ---
+
+// --- 5. Funciones Perfil ---
 export const getProfile = () => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, status: 401, data: { msg: "Token no encontrado" } }); return protectedFetch('/usuarios/perfil', t); };
 export const updateProfile = (d) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, status: 401, data: { msg: "Token no encontrado" } }); return protectedFetch('/usuarios/perfil', t, { method: 'PUT', body: d }); };
 export const updateTheme = (th) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, status: 401, data: { msg: "Token no encontrado" } }); return protectedFetch('/usuarios/config/tema', t, { method: 'PUT', body: { tema: th } }); };
 
-// --- 5. Funciones Seguimiento (Observatorio) ---
+// --- 6. Funciones Seguimiento (Observatorio) ---
 export const createSeguimiento = (n, e, la, ln) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch('/seguimiento', t, { method: 'POST', body: { nombrePlanta:n, especie:e, lat:la, lng:ln } }); };
 export const getSeguimientos = () => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch('/seguimiento', t); };
 export const addObservacion = (id, data) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/seguimiento/${id}/observar`, t, { method: 'POST', body: data }); };
