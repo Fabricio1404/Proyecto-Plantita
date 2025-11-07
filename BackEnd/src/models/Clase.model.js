@@ -1,3 +1,4 @@
+// backend/src/models/Clase.model.js
 const mongoose = require('mongoose');
 
 const ClaseSchema = new mongoose.Schema({
@@ -28,7 +29,7 @@ const ClaseSchema = new mongoose.Schema({
         descripcion: String,
         urlArchivo: String,
         fechaPublicacion: { type: Date, default: Date.now }
-    }],
+    }]
     
     // --- MODIFICACIÓN CLAVE AQUÍ ---
     // Eliminamos el array de 'tareas'. Las tareas se buscarán por 'claseId'.

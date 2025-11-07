@@ -20,8 +20,6 @@ const EntregaSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    
-    // --- MODIFICACIÓN AQUÍ ---
     calificacion: { // La nota, ej: "8/10" o "Aprobado"
         type: String,
         trim: true,
@@ -32,8 +30,6 @@ const EntregaSchema = new mongoose.Schema({
         trim: true,
         default: null
     }
-    // --- FIN DE LA MODIFICACIÓN ---
-
 }, { timestamps: true });
 
 // Evita que un alumno entregue dos veces la misma tarea

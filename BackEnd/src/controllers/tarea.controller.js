@@ -63,8 +63,6 @@ const agregarComentario = async (req, res) => {
             return res.status(404).json({ ok: false, msg: 'Tarea no encontrada.' });
         }
 
-        // Seguridad: (Podrías verificar de nuevo si pertenece a la clase)
-
         const nuevoComentario = new Comentario({
             tarea: tareaId,
             autor: autorId,
@@ -107,15 +105,12 @@ const agregarEntrega = async (req, res) => {
             return res.status(404).json({ ok: false, msg: 'Tarea no encontrada.' });
         }
         
-        // Seguridad: Verificar que el usuario es un alumno (no el profesor)
         if (tarea.profesor.toString() === alumnoId) {
              return res.status(403).json({ ok: false, msg: 'El profesor no puede entregar tareas.' });
         }
 
-        // Verificar si ya existe una entrega (Multer ya subió el archivo, pero aquí lo evitamos)
         const entregaExistente = await Entrega.findOne({ tarea: tareaId, alumno: alumnoId });
         if (entregaExistente) {
-            // (Aquí podrías borrar el archivo que subió Multer, pero por ahora lo dejamos así)
             return res.status(400).json({ ok: false, msg: 'Ya has entregado esta tarea.' });
         }
 
@@ -129,7 +124,6 @@ const agregarEntrega = async (req, res) => {
 
         await nuevaEntrega.save();
 
-        // Añadir la entrega a la tarea
         tarea.entregas.push(nuevaEntrega._id);
         await tarea.save();
         
@@ -149,7 +143,7 @@ const agregarEntrega = async (req, res) => {
 };
 
 
-// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
+// POST /api/v1/tarea/entrega/:id/calificar
 const calificarEntrega = async (req, res) => {
     const { id: entregaId } = req.params;
     const { calificacion, comentarioProfesor } = req.body;
@@ -160,18 +154,15 @@ const calificarEntrega = async (req, res) => {
     }
 
     try {
-        // 1. Buscar la entrega
         const entrega = await Entrega.findById(entregaId).populate('tarea');
         if (!entrega) {
             return res.status(404).json({ ok: false, msg: 'Entrega no encontrada.' });
         }
 
-        // 2. Seguridad: Verificar que quien califica es el profesor de esa tarea
         if (entrega.tarea.profesor.toString() !== profesorId) {
             return res.status(403).json({ ok: false, msg: 'No tienes permiso para calificar esta entrega.' });
         }
 
-        // 3. Guardar la calificación
         entrega.calificacion = calificacion;
         entrega.comentarioProfesor = comentarioProfesor || null;
         
@@ -188,12 +179,11 @@ const calificarEntrega = async (req, res) => {
         res.status(500).json({ ok: false, msg: 'Error al guardar la calificación.' });
     }
 };
-// --- FIN FUNCIÓN NUEVA ---
 
 
 module.exports = {
     obtenerTareaDetalle,
     agregarComentario,
     agregarEntrega,
-    calificarEntrega // <-- NO OLVIDES EXPORTARLA
+    calificarEntrega
 };

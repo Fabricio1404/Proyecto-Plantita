@@ -1,15 +1,14 @@
 // frontend/assets/scripts/clase-detalle.js
 
-// --- IMPORTACIONES ---
 import { getClasePorId, getTareasPorClase, addMaterialAClase, addTareaAClase } from './api.js';
 
-// --- CONSTANTES GLOBALES ---
+// --- DEFINIR LA URL BASE DEL BACKEND ---
 const API_V1_URL_PARA_ENLACES = 'http://localhost:4000';
 const currentUserId = localStorage.getItem('uid');
 
-// --- SELECTORES DEL DOM (Declarados aquí para ser globales en el módulo) ---
+// --- SELECTORES DEL DOM ---
 const titleEl = document.getElementById('class-title');
-const professorEl = document.getElementById('class-professor'); // <-- Error 'professorEl is not defined'
+const professorEl = document.getElementById('class-professor');
 const teacherControlsEl = document.getElementById('teacher-controls');
 const materialsContainer = document.getElementById('materiales-container');
 const tasksContainer = document.getElementById('tareas-container');
@@ -17,8 +16,6 @@ const studentsList = document.getElementById('alumnos-list');
 const studentsCount = document.getElementById('alumnos-count');
 const tabsContainer = document.querySelector('.detail-tabs');
 const tabPanels = document.querySelectorAll('.tab-panel');
-const subtitleEl = document.getElementById('task-subtitle');
-const backBtn = document.getElementById('back-to-class-btn');
 
 // --- Selectores Modal Material ---
 const addMaterialBtn = document.getElementById('add-material-btn');
@@ -28,7 +25,7 @@ const materialMessageArea = document.getElementById('material-message-area');
 const modalCloseBtnsMaterial = addMaterialModal.querySelectorAll('[data-modal-close]');
 
 // --- Selectores Modal Tareas ---
-const addTaskBtn = document.getElementById('add-task-btn'); // <-- Error 'addTaskBtn is not defined'
+const addTaskBtn = document.getElementById('add-task-btn');
 const addTaskModal = document.getElementById('add-task-modal');
 const taskForm = document.getElementById('task-form');
 const taskMessageArea = document.getElementById('task-message-area');
@@ -48,7 +45,7 @@ async function loadClassDetails() {
         return;
     }
 
-    // Pedimos los detalles de la clase y las tareas al mismo tiempo
+    // --- Cargar en paralelo ---
     const [claseResponse, tareasResponse] = await Promise.all([
         getClasePorId(claseId),
         getTareasPorClase(claseId)
@@ -294,7 +291,7 @@ function setupTaskModal() {
             
             // Refrescar la lista de tareas
             const nuevaTareaHtml = renderTaskCard(response.data.tarea);
-            if (tasksContainer.querySelector('p')) {
+            if (tasksContainer.querySelector('p')) { // Si está el msg "no hay tareas"
                 tasksContainer.innerHTML = nuevaTareaHtml;
             } else {
                 tasksContainer.insertAdjacentHTML('beforeend', nuevaTareaHtml);
@@ -310,11 +307,8 @@ function setupTaskModal() {
 
 // --- Inicialización ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Estas funciones adjuntan los listeners
     setupTabs();
     setupMaterialModal();
     setupTaskModal();
-    
-    // Esta función llama a la API para poblar la página
     loadClassDetails();
 });

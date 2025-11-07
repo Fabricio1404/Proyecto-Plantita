@@ -21,7 +21,6 @@ const startServer = async () => {
         await connectDB();
 
         // --- 5. Registrar los modelos DESPUÉS de conectar ---
-        // (Ahora Mongoose sabe quién es y no se colgará)
         require('./src/models/Usuario.model');
         require('./src/models/Clase.model');
         require('./src/models/Tarea.model');
@@ -45,7 +44,6 @@ const startServer = async () => {
         app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
         
         // --- 8. Importar y Usar Rutas ---
-        // (Las movemos aquí para que solo se registren si la DB conecta)
         app.use('/api/auth', require('./src/routes/auth.routes'));
         app.use('/api/v1', require('./src/routes/api.routes'));
         app.use('/api/v1/usuarios', require('./src/routes/usuarios.routes'));
@@ -62,7 +60,6 @@ const startServer = async () => {
         });
 
     } catch (error) {
-        // Este catch es por si connectDB falla
         console.error("Fallo al iniciar el servidor (error en DB):", error);
         process.exit(1);
     }

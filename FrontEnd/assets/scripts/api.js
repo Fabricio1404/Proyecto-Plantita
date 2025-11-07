@@ -75,7 +75,7 @@ export const getTareasPorClase = (claseId) => {
     return protectedFetch(`/clases/${claseId}/tareas`, t);
 };
 
-// --- 5. Funciones Tareas ---
+// --- 5. Funciones Tareas (NUEVAS) ---
 /** Obtiene el detalle de UNA tarea (con sus comentarios y entregas) */
 export const getTareaDetalle = (tareaId) => {
     const t = localStorage.getItem('token');
