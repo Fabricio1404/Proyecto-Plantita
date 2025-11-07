@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargando Tarea... - InForest Classroom</title>
+    <link rel="stylesheet" href="./assets/css/home-style.css">
+    <style>
+        /* Estilos para comentarios */
+        .comment-list { list-style: none; padding: 0; margin-top: 20px; }
+        .comment-item {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .comment-author { font-weight: bold; color: var(--primary); }
+        .comment-date { font-size: 0.8em; color: var(--muted); margin-left: 8px; }
+        .comment-body { margin-top: 5px; }
+
+        /* --- MODIFICACIÓN: Estilos para Calificación --- */
+        .entrega-item {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .entrega-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+        .grading-form .input-group {
+            margin-bottom: 8px;
+        }
+        .grading-form input, .grading-form textarea {
+            font-size: 0.9em;
+            padding: 8px;
+        }
+        .grading-form textarea {
+            min-height: 40px;
+        }
+        .calificacion-guardada {
+            background: var(--input-bg);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            border: 1px solid var(--border);
+        }
+        /* --- FIN MODIFICACIÓN --- */
+    </style>
+    <script>
+      (function() { const savedTheme = localStorage.getItem('userTheme') || 'claro'; document.documentElement.setAttribute('data-theme', savedTheme); })();
+    </script>
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar" aria-label="Menú lateral">
+    <div class="brand"> <img src="./assets/img/logo.png" alt="Logo InForest" class="logo"> <div class="brand-name">InForest</div> </div>
+    <nav class="menu" role="navigation" aria-label="Secciones">
+      <a class="menu-item" href="plantas.html">Plantas</a>
+      <a class="menu-item" href="insectos.html">Insectos</a>
+      <div class="menu-sep"></div>
+      <a class="menu-item" href="listas.html">Mis Listas</a>
+      <a class="menu-item active" href="clases.html">Clases (Classroom)</a>
+      <a class="menu-item" href="registro-fenologico.html">Observatorio Personal</a>
+      <a class="menu-item" href="comunidad.html">Foros y Ranking</a>
+      <div class="menu-sep"></div>
+      <a class="menu-item" href="perfil.html">Mi Perfil</a>
+    </nav>
+    <div class="sidebar-foot"> <button id="logout" class="btn ghost btn-sm" aria-label="Salir">Salir</button> </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="left">
+        <button id="toggleSidebar" class="icon-btn" aria-pressed="false" aria-label="Mostrar/ocultar menú">☰</button>
+        <a id="back-to-class-btn" href="clases.html" class="btn ghost btn-sm">← Volver a la Clase</a>
+        <div class="hello" style="margin-left: 10px;">
+            <h1 id="task-title">Cargando Tarea...</h1>
+            <p id="task-subtitle" class="muted"></p>
+        </div>
+      </div>
+      <div class="right"> <div class="profile-section" id="user-profile"> <span class="profile-name" id="username-display-topbar">Usuario</span> <img src="./assets/img/default-avatar.png" alt="Avatar" class="profile-avatar" id="user-avatar"> </div> </div>
+    </header>
+
+    <section class="content-area" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+        
+        <div class="main-column">
+            <div class="form-card">
+                <h3 id="task-detail-title"></h3>
+                <p class="muted">Profesor: <span id="task-profesor">...</span></p>
+                <p class="muted">Vencimiento: <span id="task-vencimiento">...</span></p>
+                <div id="task-descripcion" style="margin-top: 15px;"></div>
+                <div id="task-attachment-container" style="margin-top: 20px;">
+                    </div>
+            </div>
+
+            <div class="form-card" style="margin-top: 20px;">
+                <h4>Comentarios de la Tarea</h4>
+                <ul id="comment-list-container" class="comment-list">
+                    <li>Cargando comentarios...</li>
+                </ul>
+                <form id="comment-form" style="margin-top: 20px;">
+                    <div class="input-group">
+                        <label for="comment-text">Escribe un comentario...</label>
+                        <textarea id="comment-text" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn primary btn-sm">Publicar</button>
+                    <div id="comment-message-area" class="message-area"></div>
+                </form>
+            </div>
+        </div>
+
+        <div class="side-column">
+            <div id="entrega-container" class="form-card">
+                <h4>Tu Entrega</h4>
+                <div id="entrega-status-container">
+                    </div>
+            </div>
+        </div>
+
+    </section>
+
+    <footer class="foot"> <small>© 2025 InForest</small> </footer>
+  </div>
+
+  <script src="./assets/scripts/auth-guard.js"></script>
+  <script src="./assets/scripts/ui-helpers.js"></script>
+  <script src="./assets/scripts/api.js" type="module"></script>
+  <script src="./assets/scripts/tarea-detalle.js" type="module"></script> 
+</body>
+</html>

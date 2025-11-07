@@ -2,8 +2,6 @@
 
 const { Router } = require('express');
 const { validarJWT } = require('../middlewares/auth'); 
-
-// --- MODIFICACIÓN: Importar los dos gestores ---
 const { uploadMaterial, uploadTarea } = require('../Middlewares/file-upload');
 
 const {
@@ -12,14 +10,13 @@ const {
     obtenerMisClases,
     obtenerClasePorId,
     agregarMaterial,
-    agregarTarea
+    agregarTarea,
+    obtenerTareasPorClase // <-- 1. IMPORTAR LA NUEVA FUNCIÓN
 } = require('../controllers/clases.controller');
 
 const router = Router();
 
-// Todas las rutas aquí requieren un JWT válido
 router.use(validarJWT);
-
 
 // GET /api/v1/clases/
 router.get('/', obtenerMisClases);
@@ -36,16 +33,23 @@ router.get('/:id', obtenerClasePorId);
 // POST /api/v1/clases/:id/materiales
 router.post(
     '/:id/materiales',
-    uploadMaterial, // <-- Usa el gestor de materiales
+    uploadMaterial, 
     agregarMaterial
 );
 
-// --- MODIFICACIÓN: Usar el gestor de tareas ---
 // POST /api/v1/clases/:id/tareas
 router.post(
     '/:id/tareas',
-    uploadTarea, // <-- Usa el nuevo gestor de tareas
+    uploadTarea, 
     agregarTarea
+);
+
+// --- 2. AÑADIR ESTA NUEVA RUTA ---
+// GET /api/v1/clases/:id/tareas
+// Obtener todas las tareas de una clase
+router.get(
+    '/:id/tareas',
+    obtenerTareasPorClase
 );
 // ---------------------------------
 

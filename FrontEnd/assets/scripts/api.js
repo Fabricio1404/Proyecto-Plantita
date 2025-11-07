@@ -36,7 +36,20 @@ export const protectedFetch = async (endpoint, token, options = {}) => {
 };
 
 // --- 2. Funciones iNaturalist ---
-export const getEspecies = async (taxon, query = '', page = 1) => { const token = localStorage.getItem('token'); if (!token) return { ok: false, status: 401, data: { msg: "Token no encontrado" } }; const taxaIds = (taxon === 'plantas') ? "47126" : (taxon === 'insectos') ? "47158,47119,48222" : ""; const params = new URLSearchParams(); if (taxaIds) params.set('taxon_id', taxaIds); if (query) params.set('q', query); params.set('rank', 'species'); params.set('order_by', 'observations_count'); params.set('order', 'desc'); params.set('per_page', '30'); params.set('page', page); return protectedFetch(`/inaturalist/taxa?${params.toString()}`, token); };
+export const getEspecies = async (taxon, query = '', page = 1) => { 
+    const token = localStorage.getItem('token'); 
+    if (!token) return { ok: false, status: 401, data: { msg: "Token no encontrado" } }; 
+    const taxaIds = (taxon === 'plantas') ? "47126" : (taxon === 'insectos') ? "47158,47119,48222" : ""; 
+    const params = new URLSearchParams(); 
+    if (taxaIds) params.set('taxon_id', taxaIds); 
+    if (query) params.set('q', query); 
+    params.set('rank', 'species'); 
+    params.set('order_by', 'observations_count'); 
+    params.set('order', 'desc'); 
+    params.set('per_page', '30'); 
+    params.set('page', page); 
+    return protectedFetch(`/inaturalist/taxa?${params.toString()}`, token); 
+};
 
 // --- 3. Funciones Listas ---
 export const createLista = (n, d, p) => { const t=localStorage.getItem('token'); if(!t) return Promise.resolve({ok:!1,data:{msg:"Token requerido"}}); return protectedFetch('/listas',t,{method:'POST',body:{nombre:n,descripcion:d,publica:p}});};
@@ -53,27 +66,60 @@ export const joinClase = (c) => { const t=localStorage.getItem('token'); if(!t) 
 export const getMisClases = () => { const t=localStorage.getItem('token'); if(!t) return Promise.resolve({ok:!1,data:{msg:"Token requerido"}}); return protectedFetch('/clases',t);};
 export const getClasePorId = (id) => { const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/clases/${id}`, t); };
 export const addMaterialAClase = (claseId, formData) => { const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/clases/${claseId}/materiales`, t, { method: 'POST', body: formData }); };
+export const addTareaAClase = (claseId, formData) => { const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/clases/${claseId}/tareas`, t, { method: 'POST', body: formData }); };
 
-// --- FUNCIÓN 'addTareaAClase' (MODIFICADA) ---
-/** Añade una tarea a una clase específica */
-export const addTareaAClase = (claseId, formData) => {
-    // Ahora recibe FormData en lugar de JSON
+/** Obtiene todas las tareas de una clase */
+export const getTareasPorClase = (claseId) => {
     const t = localStorage.getItem('token');
     if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
-    
-    return protectedFetch(`/clases/${claseId}/tareas`, t, {
+    return protectedFetch(`/clases/${claseId}/tareas`, t);
+};
+
+// --- 5. Funciones Tareas ---
+/** Obtiene el detalle de UNA tarea (con sus comentarios y entregas) */
+export const getTareaDetalle = (tareaId) => {
+    const t = localStorage.getItem('token');
+    if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
+    return protectedFetch(`/tarea/${tareaId}`, t);
+};
+
+/** Publica un comentario en una tarea */
+export const addComentarioATarea = (tareaId, texto) => {
+    const t = localStorage.getItem('token');
+    if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
+    return protectedFetch(`/tarea/${tareaId}/comentar`, t, {
         method: 'POST',
-        body: formData // <-- Enviar el FormData
+        body: { texto } // Es JSON
     });
 };
-// --- FIN FUNCIÓN MODIFICADA ---
 
-// --- 5. Funciones Perfil ---
+/** Sube un archivo de entrega para una tarea */
+export const addEntregaATarea = (tareaId, formData) => {
+    const t = localStorage.getItem('token');
+    if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
+    return protectedFetch(`/tarea/${tareaId}/entregar`, t, {
+        method: 'POST',
+        body: formData // Es FormData
+    });
+};
+
+/** Califica la entrega de un alumno */
+export const calificarEntrega = (entregaId, calificacion, comentarioProfesor) => {
+    const t = localStorage.getItem('token');
+    if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
+    return protectedFetch(`/tarea/entrega/${entregaId}/calificar`, t, {
+        method: 'POST',
+        body: { calificacion, comentarioProfesor } // Es JSON
+    });
+};
+// --- FIN FUNCIONES NUEVAS ---
+
+// --- 6. Funciones Perfil ---
 export const getProfile = () => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, status: 401, data: { msg: "Token no encontrado" } }); return protectedFetch('/usuarios/perfil', t); };
 export const updateProfile = (d) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, status: 401, data: { msg: "Token no encontrado" } }); return protectedFetch('/usuarios/perfil', t, { method: 'PUT', body: d }); };
 export const updateTheme = (th) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, status: 401, data: { msg: "Token no encontrado" } }); return protectedFetch('/usuarios/config/tema', t, { method: 'PUT', body: { tema: th } }); };
 
-// --- 6. Funciones Seguimiento (Observatorio) ---
+// --- 7. Funciones Seguimiento (Observatorio) ---
 export const createSeguimiento = (n, e, la, ln) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch('/seguimiento', t, { method: 'POST', body: { nombrePlanta:n, especie:e, lat:la, lng:ln } }); };
 export const getSeguimientos = () => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch('/seguimiento', t); };
 export const addObservacion = (id, data) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/seguimiento/${id}/observar`, t, { method: 'POST', body: data }); };

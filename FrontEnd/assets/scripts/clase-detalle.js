@@ -1,14 +1,15 @@
 // frontend/assets/scripts/clase-detalle.js
 
-import { getClasePorId, addMaterialAClase, addTareaAClase } from './api.js';
+// --- IMPORTACIONES ---
+import { getClasePorId, getTareasPorClase, addMaterialAClase, addTareaAClase } from './api.js';
 
-// --- DEFINIR LA URL BASE DEL BACKEND ---
+// --- CONSTANTES GLOBALES ---
 const API_V1_URL_PARA_ENLACES = 'http://localhost:4000';
-// ------------------------------------
+const currentUserId = localStorage.getItem('uid');
 
-// --- Selectores del DOM ---
+// --- SELECTORES DEL DOM (Declarados aquí para ser globales en el módulo) ---
 const titleEl = document.getElementById('class-title');
-const professorEl = document.getElementById('class-professor');
+const professorEl = document.getElementById('class-professor'); // <-- Error 'professorEl is not defined'
 const teacherControlsEl = document.getElementById('teacher-controls');
 const materialsContainer = document.getElementById('materiales-container');
 const tasksContainer = document.getElementById('tareas-container');
@@ -16,6 +17,8 @@ const studentsList = document.getElementById('alumnos-list');
 const studentsCount = document.getElementById('alumnos-count');
 const tabsContainer = document.querySelector('.detail-tabs');
 const tabPanels = document.querySelectorAll('.tab-panel');
+const subtitleEl = document.getElementById('task-subtitle');
+const backBtn = document.getElementById('back-to-class-btn');
 
 // --- Selectores Modal Material ---
 const addMaterialBtn = document.getElementById('add-material-btn');
@@ -25,12 +28,13 @@ const materialMessageArea = document.getElementById('material-message-area');
 const modalCloseBtnsMaterial = addMaterialModal.querySelectorAll('[data-modal-close]');
 
 // --- Selectores Modal Tareas ---
-const addTaskBtn = document.getElementById('add-task-btn');
+const addTaskBtn = document.getElementById('add-task-btn'); // <-- Error 'addTaskBtn is not defined'
 const addTaskModal = document.getElementById('add-task-modal');
 const taskForm = document.getElementById('task-form');
 const taskMessageArea = document.getElementById('task-message-area');
 const modalCloseBtnsTask = addTaskModal.querySelectorAll('[data-modal-close-task]');
 
+// --- ID de la clase desde la URL ---
 const params = new URLSearchParams(location.search);
 const claseId = params.get('id');
 
@@ -44,38 +48,34 @@ async function loadClassDetails() {
         return;
     }
 
-    const response = await getClasePorId(claseId);
+    // Pedimos los detalles de la clase y las tareas al mismo tiempo
+    const [claseResponse, tareasResponse] = await Promise.all([
+        getClasePorId(claseId),
+        getTareasPorClase(claseId)
+    ]);
 
-    if (!response.ok) {
+    // 1. Manejar error de Clase
+    if (!claseResponse.ok) {
         titleEl.textContent = 'Error al cargar';
-        const errorMsg = response.data?.msg || 'No se pudo cargar la clase.';
+        const errorMsg = claseResponse.data?.msg || 'No se pudo cargar la clase.';
         materialsContainer.innerHTML = `<p class="error">Error: ${errorMsg}</p>`;
-        tasksContainer.innerHTML = `<p class="error">Error</p>`;
-        studentsList.innerHTML = `<p class="error">Error</p>`;
+        tasksContainer.innerHTML = `<p class="error">Error: ${errorMsg}</p>`;
+        studentsList.innerHTML = `<p class="error">Error: ${errorMsg}</p>`;
         return;
     }
 
-    const { clase } = response.data;
-    const currentUserId = localStorage.getItem('uid');
+    const { clase } = claseResponse.data;
     const esProfesor = clase.profesor._id === currentUserId;
 
-    // 1. Renderizar cabecera
+    // 2. Renderizar Cabecera y Alumnos
     titleEl.textContent = clase.nombre;
     document.title = `${clase.nombre} - InForest Classroom`; 
     professorEl.textContent = `Profesor: ${clase.profesor.nombre} ${clase.profesor.apellido} | Código: ${clase.codigoAcceso}`;
-
-    // 2. Mostrar controles si es profesor
+    
     if (esProfesor) {
         teacherControlsEl.style.display = 'block';
     }
-
-    // 3. Renderizar Materiales
-    renderMaterials(clase.materiales);
-
-    // 4. Renderizar Tareas
-    renderTasks(clase.tareas);
-
-    // 5. Renderizar Lista de Alumnos
+    
     studentsCount.textContent = `Total: ${clase.alumnos.length} miembros`;
     if (clase.alumnos && clase.alumnos.length > 0) {
         studentsList.innerHTML = `
@@ -88,9 +88,19 @@ async function loadClassDetails() {
     } else {
         studentsList.innerHTML = '<li>No hay alumnos inscritos.</li>';
     }
+
+    // 3. Renderizar Materiales (de la respuesta de clase)
+    renderMaterials(clase.materiales);
+
+    // 4. Renderizar Tareas (de la respuesta de tareas)
+    if (tareasResponse.ok) {
+        renderTasks(tareasResponse.data.tareas);
+    } else {
+        tasksContainer.innerHTML = '<p class="error">Error al cargar tareas.</p>';
+    }
 }
 
-// --- Helpers de renderizado (para refrescar fácil) ---
+// --- Helpers de renderizado ---
 function renderMaterials(materiales) {
     if (materiales && materiales.length > 0) {
         materiales.sort((a, b) => new Date(b.fechaPublicacion) - new Date(a.fechaPublicacion));
@@ -102,9 +112,8 @@ function renderMaterials(materiales) {
 
 function renderTasks(tareas) {
     if (tareas && tareas.length > 0) {
-        // Ordena por fecha de vencimiento, las más próximas primero
         tareas.sort((a, b) => {
-            if (!a.fechaVencimiento) return 1; // Sin fecha van al final
+            if (!a.fechaVencimiento) return 1; 
             if (!b.fechaVencimiento) return -1;
             return new Date(a.fechaVencimiento) - new Date(b.fechaVencimiento);
         });
@@ -114,9 +123,6 @@ function renderTasks(tareas) {
     }
 }
 
-/**
- * Helper para renderizar una tarjeta de Material
- */
 function renderMaterialCard(material) {
     return `
         <div class="card list-card" style="margin-bottom: 15px;">
@@ -133,21 +139,15 @@ function renderMaterialCard(material) {
     `;
 }
 
-/**
- * Helper para renderizar una tarjeta de Tarea (MODIFICADO)
- */
 function renderTaskCard(tarea) {
     const fechaVencimiento = tarea.fechaVencimiento 
         ? new Date(tarea.fechaVencimiento).toLocaleDateString('es-AR')
         : 'Sin fecha límite';
-        
-    // Generar el botón de descarga SOLO SI existe un archivo
     const botonDescarga = tarea.urlArchivo
         ? `<a href="${API_V1_URL_PARA_ENLACES}/${tarea.urlArchivo}" download class="btn btn-sm secondary">
                Descargar Adjunto
            </a>`
-        : ''; // Si no hay archivo, string vacío
-
+        : ''; 
     return `
         <div class="card list-card" style="margin-bottom: 15px;">
             <div class="species-info">
@@ -157,9 +157,9 @@ function renderTaskCard(tarea) {
                     Entrega: ${fechaVencimiento}
                 </p>
                 <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
-                    <button class="btn btn-sm primary" data-task-id="${tarea._id}">
+                    <a href="tarea-detalle.html?id=${tarea._id}" class="btn btn-sm primary">
                         Ver Tarea y Entregar
-                    </button>
+                    </a>
                     ${botonDescarga} 
                 </div>
             </div>
@@ -167,10 +167,7 @@ function renderTaskCard(tarea) {
     `;
 }
 
-
-/**
- * Lógica para manejar las pestañas
- */
+// --- Lógica de Pestañas ---
 function setupTabs() {
     tabsContainer.addEventListener('click', (e) => {
         const targetTab = e.target.closest('.tab-btn');
@@ -200,10 +197,8 @@ function setupMaterialModal() {
     addMaterialBtn.addEventListener('click', openModal);
     modalCloseBtnsMaterial.forEach(btn => btn.addEventListener('click', closeModal));
 
-    // Enviar formulario de material
     materialForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
         const titulo = document.getElementById('material-titulo').value.trim();
         const descripcion = document.getElementById('material-descripcion').value.trim();
         const archivoInput = document.getElementById('material-archivo');
@@ -224,12 +219,10 @@ function setupMaterialModal() {
 
         materialMessageArea.textContent = 'Subiendo y guardando...';
         materialMessageArea.className = 'message-area';
-
         const formData = new FormData();
         formData.append('titulo', titulo);
         formData.append('descripcion', descripcion);
         formData.append('archivoMaterial', archivo); 
-
         const response = await addMaterialAClase(claseId, formData); 
 
         if (response.ok) {
@@ -243,10 +236,8 @@ function setupMaterialModal() {
         }
     });
 }
-// --- Fin Lógica Modal Material ---
 
-
-// --- Lógica del Modal de Tareas (MODIFICADA) ---
+// --- Lógica del Modal de Tareas ---
 function setupTaskModal() {
     const openModal = () => {
         taskForm.reset();
@@ -263,15 +254,13 @@ function setupTaskModal() {
     addTaskBtn.addEventListener('click', openModal);
     modalCloseBtnsTask.forEach(btn => btn.addEventListener('click', closeModal));
 
-    // Enviar formulario de Tarea (Modificado para FormData)
     taskForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
         const titulo = document.getElementById('task-titulo').value.trim();
         const descripcion = document.getElementById('task-descripcion').value.trim();
         const fechaVencimiento = document.getElementById('task-fecha').value;
         const archivoInput = document.getElementById('task-archivo');
-        const archivo = archivoInput.files[0]; // <-- Obtener el archivo (opcional)
+        const archivo = archivoInput.files[0]; 
 
         if (!titulo) {
             taskMessageArea.textContent = 'El título es obligatorio.';
@@ -281,35 +270,35 @@ function setupTaskModal() {
 
         taskMessageArea.textContent = 'Creando tarea...';
         taskMessageArea.className = 'message-area';
-
-        // --- Crear FormData ---
         const formData = new FormData();
         formData.append('titulo', titulo);
         formData.append('descripcion', descripcion);
         if (fechaVencimiento) {
-            // Convertir fecha a formato ISO (UTC) para el backend
             formData.append('fechaVencimiento', new Date(fechaVencimiento).toISOString());
         }
         if (archivo) {
-            // Validar tamaño
             const limit = 100 * 1024 * 1024; // 100MB
             if (archivo.size > limit) { 
                  taskMessageArea.textContent = `Error: El archivo es demasiado grande (Máx ${limit / 1024 / 1024}MB).`;
                  taskMessageArea.className = 'message-area error';
                  return;
             }
-            formData.append('archivoTarea', archivo); // 'archivoTarea' debe coincidir con multer
+            formData.append('archivoTarea', archivo); 
         }
-        // ---------------------
 
-        const response = await addTareaAClase(claseId, formData); // <-- Enviar formData
+        const response = await addTareaAClase(claseId, formData); 
 
         if (response.ok) {
             taskMessageArea.textContent = '¡Tarea creada!';
             taskMessageArea.className = 'message-area success';
             
-            // Refrescar la lista de tareas en la página
-            renderTasks(response.data.clase.tareas);
+            // Refrescar la lista de tareas
+            const nuevaTareaHtml = renderTaskCard(response.data.tarea);
+            if (tasksContainer.querySelector('p')) {
+                tasksContainer.innerHTML = nuevaTareaHtml;
+            } else {
+                tasksContainer.insertAdjacentHTML('beforeend', nuevaTareaHtml);
+            }
             
             setTimeout(closeModal, 1000);
         } else {
@@ -318,13 +307,14 @@ function setupTaskModal() {
         }
     });
 }
-// --- Fin Lógica Modal Tareas ---
-
 
 // --- Inicialización ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Estas funciones adjuntan los listeners
     setupTabs();
-    loadClassDetails();
     setupMaterialModal();
     setupTaskModal();
+    
+    // Esta función llama a la API para poblar la página
+    loadClassDetails();
 });

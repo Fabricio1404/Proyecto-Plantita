@@ -6,7 +6,7 @@ const ClaseSchema = new mongoose.Schema({
         required: [true, 'El nombre de la clase es obligatorio.'],
         trim: true
     },
-    codigoAcceso: { // El código tipo "Google Classroom"
+    codigoAcceso: {
         type: String,
         required: true,
         unique: true,
@@ -26,20 +26,19 @@ const ClaseSchema = new mongoose.Schema({
     materiales: [{
         titulo: String,
         descripcion: String,
-        urlArchivo: String, // Enlace al material subido
+        urlArchivo: String,
         fechaPublicacion: { type: Date, default: Date.now }
     }],
+    
+    // --- MODIFICACIÓN CLAVE AQUÍ ---
+    // Eliminamos el array de 'tareas'. Las tareas se buscarán por 'claseId'.
+    /*
     tareas: [{
-        titulo: String,
-        descripcion: String,
-        fechaVencimiento: Date,
-        
-        // --- MODIFICACIÓN AQUÍ ---
-        urlArchivo: String, // Enlace al archivo de la tarea (ej. PDF de instrucciones)
-        // -------------------------
-
-        requiereInformeSeguimiento: { type: Boolean, default: false }
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Tarea' 
     }]
+    */
+    // --- FIN DE LA MODIFICACIÓN ---
 }, {
     timestamps: true
 });

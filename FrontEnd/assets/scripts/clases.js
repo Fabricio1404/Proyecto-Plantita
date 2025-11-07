@@ -45,7 +45,6 @@ function setupClassForms() {
                 loadMisClases();
             }, 1000);
         } else {
-            // CORREGIDO: Añadido 'response.data?.msg'
             messageArea.innerHTML = `<p style="color: red;">Error: ${response.data?.msg || 'Código incorrecto.'}</p>`;
         }
     });
@@ -60,7 +59,6 @@ function setupClassForms() {
         const response = await createClase(name);
         
         if (response.ok) {
-            // CORREGIDO: Añadido 'response.data.clase'
             messageArea.innerHTML = `<p style="color: green;">Clase '${name}' creada. Código: <strong>${response.data.clase.codigoAcceso}</strong></p>`;
             document.getElementById('create-class-form').reset();
             setTimeout(() => {
@@ -68,7 +66,6 @@ function setupClassForms() {
                 loadMisClases();
             }, 2000); // Dar tiempo a leer el código
         } else {
-            // CORREGIDO: Añadido 'response.data?.msg'
             messageArea.innerHTML = `<p style="color: red;">Error: ${response.data?.msg || 'No se pudo crear.'}</p>`;
         }
     });
@@ -84,16 +81,13 @@ async function loadMisClases() {
     const response = await getMisClases();
 
     if (response.ok) {
-        // CORREGIDO: Añadido 'response.data.clases'
         if (response.data.clases.length === 0) {
             container.innerHTML = '<p>No estás inscrito en ninguna clase. Únete a una o crea una.</p>';
             return;
         }
 
-        // CORREGIDO: Añadido 'response.data.clases'
         container.innerHTML = response.data.clases.map(clase => createClassCard(clase)).join('');
     } else {
-        // CORREGIDO: Añadido 'response.data?.msg'
         container.innerHTML = `<p style="color: red;">Error al cargar clases: ${response.data?.msg || 'Error'}</p>`;
     }
 }
@@ -102,7 +96,6 @@ function createClassCard(clase) {
     // Verificar si el profesor es el mismo usuario
     const esProfesor = clase.profesor._id === localStorage.getItem('uid');
     
-    // Usamos las clases de .list-card que ya estilizamos para que se vea bien
     return `
         <div class="card list-card">
             <div class="species-info">
