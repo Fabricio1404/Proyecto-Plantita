@@ -6,7 +6,7 @@
     <title>Cargando Tarea... - InForest Classroom</title>
     <link rel="stylesheet" href="./assets/css/home-style.css">
     <style>
-        /* Estilos específicos para comentarios */
+        /* Estilos para comentarios (sin cambios) */
         .comment-list { list-style: none; padding: 0; margin-top: 20px; }
         .comment-item {
             background: var(--input-bg);
@@ -19,7 +19,7 @@
         .comment-date { font-size: 0.8em; color: var(--muted); margin-left: 8px; }
         .comment-body { margin-top: 5px; }
 
-        /* Estilos para Calificación */
+        /* Estilos para Calificación (sin cambios) */
         .entrega-item {
             border-bottom: 1px solid var(--border);
             padding-bottom: 15px;
@@ -46,6 +46,16 @@
             padding: 10px;
             border: 1px solid var(--border);
         }
+        
+        /* --- MODIFICACIÓN: Estilo para "Fuera de Plazo" --- */
+        .message-area.warning {
+            color: #b45309; /* Un color ámbar/naranja oscuro */
+            background-color: #fffbeb; /* Fondo amarillo pálido */
+            border: 1px solid #fde68a; /* Borde amarillo */
+            padding: 10px;
+            border-radius: var(--radius-sm);
+        }
+        /* --- FIN MODIFICACIÓN --- */
     </style>
     <script>
       (function() { const savedTheme = localStorage.getItem('userTheme') || 'claro'; document.documentElement.setAttribute('data-theme', savedTheme); })();

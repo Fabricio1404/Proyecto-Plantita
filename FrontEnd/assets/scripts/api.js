@@ -67,15 +67,13 @@ export const getMisClases = () => { const t=localStorage.getItem('token'); if(!t
 export const getClasePorId = (id) => { const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/clases/${id}`, t); };
 export const addMaterialAClase = (claseId, formData) => { const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/clases/${claseId}/materiales`, t, { method: 'POST', body: formData }); };
 export const addTareaAClase = (claseId, formData) => { const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/clases/${claseId}/tareas`, t, { method: 'POST', body: formData }); };
-
-/** Obtiene todas las tareas de una clase */
 export const getTareasPorClase = (claseId) => {
     const t = localStorage.getItem('token');
     if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
     return protectedFetch(`/clases/${claseId}/tareas`, t);
 };
 
-// --- 5. Funciones Tareas (NUEVAS) ---
+// --- 5. Funciones Tareas ---
 /** Obtiene el detalle de UNA tarea (con sus comentarios y entregas) */
 export const getTareaDetalle = (tareaId) => {
     const t = localStorage.getItem('token');
@@ -112,7 +110,18 @@ export const calificarEntrega = (entregaId, calificacion, comentarioProfesor) =>
         body: { calificacion, comentarioProfesor } // Es JSON
     });
 };
-// --- FIN FUNCIONES NUEVAS ---
+
+// --- ESTA ES LA FUNCIÓN QUE FALTABA ---
+/** Anula (borra) una entrega existente */
+export const anularEntrega = (entregaId) => {
+    const t = localStorage.getItem('token');
+    if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
+    return protectedFetch(`/tarea/entrega/${entregaId}`, t, {
+        method: 'DELETE'
+    });
+};
+// --- FIN FUNCIÓN NUEVA ---
+
 
 // --- 6. Funciones Perfil ---
 export const getProfile = () => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, status: 401, data: { msg: "Token no encontrado" } }); return protectedFetch('/usuarios/perfil', t); };

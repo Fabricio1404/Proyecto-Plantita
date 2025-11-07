@@ -1,39 +1,36 @@
 // frontend/assets/scripts/tarea-detalle.js
 
-import { getTareaDetalle, addComentarioATarea, addEntregaATarea, calificarEntrega } from './api.js';
+// --- MODIFICACIÓN 1: Importar la nueva función ---
+import { getTareaDetalle, addComentarioATarea, addEntregaATarea, calificarEntrega, anularEntrega } from './api.js';
 
 const API_V1_URL_PARA_ENLACES = 'http://localhost:4000';
 const currentUserId = localStorage.getItem('uid');
 
-// --- Selectores del DOM ---
+// --- MODIFICACIÓN 2: Variable global para la tarea ---
+let currentTarea = null; // Guardará la tarea actual
+
+// --- Selectores del DOM (sin cambios) ---
 const titleEl = document.getElementById('task-title');
 const subtitleEl = document.getElementById('task-subtitle');
 const backBtn = document.getElementById('back-to-class-btn');
-
-// Detalles Tarea
 const taskDetailTitle = document.getElementById('task-detail-title');
 const taskProfesor = document.getElementById('task-profesor');
 const taskVencimiento = document.getElementById('task-vencimiento');
 const taskDescripcion = document.getElementById('task-descripcion');
 const taskAttachmentContainer = document.getElementById('task-attachment-container');
-
-// Entregas
 const entregaContainer = document.getElementById('entrega-status-container');
-
-// Comentarios
 const commentListContainer = document.getElementById('comment-list-container');
 const commentForm = document.getElementById('comment-form');
 const commentText = document.getElementById('comment-text');
 const commentMessageArea = document.getElementById('comment-message-area');
 
-// --- ID de la Tarea desde la URL ---
 const params = new URLSearchParams(location.search);
 const tareaId = params.get('id');
 
-let esProfesor = false; // Variable global para esta página
+let esProfesor = false; 
 
 /**
- * Función Principal
+ * Función Principal (MODIFICADA)
  */
 async function loadTaskDetails() {
     if (!tareaId) {
@@ -51,13 +48,14 @@ async function loadTaskDetails() {
     }
 
     const { tarea, miEntrega } = response.data;
+    currentTarea = tarea; // <-- Guardar la tarea globalmente
     esProfesor = tarea.profesor._id === currentUserId;
 
     // 1. Renderizar Cabecera
     titleEl.textContent = tarea.titulo;
     document.title = `${tarea.titulo} - InForest Classroom`;
     subtitleEl.textContent = `Profesor: ${tarea.profesor.nombre} ${tarea.profesor.apellido}`;
-    backBtn.href = `clase-detalle.html?id=${tarea.clase}`; // Link de "Volver"
+    backBtn.href = `clase-detalle.html?id=${tarea.clase}`; 
 
     // 2. Renderizar Detalles de Tarea
     taskDetailTitle.textContent = tarea.titulo;
@@ -81,15 +79,13 @@ async function loadTaskDetails() {
     // 4. Renderizar panel de Entrega
     if (esProfesor) {
         renderPanelProfesor(tarea.entregas);
-        setupGradingForms(); // <-- Añadir listeners a los nuevos formularios
+        setupGradingForms(); 
     } else {
-        renderPanelAlumno(miEntrega);
+        renderPanelAlumno(miEntrega, currentTarea); // <-- Pasar la tarea
     }
 }
 
-/**
- * Renderiza la lista de comentarios
- */
+// ... (renderComments y renderCommentItem no cambian) ...
 function renderComments(comentarios) {
     if (!comentarios || comentarios.length === 0) {
         commentListContainer.innerHTML = '<li>Aún no hay comentarios.</li>';
@@ -112,11 +108,21 @@ function renderCommentItem(comentario) {
 }
 
 /**
- * Renderiza el panel derecho para el Alumno
+ * Renderiza el panel derecho para el Alumno (MODIFICADO)
  */
-function renderPanelAlumno(miEntrega) {
+function renderPanelAlumno(miEntrega, tarea) { // <-- Ahora recibe la tarea
     if (miEntrega) {
         // El alumno YA ENTREGÓ
+        
+        // --- Lógica de "Fuera de Plazo" ---
+        const fechaEntrega = new Date(miEntrega.fechaEntrega);
+        const fechaVencimiento = tarea.fechaVencimiento ? new Date(tarea.fechaVencimiento) : null;
+        let statusHtml = '<p class="message-area success">¡Entregado!</p>';
+        if (fechaVencimiento && fechaEntrega > fechaVencimiento) {
+            statusHtml = '<p class="message-area warning">Entregado (Fuera de plazo)</p>';
+        }
+        // --- Fin Lógica ---
+        
         const calificacionHtml = miEntrega.calificacion
             ? `
                 <div class="calificacion-guardada" style="margin-top: 20px;">
@@ -133,7 +139,7 @@ function renderPanelAlumno(miEntrega) {
             `;
 
         entregaContainer.innerHTML = `
-            <p class="message-area success">¡Entregado!</p>
+            ${statusHtml}
             <p>Entregaste tu archivo:</p>
             <a href="${API_V1_URL_PARA_ENLACES}/${miEntrega.urlArchivo}" download class="btn btn-sm secondary">
                 Descargar mi entrega
@@ -141,6 +147,11 @@ function renderPanelAlumno(miEntrega) {
             <p class="muted" style="font-size: 0.8em; margin-top: 15px;">
                 Fecha de entrega: ${new Date(miEntrega.fechaEntrega).toLocaleString('es-AR')}
             </p>
+            
+            <button id="anular-entrega-btn" data-entrega-id="${miEntrega._id}" class="btn ghost btn-sm btn-danger" style="margin-top: 20px; width: 100%;">
+                Anular Entrega
+            </button>
+
             ${calificacionHtml}
         `;
     } else {
@@ -156,22 +167,35 @@ function renderPanelAlumno(miEntrega) {
                 <div id="entrega-message-area" class="message-area"></div>
             </form>
         `;
-        // Añadir el listener al formulario que acabamos de crear
         setupEntregaForm();
     }
 }
 
 /**
- * Renderiza el panel derecho para el Profesor
+ * Renderiza el panel derecho para el Profesor (MODIFICADO)
  */
 function renderPanelProfesor(entregas) {
     let entregasHtml;
     if (entregas.length === 0) {
         entregasHtml = '<p class="muted">Aún no hay entregas.</p>';
     } else {
-        entregasHtml = entregas.map(entrega => `
+        // Ordenar: entregas sin calificar primero
+        entregas.sort((a, b) => a.calificacion ? 1 : -1);
+        
+        entregasHtml = entregas.map(entrega => {
+            
+            // --- Lógica de "Fuera de Plazo" (para el profe) ---
+            const fechaEntrega = new Date(entrega.fechaEntrega);
+            const fechaVencimiento = currentTarea.fechaVencimiento ? new Date(currentTarea.fechaVencimiento) : null;
+            let statusHtml = '';
+            if (fechaVencimiento && fechaEntrega > fechaVencimiento) {
+                statusHtml = '<span style="color: #b45309; font-size: 0.9em; font-weight: bold;">(Fuera de plazo)</span>';
+            }
+            // --- Fin Lógica ---
+
+            return `
             <div class="entrega-item">
-                <p><strong>${entrega.alumno.nombre} ${entrega.alumno.apellido}</strong></p>
+                <p><strong>${entrega.alumno.nombre} ${entrega.alumno.apellido}</strong> ${statusHtml}</p>
                 <a href="${API_V1_URL_PARA_ENLACES}/${entrega.urlArchivo}" download class="btn btn-sm secondary">Descargar Entrega</a>
                 
                 <form class="grading-form" data-entrega-id="${entrega._id}" style="margin-top: 15px;">
@@ -196,7 +220,7 @@ function renderPanelProfesor(entregas) {
                     <div id="grade-msg-${entrega._id}" class="message-area" style="font-size: 0.9em;"></div>
                 </form>
             </div>
-        `).join('');
+        `}).join('');
     }
     
     entregaContainer.innerHTML = `
@@ -207,9 +231,7 @@ function renderPanelProfesor(entregas) {
     `;
 }
 
-/**
- * Lógica para el formulario de Comentarios
- */
+// ... (setupCommentForm no cambia) ...
 function setupCommentForm() {
     commentForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -224,7 +246,6 @@ function setupCommentForm() {
         if (response.ok) {
             commentText.value = '';
             commentMessageArea.textContent = '';
-            // Añadir el nuevo comentario a la lista sin recargar
             commentListContainer.insertAdjacentHTML('beforeend', renderCommentItem(response.data.comentario));
         } else {
             commentMessageArea.textContent = `Error: ${response.data?.msg || 'No se pudo publicar'}`;
@@ -233,12 +254,10 @@ function setupCommentForm() {
     });
 }
 
-/**
- * Lógica para el formulario de Entrega de Tarea
- */
+// ... (setupEntregaForm no cambia) ...
 function setupEntregaForm() {
     const entregaForm = document.getElementById('entrega-form');
-    if (!entregaForm) return; // Si no existe (ej. si es profesor), no hacer nada
+    if (!entregaForm) return; 
 
     entregaForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -262,13 +281,12 @@ function setupEntregaForm() {
         entregaMessageArea.className = 'message-area';
 
         const formData = new FormData();
-        formData.append('archivoEntrega', archivo); // 'archivoEntrega' debe coincidir con multer
+        formData.append('archivoEntrega', archivo); 
 
         const response = await addEntregaATarea(tareaId, formData);
 
         if (response.ok) {
-            // Éxito: Reemplazar el formulario por el estado "Entregado"
-            renderPanelAlumno(response.data.entrega);
+            renderPanelAlumno(response.data.entrega, currentTarea);
         } else {
             entregaMessageArea.textContent = `Error: ${response.data?.msg || 'No se pudo entregar.'}`;
             entregaMessageArea.className = 'message-area error';
@@ -277,17 +295,14 @@ function setupEntregaForm() {
 }
 
 
-/**
- * Añade listeners a todos los formularios de calificación del profesor
- */
+// ... (setupGradingForms no cambia) ...
 function setupGradingForms() {
-    // Usamos delegación de eventos en el contenedor
     const listaEntregas = document.getElementById('lista-entregas-container');
     if (!listaEntregas) return;
 
     listaEntregas.addEventListener('submit', async (e) => {
         if (!e.target.classList.contains('grading-form')) {
-            return; // No fue un submit de este formulario
+            return; 
         }
         
         e.preventDefault();
@@ -320,9 +335,44 @@ function setupGradingForms() {
     });
 }
 
-// --- Inicialización ---
+// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
+/**
+ * Añade listener para el botón "Anular Entrega"
+ */
+function setupEntregaListeners() {
+    // Usamos delegación de eventos en el contenedor
+    entregaContainer.addEventListener('click', async (e) => {
+        if (e.target.id !== 'anular-entrega-btn') {
+            return;
+        }
+
+        const btn = e.target;
+        const entregaId = btn.dataset.entregaId;
+
+        if (confirm('¿Estás seguro de que quieres anular esta entrega? Esta acción no se puede deshacer.')) {
+            btn.textContent = 'Anulando...';
+            btn.disabled = true;
+
+            const response = await anularEntrega(entregaId);
+
+            if (response.ok) {
+                // Éxito: Re-renderizar el panel del alumno,
+                // pasando 'null' como entrega
+                renderPanelAlumno(null, currentTarea);
+            } else {
+                alert(`Error al anular: ${response.data?.msg || 'Error'}`);
+                btn.textContent = 'Anular Entrega';
+                btn.disabled = false;
+            }
+        }
+    });
+}
+// --- FIN FUNCIÓN NUEVA ---
+
+
+// --- Inicialización (MODIFICADA) ---
 document.addEventListener('DOMContentLoaded', () => {
-    loadTaskDetails(); // Esta función ahora decide si llama a setupGradingForms
+    loadTaskDetails(); // Esta función ahora decide qué listeners adjuntar
     setupCommentForm();
-    // setupEntregaForm() se llama dentro de renderPanelAlumno
+    setupEntregaListeners(); // <-- Llamar a la nueva función
 });

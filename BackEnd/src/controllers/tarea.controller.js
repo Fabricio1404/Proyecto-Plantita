@@ -1,4 +1,6 @@
 // backend/src/controllers/tarea.controller.js
+const fs = require('fs'); // <-- Importar FileSystem
+const path = require('path'); // <-- Importar Path
 const Tarea = require('../models/Tarea.model');
 const Entrega = require('../models/Entrega.model');
 const Comentario = require('../models/Comentario.model');
@@ -181,9 +183,59 @@ const calificarEntrega = async (req, res) => {
 };
 
 
+// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
+const anularEntrega = async (req, res) => {
+    const { id: entregaId } = req.params;
+    const alumnoId = req.uid;
+
+    try {
+        // 1. Buscar la entrega
+        const entrega = await Entrega.findById(entregaId);
+        if (!entrega) {
+            return res.status(404).json({ ok: false, msg: 'Entrega no encontrada.' });
+        }
+
+        // 2. Seguridad: Solo el alumno que la subió puede borrarla
+        if (entrega.alumno.toString() !== alumnoId) {
+            return res.status(403).json({ ok: false, msg: 'No tienes permiso para anular esta entrega.' });
+        }
+
+        // (Opcional: ¿Permitir anular si ya está calificada? Por ahora sí)
+
+        // 3. Borrar el archivo físico del servidor
+        if (entrega.urlArchivo) {
+            const filePath = path.join(__dirname, '..', '..', entrega.urlArchivo);
+            fs.unlink(filePath, (err) => {
+                if (err) console.warn(`No se pudo borrar el archivo ${filePath}: ${err.message}`);
+            });
+        }
+
+        // 4. Quitar la referencia de la entrega en la Tarea
+        await Tarea.updateOne(
+            { _id: entrega.tarea },
+            { $pull: { entregas: entregaId } }
+        );
+
+        // 5. Borrar el documento de la Entrega
+        await Entrega.findByIdAndDelete(entregaId);
+
+        res.json({
+            ok: true,
+            msg: 'Entrega anulada correctamente.'
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ ok: false, msg: 'Error al anular la entrega.' });
+    }
+};
+// --- FIN FUNCIÓN NUEVA ---
+
+
 module.exports = {
     obtenerTareaDetalle,
     agregarComentario,
     agregarEntrega,
-    calificarEntrega
+    calificarEntrega,
+    anularEntrega // <-- NO OLVIDES EXPORTARLA
 };
