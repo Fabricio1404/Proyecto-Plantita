@@ -1,7 +1,7 @@
 // backend/src/controllers/clases.controller.js
 
-const fs = require('fs'); // <-- 1. IMPORTAR FileSystem
-const path = require('path'); // <-- 1. IMPORTAR Path
+const fs = require('fs'); // <-- Importar FileSystem
+const path = require('path'); // <-- Importar Path
 const Clase = require('../models/Clase.model');
 const Tarea = require('../models/Tarea.model'); 
 const Usuario = require('../models/Usuario.model'); 
@@ -246,7 +246,6 @@ const obtenerTareasPorClase = async (req, res) => {
     }
 };
 
-// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
 const borrarMaterial = async (req, res) => {
     const { id: claseId, materialId } = req.params;
     const profesorId = req.uid;
@@ -257,18 +256,15 @@ const borrarMaterial = async (req, res) => {
             return res.status(404).json({ ok: false, msg: 'Clase no encontrada.' });
         }
 
-        // Seguridad: Solo el profesor de la clase puede borrar
         if (clase.profesor.toString() !== profesorId) {
             return res.status(403).json({ ok: false, msg: 'No tienes permiso para borrar este material.' });
         }
 
-        // Buscar el material dentro del array
         const material = clase.materiales.id(materialId);
         if (!material) {
             return res.status(404).json({ ok: false, msg: 'Material no encontrado.' });
         }
 
-        // 1. Borrar el archivo físico del servidor
         if (material.urlArchivo) {
             const filePath = path.join(__dirname, '..', '..', material.urlArchivo);
             fs.unlink(filePath, (err) => {
@@ -277,8 +273,6 @@ const borrarMaterial = async (req, res) => {
             });
         }
 
-        // 2. Quitar el material del array en la base de datos
-        // (pull es un método de Mongoose para arrays)
         clase.materiales.pull(materialId);
         await clase.save();
 
@@ -287,6 +281,57 @@ const borrarMaterial = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ ok: false, msg: 'Error al eliminar el material.' });
+    }
+};
+
+// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
+const editarMaterial = async (req, res) => {
+    const { id: claseId, materialId } = req.params;
+    const profesorId = req.uid;
+    const { titulo, descripcion } = req.body;
+
+    try {
+        const clase = await Clase.findById(claseId);
+        if (!clase) {
+            return res.status(404).json({ ok: false, msg: 'Clase no encontrada.' });
+        }
+        if (clase.profesor.toString() !== profesorId) {
+            return res.status(403).json({ ok: false, msg: 'No tienes permiso para editar este material.' });
+        }
+
+        const material = clase.materiales.id(materialId);
+        if (!material) {
+            return res.status(404).json({ ok: false, msg: 'Material no encontrado.' });
+        }
+
+        // 1. Actualizar campos de texto
+        material.titulo = titulo || material.titulo;
+        material.descripcion = descripcion || material.descripcion;
+
+        // 2. Verificar si se subió un archivo NUEVO
+        if (req.file) {
+            // Borrar el archivo anterior
+            if (material.urlArchivo) {
+                const oldFilePath = path.join(__dirname, '..', '..', material.urlArchivo);
+                fs.unlink(oldFilePath, (err) => {
+                    if (err) console.warn(`No se pudo borrar el archivo antiguo: ${oldFilePath}`);
+                });
+            }
+            // Asignar la ruta del nuevo archivo
+            material.urlArchivo = req.file.path.replace(/\\/g, '/');
+        }
+
+        await clase.save();
+
+        res.json({ 
+            ok: true, 
+            msg: 'Material actualizado.',
+            clase // Devolvemos la clase con la lista de materiales actualizada
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ ok: false, msg: 'Error al editar el material.' });
     }
 };
 // --- FIN FUNCIÓN NUEVA ---
@@ -300,5 +345,6 @@ module.exports = {
     agregarMaterial,
     agregarTarea,
     obtenerTareasPorClase,
-    borrarMaterial // <-- 3. EXPORTAR LA NUEVA FUNCIÓN
+    borrarMaterial,
+    editarMaterial // <-- EXPORTAR LA NUEVA FUNCIÓN
 };

@@ -72,9 +72,6 @@ export const getTareasPorClase = (claseId) => {
     if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
     return protectedFetch(`/clases/${claseId}/tareas`, t);
 };
-
-// --- ESTA ES LA FUNCIÓN QUE FALTABA ---
-/** Borra un material específico de una clase */
 export const deleteMaterialDeClase = (claseId, materialId) => {
     const t = localStorage.getItem('token');
     if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
@@ -82,7 +79,15 @@ export const deleteMaterialDeClase = (claseId, materialId) => {
         method: 'DELETE'
     });
 };
-// --- FIN FUNCIÓN NUEVA ---
+/** Edita un material existente. Envía FormData. */
+export const editMaterialDeClase = (claseId, materialId, formData) => {
+    const t = localStorage.getItem('token');
+    if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
+    return protectedFetch(`/clases/${claseId}/materiales/${materialId}`, t, {
+        method: 'PUT', // PUT se usa para actualizar
+        body: formData
+    });
+};
 
 // --- 5. Funciones Tareas ---
 /** Obtiene el detalle de UNA tarea (con sus comentarios y entregas) */

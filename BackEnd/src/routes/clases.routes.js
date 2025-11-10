@@ -12,7 +12,8 @@ const {
     agregarMaterial,
     agregarTarea,
     obtenerTareasPorClase,
-    borrarMaterial // <-- 1. IMPORTAR LA NUEVA FUNCIÓN
+    borrarMaterial,
+    editarMaterial // <-- 1. IMPORTAR
 } = require('../controllers/clases.controller');
 
 const router = Router();
@@ -51,13 +52,19 @@ router.get(
     obtenerTareasPorClase
 );
 
-// --- 2. AÑADIR ESTA NUEVA RUTA ---
 // DELETE /api/v1/clases/:id/materiales/:materialId
-// Borrar un material de una clase
 router.delete(
     '/:id/materiales/:materialId',
     borrarMaterial
 );
-// ---------------------------------
+
+// --- 2. AÑADIR ESTA NUEVA RUTA 'PUT' ---
+// (PUT se usa para Actualizar)
+router.put(
+    '/:id/materiales/:materialId',
+    uploadMaterial, // Re-usamos el middleware (maneja un archivo opcional)
+    editarMaterial
+);
+// -------------------------------------
 
 module.exports = router;

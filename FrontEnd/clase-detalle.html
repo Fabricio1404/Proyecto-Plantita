@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cargando... - InForest Classroom</title>
     <link rel="stylesheet" href="./assets/css/home-style.css">
+    <style>
+        /* ... (Tus estilos de .comment-list, .entrega-item, etc. van aquí) ... */
+    </style>
     <script>
       (function() { const savedTheme = localStorage.getItem('userTheme') || 'claro'; document.documentElement.setAttribute('data-theme', savedTheme); })();
     </script>
@@ -84,8 +87,7 @@
     <div class="modal-backdrop" data-modal-close></div>
     <div class="modal-card form-card">
         <button class="modal-x" data-modal-close>×</button>
-        <h3>Subir Nuevo Material</h3>
-        <form id="material-form" novalidate> 
+        <h3 id="material-modal-title">Subir Nuevo Material</h3> <form id="material-form" novalidate> 
             <div class="input-group">
                 <label for="material-titulo">Título *</label>
                 <input type="text" id="material-titulo" required>
@@ -95,10 +97,12 @@
                 <textarea id="material-descripcion" rows="3"></textarea>
             </div>
             <div class="input-group">
-                <label for="material-archivo">Archivo *</label>
-                <input type="file" id="material-archivo" required>
-                <small class="muted" style="font-size: 0.8em;">Selecciona un PDF, DOCX, JPG, PNG, etc. (Máx 100MB)</small>
-            </div>
+                <label for="material-archivo">Archivo</label> <input type="file" id="material-archivo"> 
+                
+                <small id="material-file-note" class="muted" style="font-size: 0.8em; display: none; color: var(--accent);">
+                    Dejar vacío para conservar el archivo original.
+                </small>
+                </div>
             <button type="submit" class="btn primary">Guardar Material</button>
         </form>
         <div id="material-message-area" class="message-area" style="margin-top: 15px;"></div>
@@ -110,7 +114,6 @@
     <div class="modal-card form-card">
         <button class="modal-x" data-modal-close-task>×</button>
         <h3>Crear Nueva Tarea</h3>
-        
         <form id="task-form" novalidate>
             <div class="input-group">
                 <label for="task-titulo">Título *</label>
@@ -131,7 +134,6 @@
             </div>
             <button type="submit" class="btn primary">Guardar Tarea</button>
         </form>
-        
         <div id="task-message-area" class="message-area" style="margin-top: 15px;"></div>
     </div>
   </div>

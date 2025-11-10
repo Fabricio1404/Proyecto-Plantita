@@ -6,13 +6,20 @@ import {
     getTareasPorClase, 
     addMaterialAClase, 
     addTareaAClase,
-    deleteMaterialDeClase // <-- Importar
+    deleteMaterialDeClase,
+    editMaterialDeClase // <-- Importar
 } from './api.js';
 
 const API_V1_URL_PARA_ENLACES = 'http://localhost:4000';
 const currentUserId = localStorage.getItem('uid');
 
-// --- Selectores del DOM (sin cambios) ---
+// --- MODIFICACIÓN 2: Variables globales de estado ---
+let esProfesor = false; 
+let currentClassData = null; // Para guardar los datos de la clase
+let currentEditingMaterialId = null; // Para saber si el modal está en modo "Crear" o "Editar"
+// --- FIN MODIFICACIÓN 2 ---
+
+// --- Selectores del DOM ---
 const titleEl = document.getElementById('class-title');
 const professorEl = document.getElementById('class-professor');
 const teacherControlsEl = document.getElementById('teacher-controls');
@@ -26,8 +33,10 @@ const tabPanels = document.querySelectorAll('.tab-panel');
 // --- Selectores Modal Material ---
 const addMaterialBtn = document.getElementById('add-material-btn');
 const addMaterialModal = document.getElementById('add-material-modal');
+const materialModalTitle = document.getElementById('material-modal-title'); // Título del modal
 const materialForm = document.getElementById('material-form');
 const materialMessageArea = document.getElementById('material-message-area');
+const materialFileNote = document.getElementById('material-file-note'); // El nuevo <small>
 const modalCloseBtnsMaterial = addMaterialModal.querySelectorAll('[data-modal-close]');
 
 // --- Selectores Modal Tareas ---
@@ -41,10 +50,9 @@ const modalCloseBtnsTask = addTaskModal.querySelectorAll('[data-modal-close-task
 const params = new URLSearchParams(location.search);
 const claseId = params.get('id');
 
-let esProfesor = false; // Variable global (ya la teníamos)
 
 /**
- * Función principal para cargar y renderizar los detalles de la clase
+ * Función principal (MODIFICADA)
  */
 async function loadClassDetails() {
     if (!claseId) {
@@ -67,8 +75,12 @@ async function loadClassDetails() {
         return;
     }
 
-    const { clase } = claseResponse.data;
-    esProfesor = clase.profesor._id === currentUserId; // <-- Definimos la variable global
+    // --- MODIFICACIÓN 3: Guardar datos de la clase ---
+    currentClassData = claseResponse.data.clase; // <-- Guardar globalmente
+    const { clase } = claseResponse.data; 
+    // --- FIN MODIFICACIÓN 3 ---
+    
+    esProfesor = clase.profesor._id === currentUserId; 
 
     // Renderizar Cabecera y Alumnos
     titleEl.textContent = clase.nombre;
@@ -92,10 +104,10 @@ async function loadClassDetails() {
         studentsList.innerHTML = '<li>No hay alumnos inscritos.</li>';
     }
 
-    // Renderizar Materiales (de la respuesta de clase)
+    // Renderizar Materiales
     renderMaterials(clase.materiales);
 
-    // Renderizar Tareas (de la respuesta de tareas)
+    // Renderizar Tareas
     if (tareasResponse.ok) {
         renderTasks(tareasResponse.data.tareas);
     } else {
@@ -113,7 +125,7 @@ function renderMaterials(materiales) {
     }
 }
 
-function renderTasks(tareas) {
+function renderTasks(tareas) { 
     if (tareas && tareas.length > 0) {
         tareas.sort((a, b) => {
             if (!a.fechaVencimiento) return 1; 
@@ -131,12 +143,18 @@ function renderTasks(tareas) {
  */
 function renderMaterialCard(material) {
     
-    // Generar el botón de borrar SOLO si es profesor
-    const botonBorrarHtml = esProfesor 
+    // Generar botones de admin (Borrar y Editar)
+    const adminButtonsHtml = esProfesor 
         ? `<button 
-                class="btn btn-sm ghost btn-danger btn-borrar-material" 
+                class="btn btn-sm ghost btn-editar-material" 
                 data-material-id="${material._id}"
                 style="margin-left: auto;"
+           >
+               Editar
+           </button>
+           <button 
+                class="btn btn-sm ghost btn-danger btn-borrar-material" 
+                data-material-id="${material._id}"
            >
                Borrar
            </button>`
@@ -151,17 +169,14 @@ function renderMaterialCard(material) {
                     <a href="${API_V1_URL_PARA_ENLACES}/${material.urlArchivo}" download class="btn btn-sm primary">
                         Descargar Material
                     </a>
-                    ${botonBorrarHtml}
+                    ${adminButtonsHtml}
                 </div>
             </div>
         </div>
     `;
 }
 
-/**
- * Helper para renderizar una tarjeta de Tarea (Sin cambios)
- */
-function renderTaskCard(tarea) {
+function renderTaskCard(tarea) { 
     const fechaVencimiento = tarea.fechaVencimiento 
         ? new Date(tarea.fechaVencimiento).toLocaleDateString('es-AR')
         : 'Sin fecha límite';
@@ -190,67 +205,93 @@ function renderTaskCard(tarea) {
 }
 
 // --- Lógica de Pestañas (Sin cambios) ---
-function setupTabs() {
-    tabsContainer.addEventListener('click', (e) => {
-        const targetTab = e.target.closest('.tab-btn');
-        if (!targetTab) return;
-        tabsContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        tabPanels.forEach(panel => panel.classList.remove('show'));
-        targetTab.classList.add('active');
-        const panelId = targetTab.dataset.tab;
-        document.getElementById(panelId).classList.add('show');
-    });
-}
+function setupTabs() { /* ... */ }
 
-// --- Lógica del Modal de Materiales (Sin cambios) ---
+// --- Lógica del Modal de Materiales (MODIFICADA) ---
+// Esta función ahora maneja AMBOS, Crear y Editar
 function setupMaterialModal() {
-    const openModal = () => {
+    
+    // Función para abrir el modal en modo "Crear"
+    const openCreateModal = () => {
+        currentEditingMaterialId = null; 
         materialForm.reset();
         materialMessageArea.textContent = '';
+        materialFileNote.style.display = 'none'; 
+        materialModalTitle.textContent = 'Subir Nuevo Material';
+        materialForm.querySelector('button[type="submit"]').textContent = 'Guardar Material';
+        
+        document.getElementById('material-archivo').required = true;
+
         addMaterialModal.setAttribute('aria-hidden', 'false');
         addMaterialModal.style.display = 'grid';
     };
     
+    // Función para cerrar el modal
     const closeModal = () => {
         addMaterialModal.setAttribute('aria-hidden', 'true');
         addMaterialModal.style.display = 'none';
+        currentEditingMaterialId = null; // Limpiar el estado de edición al cerrar
     };
 
-    addMaterialBtn.addEventListener('click', openModal);
+    // Asignar listeners
+    addMaterialBtn.addEventListener('click', openCreateModal);
     modalCloseBtnsMaterial.forEach(btn => btn.addEventListener('click', closeModal));
 
+    // Listener del formulario (maneja AMBOS casos)
     materialForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
         const titulo = document.getElementById('material-titulo').value.trim();
         const descripcion = document.getElementById('material-descripcion').value.trim();
         const archivoInput = document.getElementById('material-archivo');
         const archivo = archivoInput.files[0]; 
 
-        if (!titulo || !archivo) {
-            materialMessageArea.textContent = 'El título y el archivo son obligatorios.';
+        // --- Lógica de Validación ---
+        if (!titulo) {
+            materialMessageArea.textContent = 'El título es obligatorio.';
             materialMessageArea.className = 'message-area error';
             return;
         }
-        
-        const limit = 100 * 1024 * 1024; // 100MB
-        if (archivo.size > limit) { 
-             materialMessageArea.textContent = `Error: El archivo es demasiado grande (Máx ${limit / 1024 / 1024}MB).`;
+        // Si estamos creando (no editando), el archivo es obligatorio
+        if (!currentEditingMaterialId && !archivo) {
+            materialMessageArea.textContent = 'El archivo es obligatorio al crear un material.';
+            materialMessageArea.className = 'message-area error';
+            return;
+        }
+        // Validar tamaño si se subió un archivo
+        if (archivo && archivo.size > 100 * 1024 * 1024) { // 100MB
+             materialMessageArea.textContent = 'Error: El archivo es demasiado grande (Máx 100MB).';
              materialMessageArea.className = 'message-area error';
              return;
         }
+        // --- Fin Validación ---
 
-        materialMessageArea.textContent = 'Subiendo y guardando...';
+        materialMessageArea.textContent = 'Guardando...';
         materialMessageArea.className = 'message-area';
+
         const formData = new FormData();
         formData.append('titulo', titulo);
         formData.append('descripcion', descripcion);
-        formData.append('archivoMaterial', archivo); 
-        const response = await addMaterialAClase(claseId, formData); 
+        if (archivo) {
+            formData.append('archivoMaterial', archivo); 
+        }
+
+        // --- Decidir si CREAR o EDITAR ---
+        let response;
+        if (currentEditingMaterialId) {
+            response = await editMaterialDeClase(claseId, currentEditingMaterialId, formData);
+        } else {
+            response = await addMaterialAClase(claseId, formData);
+        }
+        // --- Fin Decisión ---
 
         if (response.ok) {
-            materialMessageArea.textContent = '¡Material guardado!';
+            materialMessageArea.textContent = '¡Guardado con éxito!';
             materialMessageArea.className = 'message-area success';
-            renderMaterials(response.data.clase.materiales);
+            
+            currentClassData = response.data.clase; 
+            renderMaterials(currentClassData.materiales);
+            
             setTimeout(closeModal, 1000);
         } else {
             materialMessageArea.textContent = `Error: ${response.data?.msg || 'No se pudo guardar.'}`;
@@ -258,6 +299,8 @@ function setupMaterialModal() {
         }
     });
 }
+// --- Fin Lógica Modal Material ---
+
 
 // --- Lógica del Modal de Tareas (Sin cambios) ---
 function setupTaskModal() {
@@ -314,9 +357,8 @@ function setupTaskModal() {
             taskMessageArea.textContent = '¡Tarea creada!';
             taskMessageArea.className = 'message-area success';
             
-            // Refrescar la lista de tareas
             const nuevaTareaHtml = renderTaskCard(response.data.tarea);
-            if (tasksContainer.querySelector('p')) { // Si está el msg "no hay tareas"
+            if (tasksContainer.querySelector('p')) { 
                 tasksContainer.innerHTML = nuevaTareaHtml;
             } else {
                 tasksContainer.insertAdjacentHTML('beforeend', nuevaTareaHtml);
@@ -330,20 +372,16 @@ function setupTaskModal() {
     });
 }
 
-// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
-/**
- * Añade listeners para los botones de "Borrar"
- */
+// --- Lógica de Borrar Material (Sin cambios) ---
 function setupDeleteListeners() {
-    // Usamos delegación de eventos en el contenedor de materiales
     materialsContainer.addEventListener('click', async (e) => {
         if (!e.target.classList.contains('btn-borrar-material')) {
-            return; // No fue clic en un botón de borrar
+            return; 
         }
 
         const btn = e.target;
         const materialId = btn.dataset.materialId;
-        const card = btn.closest('.card'); // La tarjeta completa
+        const card = btn.closest('.card'); 
 
         if (confirm('¿Estás seguro de que quieres eliminar este material? Esta acción no se puede deshacer.')) {
             btn.textContent = 'Eliminando...';
@@ -352,7 +390,6 @@ function setupDeleteListeners() {
             const response = await deleteMaterialDeClase(claseId, materialId);
 
             if (response.ok) {
-                // Eliminar la tarjeta del DOM
                 card.style.transition = 'opacity 0.3s, transform 0.3s';
                 card.style.opacity = '0';
                 card.style.transform = 'scale(0.95)';
@@ -364,8 +401,48 @@ function setupDeleteListeners() {
             }
         }
     });
+}
 
-    // (Aquí podríamos añadir un listener similar para 'tasksContainer' cuando hagamos "Borrar Tarea")
+// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
+/**
+ * Añade listeners para los botones de "Editar"
+ */
+function setupEditListeners() {
+    materialsContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-editar-material');
+        if (!btn) return; // No fue clic en un botón de editar
+
+        const materialId = btn.dataset.materialId;
+        
+        // Buscar el material en nuestros datos guardados
+        const material = currentClassData.materiales.find(m => m._id === materialId);
+        if (!material) {
+            alert('Error: No se encontraron los datos de este material.');
+            return;
+        }
+
+        // 1. Poner el modal en modo "Edición"
+        currentEditingMaterialId = materialId;
+
+        // 2. Rellenar el formulario
+        document.getElementById('material-titulo').value = material.titulo;
+        document.getElementById('material-descripcion').value = material.descripcion;
+        
+        // 3. Actualizar textos del modal
+        materialModalTitle.textContent = 'Editar Material';
+        materialForm.querySelector('button[type="submit"]').textContent = 'Guardar Cambios';
+        materialFileNote.style.display = 'block'; // Mostrar la nota "Dejar vacío..."
+        
+        // 4. El input de archivo NO es obligatorio al editar
+        document.getElementById('material-archivo').required = false;
+        
+        // 5. Limpiar mensajes y abrir modal
+        materialMessageArea.textContent = '';
+        addMaterialModal.setAttribute('aria-hidden', 'false');
+        addMaterialModal.style.display = 'grid';
+    });
+
+    // (Aquí podríamos añadir un listener similar para 'tasksContainer' cuando hagamos "Editar Tarea")
 }
 // --- FIN FUNCIÓN NUEVA ---
 
@@ -373,8 +450,9 @@ function setupDeleteListeners() {
 // --- Inicialización (MODIFICADA) ---
 document.addEventListener('DOMContentLoaded', () => {
     setupTabs();
-    setupMaterialModal();
+    setupMaterialModal(); // Esta función ahora maneja Crear y Editar
     setupTaskModal();
-    setupDeleteListeners(); // <-- Llamar a la nueva función
+    setupDeleteListeners(); 
+    setupEditListeners(); // <-- Llamar a la nueva función de listeners
     loadClassDetails();
 });
