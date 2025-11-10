@@ -113,7 +113,8 @@
     <div class="modal-backdrop" data-modal-close-task></div>
     <div class="modal-card form-card">
         <button class="modal-x" data-modal-close-task>×</button>
-        <h3>Crear Nueva Tarea</h3>
+        <h3 id="task-modal-title">Crear Nueva Tarea</h3>
+        
         <form id="task-form" novalidate>
             <div class="input-group">
                 <label for="task-titulo">Título *</label>
@@ -127,17 +128,21 @@
                 <label for="task-fecha">Fecha de Vencimiento (Opcional)</label>
                 <input type="date" id="task-fecha">
             </div>
+
             <div class="input-group">
-                <label for="task-archivo">Adjuntar Archivo (Opcional)</label>
-                <input type="file" id="task-archivo">
-                <small class="muted" style="font-size: 0.8em;">Adjunta un PDF, DOCX, imagen, etc. (Máx 100MB)</small>
-            </div>
+                <label for="task-archivo">Adjuntar Archivo</label> <input type="file" id="task-archivo">
+                
+                <small id="task-file-note" class="muted" style="font-size: 0.8em; display: none; color: var(--accent);">
+                    Dejar vacío para conservar el archivo original.
+                </small>
+                </div>
+            
             <button type="submit" class="btn primary">Guardar Tarea</button>
         </form>
+        
         <div id="task-message-area" class="message-area" style="margin-top: 15px;"></div>
     </div>
   </div>
-
   <script src="./assets/scripts/auth-guard.js"></script>
   <script src="./assets/scripts/ui-helpers.js"></script>
   <script src="./assets/scripts/api.js" type="module"></script>

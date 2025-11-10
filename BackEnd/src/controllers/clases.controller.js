@@ -284,7 +284,7 @@ const borrarMaterial = async (req, res) => {
     }
 };
 
-// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
+// --- FUNCIÓN 'editarMaterial' AÑADIDA ---
 const editarMaterial = async (req, res) => {
     const { id: claseId, materialId } = req.params;
     const profesorId = req.uid;

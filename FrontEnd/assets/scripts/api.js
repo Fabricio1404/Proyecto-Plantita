@@ -58,7 +58,7 @@ export const addEspecieToLista = (id, data) => { const t=localStorage.getItem('t
 export const updateLista = (id, data) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/listas/${id}`, t, { method: 'PUT', body: data }); };
 export const deleteLista = (id) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/listas/${id}`, t, { method: 'DELETE' }); };
 export const getListaPorId = (id) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/listas/${id}`, t); };
-export const deleteEspecieFromLista = (listaId, especieId) => { const token = localStorage.getItem('token'); if (!token) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/listas/${listaId}/especies/${especieId}`, token, { method: 'DELETE' }); };
+export const deleteEspecieFromLista = (listaId, especieId) => { const token = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/listas/${listaId}/especies/${especieId}`, token, { method: 'DELETE' }); };
 
 // --- 4. Funciones Clases ---
 export const createClase = (n) => { const t=localStorage.getItem('token'); if(!t) return Promise.resolve({ok:!1,data:{msg:"Token requerido"}}); return protectedFetch('/clases',t,{method:'POST',body:{nombre:n}});};
@@ -79,25 +79,21 @@ export const deleteMaterialDeClase = (claseId, materialId) => {
         method: 'DELETE'
     });
 };
-/** Edita un material existente. Envía FormData. */
 export const editMaterialDeClase = (claseId, materialId, formData) => {
     const t = localStorage.getItem('token');
     if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
     return protectedFetch(`/clases/${claseId}/materiales/${materialId}`, t, {
-        method: 'PUT', // PUT se usa para actualizar
+        method: 'PUT',
         body: formData
     });
 };
 
 // --- 5. Funciones Tareas ---
-/** Obtiene el detalle de UNA tarea (con sus comentarios y entregas) */
 export const getTareaDetalle = (tareaId) => {
     const t = localStorage.getItem('token');
     if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
     return protectedFetch(`/tarea/${tareaId}`, t);
 };
-
-/** Publica un comentario en una tarea */
 export const addComentarioATarea = (tareaId, texto) => {
     const t = localStorage.getItem('token');
     if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
@@ -106,8 +102,6 @@ export const addComentarioATarea = (tareaId, texto) => {
         body: { texto } // Es JSON
     });
 };
-
-/** Sube un archivo de entrega para una tarea */
 export const addEntregaATarea = (tareaId, formData) => {
     const t = localStorage.getItem('token');
     if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
@@ -116,8 +110,6 @@ export const addEntregaATarea = (tareaId, formData) => {
         body: formData // Es FormData
     });
 };
-
-/** Califica la entrega de un alumno */
 export const calificarEntrega = (entregaId, calificacion, comentarioProfesor) => {
     const t = localStorage.getItem('token');
     if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
@@ -126,13 +118,19 @@ export const calificarEntrega = (entregaId, calificacion, comentarioProfesor) =>
         body: { calificacion, comentarioProfesor } // Es JSON
     });
 };
-
-/** Anula (borra) una entrega existente */
 export const anularEntrega = (entregaId) => {
     const t = localStorage.getItem('token');
     if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
     return protectedFetch(`/tarea/entrega/${entregaId}`, t, {
         method: 'DELETE'
+    });
+};
+export const editTarea = (tareaId, formData) => {
+    const t = localStorage.getItem('token');
+    if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
+    return protectedFetch(`/tarea/${tareaId}`, t, {
+        method: 'PUT',
+        body: formData
     });
 };
 
