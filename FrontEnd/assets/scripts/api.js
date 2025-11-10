@@ -58,7 +58,7 @@ export const addEspecieToLista = (id, data) => { const t=localStorage.getItem('t
 export const updateLista = (id, data) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/listas/${id}`, t, { method: 'PUT', body: data }); };
 export const deleteLista = (id) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/listas/${id}`, t, { method: 'DELETE' }); };
 export const getListaPorId = (id) => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/listas/${id}`, t); };
-export const deleteEspecieFromLista = (listaId, especieId) => { const token = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/listas/${listaId}/especies/${especieId}`, token, { method: 'DELETE' }); };
+export const deleteEspecieFromLista = (listaId, especieId) => { const token = localStorage.getItem('token'); if (!token) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } }); return protectedFetch(`/listas/${listaId}/especies/${especieId}`, token, { method: 'DELETE' }); };
 
 // --- 4. Funciones Clases ---
 export const createClase = (n) => { const t=localStorage.getItem('token'); if(!t) return Promise.resolve({ok:!1,data:{msg:"Token requerido"}}); return protectedFetch('/clases',t,{method:'POST',body:{nombre:n}});};
@@ -131,6 +131,13 @@ export const editTarea = (tareaId, formData) => {
     return protectedFetch(`/tarea/${tareaId}`, t, {
         method: 'PUT',
         body: formData
+    });
+};
+export const deleteTarea = (tareaId) => {
+    const t = localStorage.getItem('token');
+    if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
+    return protectedFetch(`/tarea/${tareaId}`, t, {
+        method: 'DELETE'
     });
 };
 

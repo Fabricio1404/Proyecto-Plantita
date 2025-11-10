@@ -8,7 +8,8 @@ import {
     deleteMaterialDeClase,
     editMaterialDeClase,
     getTareaDetalle,
-    editTarea
+    editTarea,
+    deleteTarea
 } from './api.js';
 
 const API_V1_URL_PARA_ENLACES = 'http://localhost:4000';
@@ -271,7 +272,7 @@ function setupMaterialModal() {
             return;
         }
         if (archivo && archivo.size > 100 * 1024 * 1024) { // 100MB
-             materialMessageArea.textContent = 'Error: El archivo es demasiado grande (Máx 100MB).';
+             materialMessageArea.textContent = `Error: El archivo es demasiado grande (Máx 100MB).`;
              materialMessageArea.className = 'message-area error';
              return;
         }
@@ -487,6 +488,35 @@ function setupEditTaskListeners() {
     });
 }
 
+// --- Lógica de Borrar Tarea ---
+function setupDeleteTaskListeners() {
+    tasksContainer.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-borrar-tarea');
+        if (!btn) return; 
+
+        const taskId = btn.dataset.taskId;
+        const card = btn.closest('.card'); 
+
+        if (confirm('¿Estás seguro de que quieres eliminar esta tarea?\n\n¡ATENCIÓN!\nEsto borrará permanentemente la tarea, todas las entregas de los alumnos y todos los comentarios.')) {
+            btn.textContent = 'Eliminando...';
+            btn.disabled = true;
+
+            const response = await deleteTarea(taskId);
+
+            if (response.ok) {
+                card.style.transition = 'opacity 0.3s, transform 0.3s';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => card.remove(), 300);
+            } else {
+                alert(`Error: ${response.data?.msg || 'No se pudo eliminar.'}`);
+                btn.textContent = 'Borrar';
+                btn.disabled = false;
+            }
+        }
+    });
+}
+
 // --- Inicialización ---
 document.addEventListener('DOMContentLoaded', () => {
     setupTabs();
@@ -495,5 +525,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setupDeleteListeners(); 
     setupEditListeners(); 
     setupEditTaskListeners();
+    setupDeleteTaskListeners();
     loadClassDetails();
 });

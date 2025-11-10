@@ -182,27 +182,21 @@ const calificarEntrega = async (req, res) => {
     }
 };
 
-
-// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
+// DELETE /api/v1/tarea/entrega/:id
 const anularEntrega = async (req, res) => {
     const { id: entregaId } = req.params;
     const alumnoId = req.uid;
 
     try {
-        // 1. Buscar la entrega
         const entrega = await Entrega.findById(entregaId);
         if (!entrega) {
             return res.status(404).json({ ok: false, msg: 'Entrega no encontrada.' });
         }
 
-        // 2. Seguridad: Solo el alumno que la subió puede borrarla
         if (entrega.alumno.toString() !== alumnoId) {
             return res.status(403).json({ ok: false, msg: 'No tienes permiso para anular esta entrega.' });
         }
 
-        // (Opcional: ¿Permitir anular si ya está calificada? Por ahora sí)
-
-        // 3. Borrar el archivo físico del servidor
         if (entrega.urlArchivo) {
             const filePath = path.join(__dirname, '..', '..', entrega.urlArchivo);
             fs.unlink(filePath, (err) => {
@@ -210,13 +204,11 @@ const anularEntrega = async (req, res) => {
             });
         }
 
-        // 4. Quitar la referencia de la entrega en la Tarea
         await Tarea.updateOne(
             { _id: entrega.tarea },
             { $pull: { entregas: entregaId } }
         );
 
-        // 5. Borrar el documento de la Entrega
         await Entrega.findByIdAndDelete(entregaId);
 
         res.json({
@@ -229,6 +221,104 @@ const anularEntrega = async (req, res) => {
         res.status(500).json({ ok: false, msg: 'Error al anular la entrega.' });
     }
 };
+
+// PUT /api/v1/tarea/:id
+const editarTarea = async (req, res) => {
+    const { id: tareaId } = req.params;
+    const profesorId = req.uid;
+    const { titulo, descripcion, fechaVencimiento } = req.body;
+
+    try {
+        const tarea = await Tarea.findById(tareaId);
+        if (!tarea) {
+            return res.status(404).json({ ok: false, msg: 'Tarea no encontrada.' });
+        }
+
+        if (tarea.profesor.toString() !== profesorId) {
+            return res.status(403).json({ ok: false, msg: 'No tienes permiso para editar esta tarea.' });
+        }
+
+        tarea.titulo = titulo || tarea.titulo;
+        tarea.descripcion = descripcion;
+        tarea.fechaVencimiento = fechaVencimiento ? new Date(fechaVencimiento) : null;
+
+        if (req.file) {
+            if (tarea.urlArchivo) {
+                const oldFilePath = path.join(__dirname, '..', '..', tarea.urlArchivo);
+                fs.unlink(oldFilePath, (err) => {
+                    if (err) console.warn(`No se pudo borrar el archivo antiguo: ${oldFilePath}`);
+                });
+            }
+            tarea.urlArchivo = req.file.path.replace(/\\/g, '/');
+        }
+
+        await tarea.save();
+
+        res.json({ 
+            ok: true, 
+            msg: 'Tarea actualizada.',
+            tarea
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ ok: false, msg: 'Error al editar la tarea.' });
+    }
+};
+
+// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
+const borrarTarea = async (req, res) => {
+    const { id: tareaId } = req.params;
+    const profesorId = req.uid;
+
+    try {
+        // 1. Buscar la tarea
+        const tarea = await Tarea.findById(tareaId);
+        if (!tarea) {
+            return res.status(404).json({ ok: false, msg: 'Tarea no encontrada.' });
+        }
+
+        // 2. Seguridad: Solo el profesor de la clase puede borrar
+        if (tarea.profesor.toString() !== profesorId) {
+            return res.status(403).json({ ok: false, msg: 'No tienes permiso para borrar esta tarea.' });
+        }
+
+        // 3. Borrar el archivo adjunto (si el profesor subió uno)
+        if (tarea.urlArchivo) {
+            const filePath = path.join(__dirname, '..', '..', tarea.urlArchivo);
+            fs.unlink(filePath, (err) => {
+                if (err) console.warn(`No se pudo borrar el archivo (adjunto tarea): ${filePath}`);
+            });
+        }
+
+        // 4. Buscar todas las entregas asociadas
+        const entregas = await Entrega.find({ tarea: tareaId });
+        for (const entrega of entregas) {
+            // 5. Borrar el archivo de CADA entrega
+            if (entrega.urlArchivo) {
+                const entregaFilePath = path.join(__dirname, '..', '..', entrega.urlArchivo);
+                fs.unlink(entregaFilePath, (err) => {
+                    if (err) console.warn(`No se pudo borrar el archivo (entrega alumno): ${entregaFilePath}`);
+                });
+            }
+        }
+
+        // 6. Borrar todos los documentos de Entrega asociados
+        await Entrega.deleteMany({ tarea: tareaId });
+
+        // 7. Borrar todos los Comentarios asociados
+        await Comentario.deleteMany({ tarea: tareaId });
+
+        // 8. Finalmente, borrar la Tarea
+        await Tarea.findByIdAndDelete(tareaId);
+
+        res.json({ ok: true, msg: 'Tarea eliminada correctamente.' });
+
+    } catch (error) {
+        console.error("Error en borrarTarea:", error);
+        res.status(500).json({ ok: false, msg: 'Error al eliminar la tarea.' });
+    }
+};
 // --- FIN FUNCIÓN NUEVA ---
 
 
@@ -237,5 +327,7 @@ module.exports = {
     agregarComentario,
     agregarEntrega,
     calificarEntrega,
-    anularEntrega // <-- NO OLVIDES EXPORTARLA
+    anularEntrega,
+    editarTarea,
+    borrarTarea // <-- EXPORTAR LA NUEVA FUNCIÓN
 };

@@ -1,14 +1,16 @@
 // backend/src/routes/tarea.routes.js
 const { Router } = require('express');
 const { validarJWT } = require('../middlewares/auth');
-const { uploadEntrega } = require('../middlewares/file-upload'); 
+const { uploadEntrega, uploadTarea } = require('../middlewares/file-upload'); 
 
 const { 
     obtenerTareaDetalle, 
     agregarComentario, 
     agregarEntrega,
     calificarEntrega,
-    anularEntrega // <-- 1. IMPORTAR LA NUEVA FUNCIÓN
+    anularEntrega,
+    editarTarea,
+    borrarTarea // <-- 1. IMPORTAR LA NUEVA FUNCIÓN
 } = require('../controllers/tarea.controller');
 
 const router = Router();
@@ -30,11 +32,23 @@ router.post(
 // POST /api/v1/tarea/entrega/:id/calificar
 router.post('/entrega/:id/calificar', calificarEntrega);
 
-
-// --- 2. AÑADIR ESTA NUEVA RUTA ---
 // DELETE /api/v1/tarea/entrega/:id
-// Permite a un alumno anular/borrar su propia entrega
 router.delete('/entrega/:id', anularEntrega);
+
+// PUT /api/v1/tarea/:id
+router.put(
+    '/:id',
+    uploadTarea, 
+    editarTarea
+);
+
+// --- 2. AÑADIR ESTA NUEVA RUTA 'DELETE' ---
+// DELETE /api/v1/tarea/:id
+// Borrar una tarea (y todas sus entregas/comentarios)
+router.delete(
+    '/:id',
+    borrarTarea
+);
 // ---------------------------------
 
 module.exports = router;
