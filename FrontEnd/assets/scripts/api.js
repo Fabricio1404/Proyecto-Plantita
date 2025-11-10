@@ -73,6 +73,17 @@ export const getTareasPorClase = (claseId) => {
     return protectedFetch(`/clases/${claseId}/tareas`, t);
 };
 
+// --- ESTA ES LA FUNCIÓN QUE FALTABA ---
+/** Borra un material específico de una clase */
+export const deleteMaterialDeClase = (claseId, materialId) => {
+    const t = localStorage.getItem('token');
+    if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
+    return protectedFetch(`/clases/${claseId}/materiales/${materialId}`, t, {
+        method: 'DELETE'
+    });
+};
+// --- FIN FUNCIÓN NUEVA ---
+
 // --- 5. Funciones Tareas ---
 /** Obtiene el detalle de UNA tarea (con sus comentarios y entregas) */
 export const getTareaDetalle = (tareaId) => {
@@ -111,7 +122,6 @@ export const calificarEntrega = (entregaId, calificacion, comentarioProfesor) =>
     });
 };
 
-// --- ESTA ES LA FUNCIÓN QUE FALTABA ---
 /** Anula (borra) una entrega existente */
 export const anularEntrega = (entregaId) => {
     const t = localStorage.getItem('token');
@@ -120,8 +130,6 @@ export const anularEntrega = (entregaId) => {
         method: 'DELETE'
     });
 };
-// --- FIN FUNCIÓN NUEVA ---
-
 
 // --- 6. Funciones Perfil ---
 export const getProfile = () => { const t=localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, status: 401, data: { msg: "Token no encontrado" } }); return protectedFetch('/usuarios/perfil', t); };

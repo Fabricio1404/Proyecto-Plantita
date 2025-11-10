@@ -1,5 +1,7 @@
 // backend/src/controllers/clases.controller.js
 
+const fs = require('fs'); // <-- 1. IMPORTAR FileSystem
+const path = require('path'); // <-- 1. IMPORTAR Path
 const Clase = require('../models/Clase.model');
 const Tarea = require('../models/Tarea.model'); 
 const Usuario = require('../models/Usuario.model'); 
@@ -80,9 +82,6 @@ const unirseAClase = async (req, res) => {
     }
 };
 
-// --- MODIFICACIÓN: 'obtenerMisClases' ---
-// ¡Esta era la función que se colgaba!
-// Ahora no tiene dependencias circulares y debería funcionar.
 const obtenerMisClases = async (req, res) => {
     const usuarioId = req.uid;
 
@@ -102,8 +101,6 @@ const obtenerMisClases = async (req, res) => {
     }
 };
 
-// --- MODIFICACIÓN: 'obtenerClasePorId' ---
-// (Quitamos el populate de 'tareas')
 const obtenerClasePorId = async (req, res) => {
     const { id } = req.params;
     const usuarioId = req.uid;
@@ -186,8 +183,6 @@ const agregarMaterial = async (req, res) => {
     }
 };
 
-// --- MODIFICACIÓN: 'agregarTarea' ---
-// (Ya no guarda la tarea en el array de la clase)
 const agregarTarea = async (req, res) => {
     const { id: claseId } = req.params;
     const profesorId = req.uid;
@@ -210,7 +205,6 @@ const agregarTarea = async (req, res) => {
             return res.status(403).json({ ok: false, msg: 'No tienes permiso para añadir tareas a esta clase.' });
         }
 
-        // 1. Crear la nueva Tarea
         const nuevaTarea = new Tarea({
             clase: claseId,
             profesor: profesorId,
@@ -220,15 +214,12 @@ const agregarTarea = async (req, res) => {
             urlArchivo: archivo ? archivo.path.replace(/\\/g, '/') : null
         });
         
-        await nuevaTarea.save(); // Guardar la tarea
-
-        // 2. YA NO guardamos el ID en la clase
+        await nuevaTarea.save();
         
-        // 3. Devolvemos solo la nueva tarea
         res.status(201).json({
             ok: true,
             msg: 'Tarea añadida con éxito.',
-            tarea: nuevaTarea // Devolvemos la tarea creada
+            tarea: nuevaTarea
         });
 
     } catch (error) {
@@ -237,14 +228,12 @@ const agregarTarea = async (req, res) => {
     }
 };
 
-// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
 const obtenerTareasPorClase = async (req, res) => {
     const { id: claseId } = req.params;
 
     try {
-        // Buscar todas las tareas que pertenezcan a esta clase
         const tareas = await Tarea.find({ clase: claseId })
-                                  .sort({ fechaVencimiento: 1 }); // Ordenar
+                                  .sort({ fechaVencimiento: 1 }); 
 
         res.json({
             ok: true,
@@ -256,7 +245,52 @@ const obtenerTareasPorClase = async (req, res) => {
         res.status(500).json({ ok: false, msg: 'Error al obtener las tareas.' });
     }
 };
+
+// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
+const borrarMaterial = async (req, res) => {
+    const { id: claseId, materialId } = req.params;
+    const profesorId = req.uid;
+
+    try {
+        const clase = await Clase.findById(claseId);
+        if (!clase) {
+            return res.status(404).json({ ok: false, msg: 'Clase no encontrada.' });
+        }
+
+        // Seguridad: Solo el profesor de la clase puede borrar
+        if (clase.profesor.toString() !== profesorId) {
+            return res.status(403).json({ ok: false, msg: 'No tienes permiso para borrar este material.' });
+        }
+
+        // Buscar el material dentro del array
+        const material = clase.materiales.id(materialId);
+        if (!material) {
+            return res.status(404).json({ ok: false, msg: 'Material no encontrado.' });
+        }
+
+        // 1. Borrar el archivo físico del servidor
+        if (material.urlArchivo) {
+            const filePath = path.join(__dirname, '..', '..', material.urlArchivo);
+            fs.unlink(filePath, (err) => {
+                if (err) console.warn(`No se pudo borrar el archivo ${filePath}: ${err.message}`);
+                else console.log(`Archivo borrado: ${filePath}`);
+            });
+        }
+
+        // 2. Quitar el material del array en la base de datos
+        // (pull es un método de Mongoose para arrays)
+        clase.materiales.pull(materialId);
+        await clase.save();
+
+        res.json({ ok: true, msg: 'Material eliminado correctamente.' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ ok: false, msg: 'Error al eliminar el material.' });
+    }
+};
 // --- FIN FUNCIÓN NUEVA ---
+
 
 module.exports = {
     crearClase,
@@ -265,5 +299,6 @@ module.exports = {
     obtenerClasePorId,
     agregarMaterial,
     agregarTarea,
-    obtenerTareasPorClase // <-- EXPORTAR LA NUEVA FUNCIÓN
+    obtenerTareasPorClase,
+    borrarMaterial // <-- 3. EXPORTAR LA NUEVA FUNCIÓN
 };

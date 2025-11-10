@@ -2,7 +2,7 @@
 
 const { Router } = require('express');
 const { validarJWT } = require('../middlewares/auth'); 
-const { uploadMaterial, uploadTarea } = require('../Middlewares/file-upload');
+const { uploadMaterial, uploadTarea } = require('../middlewares/file-upload');
 
 const {
     crearClase,
@@ -11,7 +11,8 @@ const {
     obtenerClasePorId,
     agregarMaterial,
     agregarTarea,
-    obtenerTareasPorClase // <-- 1. IMPORTAR LA NUEVA FUNCIÓN
+    obtenerTareasPorClase,
+    borrarMaterial // <-- 1. IMPORTAR LA NUEVA FUNCIÓN
 } = require('../controllers/clases.controller');
 
 const router = Router();
@@ -44,12 +45,18 @@ router.post(
     agregarTarea
 );
 
-// --- 2. AÑADIR ESTA NUEVA RUTA ---
 // GET /api/v1/clases/:id/tareas
-// Obtener todas las tareas de una clase
 router.get(
     '/:id/tareas',
     obtenerTareasPorClase
+);
+
+// --- 2. AÑADIR ESTA NUEVA RUTA ---
+// DELETE /api/v1/clases/:id/materiales/:materialId
+// Borrar un material de una clase
+router.delete(
+    '/:id/materiales/:materialId',
+    borrarMaterial
 );
 // ---------------------------------
 

@@ -1,12 +1,18 @@
 // frontend/assets/scripts/clase-detalle.js
 
-import { getClasePorId, getTareasPorClase, addMaterialAClase, addTareaAClase } from './api.js';
+// --- MODIFICACIÓN 1: Importar la nueva función ---
+import { 
+    getClasePorId, 
+    getTareasPorClase, 
+    addMaterialAClase, 
+    addTareaAClase,
+    deleteMaterialDeClase // <-- Importar
+} from './api.js';
 
-// --- DEFINIR LA URL BASE DEL BACKEND ---
 const API_V1_URL_PARA_ENLACES = 'http://localhost:4000';
 const currentUserId = localStorage.getItem('uid');
 
-// --- SELECTORES DEL DOM ---
+// --- Selectores del DOM (sin cambios) ---
 const titleEl = document.getElementById('class-title');
 const professorEl = document.getElementById('class-professor');
 const teacherControlsEl = document.getElementById('teacher-controls');
@@ -35,6 +41,8 @@ const modalCloseBtnsTask = addTaskModal.querySelectorAll('[data-modal-close-task
 const params = new URLSearchParams(location.search);
 const claseId = params.get('id');
 
+let esProfesor = false; // Variable global (ya la teníamos)
+
 /**
  * Función principal para cargar y renderizar los detalles de la clase
  */
@@ -45,13 +53,11 @@ async function loadClassDetails() {
         return;
     }
 
-    // --- Cargar en paralelo ---
     const [claseResponse, tareasResponse] = await Promise.all([
         getClasePorId(claseId),
         getTareasPorClase(claseId)
     ]);
 
-    // 1. Manejar error de Clase
     if (!claseResponse.ok) {
         titleEl.textContent = 'Error al cargar';
         const errorMsg = claseResponse.data?.msg || 'No se pudo cargar la clase.';
@@ -62,9 +68,9 @@ async function loadClassDetails() {
     }
 
     const { clase } = claseResponse.data;
-    const esProfesor = clase.profesor._id === currentUserId;
+    esProfesor = clase.profesor._id === currentUserId; // <-- Definimos la variable global
 
-    // 2. Renderizar Cabecera y Alumnos
+    // Renderizar Cabecera y Alumnos
     titleEl.textContent = clase.nombre;
     document.title = `${clase.nombre} - InForest Classroom`; 
     professorEl.textContent = `Profesor: ${clase.profesor.nombre} ${clase.profesor.apellido} | Código: ${clase.codigoAcceso}`;
@@ -86,10 +92,10 @@ async function loadClassDetails() {
         studentsList.innerHTML = '<li>No hay alumnos inscritos.</li>';
     }
 
-    // 3. Renderizar Materiales (de la respuesta de clase)
+    // Renderizar Materiales (de la respuesta de clase)
     renderMaterials(clase.materiales);
 
-    // 4. Renderizar Tareas (de la respuesta de tareas)
+    // Renderizar Tareas (de la respuesta de tareas)
     if (tareasResponse.ok) {
         renderTasks(tareasResponse.data.tareas);
     } else {
@@ -120,22 +126,41 @@ function renderTasks(tareas) {
     }
 }
 
+/**
+ * Helper para renderizar una tarjeta de Material (MODIFICADO)
+ */
 function renderMaterialCard(material) {
+    
+    // Generar el botón de borrar SOLO si es profesor
+    const botonBorrarHtml = esProfesor 
+        ? `<button 
+                class="btn btn-sm ghost btn-danger btn-borrar-material" 
+                data-material-id="${material._id}"
+                style="margin-left: auto;"
+           >
+               Borrar
+           </button>`
+        : '';
+
     return `
         <div class="card list-card" style="margin-bottom: 15px;">
             <div class="species-info">
                 <h4>${material.titulo}</h4>
                 <p class="muted">${material.descripcion || 'Sin descripción.'}</p>
-                <div style="margin-top: 15px;">
+                <div style="margin-top: 15px; display: flex; gap: 8px; align-items: center;">
                     <a href="${API_V1_URL_PARA_ENLACES}/${material.urlArchivo}" download class="btn btn-sm primary">
                         Descargar Material
                     </a>
+                    ${botonBorrarHtml}
                 </div>
             </div>
         </div>
     `;
 }
 
+/**
+ * Helper para renderizar una tarjeta de Tarea (Sin cambios)
+ */
 function renderTaskCard(tarea) {
     const fechaVencimiento = tarea.fechaVencimiento 
         ? new Date(tarea.fechaVencimiento).toLocaleDateString('es-AR')
@@ -164,7 +189,7 @@ function renderTaskCard(tarea) {
     `;
 }
 
-// --- Lógica de Pestañas ---
+// --- Lógica de Pestañas (Sin cambios) ---
 function setupTabs() {
     tabsContainer.addEventListener('click', (e) => {
         const targetTab = e.target.closest('.tab-btn');
@@ -177,7 +202,7 @@ function setupTabs() {
     });
 }
 
-// --- Lógica del Modal de Materiales ---
+// --- Lógica del Modal de Materiales (Sin cambios) ---
 function setupMaterialModal() {
     const openModal = () => {
         materialForm.reset();
@@ -234,7 +259,7 @@ function setupMaterialModal() {
     });
 }
 
-// --- Lógica del Modal de Tareas ---
+// --- Lógica del Modal de Tareas (Sin cambios) ---
 function setupTaskModal() {
     const openModal = () => {
         taskForm.reset();
@@ -305,10 +330,51 @@ function setupTaskModal() {
     });
 }
 
-// --- Inicialización ---
+// --- FUNCIÓN NUEVA AÑADIDA AQUÍ ---
+/**
+ * Añade listeners para los botones de "Borrar"
+ */
+function setupDeleteListeners() {
+    // Usamos delegación de eventos en el contenedor de materiales
+    materialsContainer.addEventListener('click', async (e) => {
+        if (!e.target.classList.contains('btn-borrar-material')) {
+            return; // No fue clic en un botón de borrar
+        }
+
+        const btn = e.target;
+        const materialId = btn.dataset.materialId;
+        const card = btn.closest('.card'); // La tarjeta completa
+
+        if (confirm('¿Estás seguro de que quieres eliminar este material? Esta acción no se puede deshacer.')) {
+            btn.textContent = 'Eliminando...';
+            btn.disabled = true;
+
+            const response = await deleteMaterialDeClase(claseId, materialId);
+
+            if (response.ok) {
+                // Eliminar la tarjeta del DOM
+                card.style.transition = 'opacity 0.3s, transform 0.3s';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => card.remove(), 300);
+            } else {
+                alert(`Error: ${response.data?.msg || 'No se pudo eliminar.'}`);
+                btn.textContent = 'Borrar';
+                btn.disabled = false;
+            }
+        }
+    });
+
+    // (Aquí podríamos añadir un listener similar para 'tasksContainer' cuando hagamos "Borrar Tarea")
+}
+// --- FIN FUNCIÓN NUEVA ---
+
+
+// --- Inicialización (MODIFICADA) ---
 document.addEventListener('DOMContentLoaded', () => {
     setupTabs();
     setupMaterialModal();
     setupTaskModal();
+    setupDeleteListeners(); // <-- Llamar a la nueva función
     loadClassDetails();
 });
