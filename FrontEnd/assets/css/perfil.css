@@ -1,0 +1,169 @@
+/* Página Mi Perfil - se apoya en home-style.css */
+
+/* Contenedor principal del contenido de perfil */
+.perfil-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 22px;
+}
+
+/* Grid de tarjetas */
+.perfil-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+/* Tarjetas */
+.perfil-card {
+  background: var(--panel-bg, #020f0b);
+  border-radius: 16px;
+  padding: 14px 14px 12px;
+  border: 1px solid var(--border-subtle, #10231a);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.perfil-card-title {
+  margin: 0 0 10px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--text-strong, #e9fbf0);
+}
+
+.perfil-card-large {
+  grid-column: span 2;
+}
+
+/* Avatar */
+.perfil-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.perfil-avatar-wrapper {
+  position: relative;
+}
+
+.perfil-avatar-img {
+  width: 90px;
+  height: 90px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 3px solid var(--accent, #22c55e);
+}
+
+/* Botón cámara */
+.perfil-avatar-camera {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent, #22c55e);
+  color: #020817;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+/* Input file totalmente oculto */
+.perfil-hidden-input {
+  display: none !important;
+}
+
+.perfil-avatar-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.perfil-avatar-name {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.perfil-avatar-username,
+.perfil-avatar-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--muted, #9ca3af);
+}
+
+/* Campos */
+.perfil-field-row {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.perfil-label {
+  font-size: 0.76rem;
+  color: var(--muted, #9ca3af);
+}
+
+.perfil-input-wrapper {
+  position: relative;
+}
+
+.perfil-input-icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.perfil-input {
+  width: 100%;
+  padding: 7px 9px 7px 26px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle, #10231a);
+  background: var(--panel-bg, #020f0b);
+  color: var(--text, #e5e7eb);
+  font-size: 0.8rem;
+}
+
+.perfil-input:focus {
+  outline: none;
+  border-color: var(--accent, #22c55e);
+}
+
+/* Ojo contraseña */
+.perfil-eye-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--muted, #9ca3af);
+}
+
+/* Texto ayuda */
+.perfil-helper-text {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: var(--muted, #9ca3af);
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+  .perfil-page {
+    padding: 14px;
+  }
+
+  .perfil-card-large {
+    grid-column: span 1;
+  }
+}
