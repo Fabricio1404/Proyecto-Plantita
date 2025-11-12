@@ -1,3 +1,4 @@
+// backend/src/controllers/auth.controller.js
 const Usuario = require('../models/Usuario.model.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -41,6 +42,23 @@ const registrarUsuario = async (req, res) => {
                 });
             }
         }
+
+        // ===== INICIO MODIFICACIÓN AÑADIDA (Regex) =====
+        // Expresión regular para contraseña robusta:
+        // 1 minúscula, 1 mayúscula, 1 número, 1 especial, 8+ caracteres.
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]{8,}$/;
+        const errorMsg = 'La contraseña debe tener 8+ caracteres, una mayúscula, una minúscula, un número y un carácter especial.';
+
+        if (!password || !passwordRegex.test(password)) {
+            return res.status(400).json({ 
+                errors: [
+                    // Este formato es compatible con auth.js
+                    { path: 'password', msg: errorMsg }
+                ] 
+            });
+        }
+        // ===== FIN MODIFICACIÓN AÑADIDA =====
+
 
         // Crear nueva instancia de usuario (mapeando a tu schema)
         usuario = new Usuario({

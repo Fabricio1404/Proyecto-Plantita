@@ -64,7 +64,7 @@ const actualizarPerfil = async (req, res) => {
     }
 };
 
-// ===== INICIO NUEVA FUNCIÓN =====
+// ===== INICIO FUNCIÓN MODIFICADA =====
 // --- PUT /api/v1/usuarios/perfil/password ---
 const cambiarPassword = async (req, res) => {
     const uid = req.uid;
@@ -91,10 +91,16 @@ const cambiarPassword = async (req, res) => {
             });
         }
 
-        // 3. (Opcional) Validar la nueva contraseña (puedes usar auth.validations.js)
-        if (nuevaPassword.length < 8) {
-             return res.status(400).json({ ok: false, msg: 'La nueva contraseña debe tener al menos 8 caracteres.'});
+        // 3. (Opcional) Validar la nueva contraseña (REGLA ROBUSTA)
+        // Expresión regular para contraseña robusta:
+        // 1 minúscula, 1 mayúscula, 1 número, 1 especial, 8+ caracteres.
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]{8,}$/;
+        const errorMsg = 'La nueva contraseña debe tener 8+ caracteres, una mayúscula, una minúscula, un número y un carácter especial.';
+        
+        if (!passwordRegex.test(nuevaPassword)) {
+             return res.status(400).json({ ok: false, msg: errorMsg });
         }
+        // ===== FIN MODIFICACIÓN =====
 
         // 4. Hashear y guardar la nueva contraseña
         const salt = bcrypt.genSaltSync();
@@ -111,7 +117,7 @@ const cambiarPassword = async (req, res) => {
         res.status(500).json({ ok: false, msg: 'Error al cambiar la contraseña.' });
     }
 };
-// ===== FIN NUEVA FUNCIÓN =====
+// ===== FIN FUNCIÓN MODIFICADA =====
 
 // --- PUT /api/v1/usuarios/config/tema ---
 const actualizarTema = async (req, res) => {

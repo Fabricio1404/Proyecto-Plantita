@@ -6,16 +6,23 @@
   <title>InForest - Acceder / Registrarse</title>
   <link rel="stylesheet" href="assets/css/auth.css" />
 
-  <!-- Tipografía -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet">
   <style>
     .msg{margin:.25rem 0;font-size:.9rem}
     .msg.error,.error{color:#ef4444}
+    /* Estilo para el texto de ayuda de la contraseña */
+    .password-rules {
+        font-size: 0.8rem; 
+        color: #555; 
+        text-align: left; 
+        width: 100%; 
+        margin-top: 4px;
+        line-height: 1.3;
+    }
   </style>
 </head>
 <body>
-  <!-- Fondo  -->
   <div class="login-leaves"><div></div></div>
 
   <header class="brand-header" role="banner" aria-label="Título del sitio">
@@ -29,14 +36,12 @@
   </header>
 
   <main class="container" id="container">
-    <!-- Registro -->
     <section class="form-container sign-up-container" aria-label="Formulario de registro">
       <form class="form" id="signupForm" novalidate>
   <h1><span class="icon-mask icon-leaf anim-pulse" aria-hidden="true"></span>Crear cuenta</h1>
   <p class="subtitle">Sumate a la comunidad</p>
 
   <div class="form-grid">
-    <!-- Nombre -->
     <div class="input-group with-icon">
       <label for="signup-firstname">Nombre</label>
       <span class="input-icon">👤</span>
@@ -44,7 +49,6 @@
       <span class="error" id="signup-firstname-error"></span>
     </div>
 
-    <!-- Apellido -->
     <div class="input-group with-icon">
       <label for="signup-lastname">Apellido</label>
       <span class="input-icon">👤</span>
@@ -52,7 +56,6 @@
       <span class="error" id="signup-lastname-error"></span>
     </div>
 
-    <!-- Usuario -->
     <div class="input-group with-icon full">
       <label for="signup-username">Usuario</label>
       <span class="input-icon">🪪</span>
@@ -60,7 +63,6 @@
       <span class="error" id="signup-username-error"></span>
     </div>
 
-    <!-- Email -->
     <div class="input-group with-icon full">
       <label for="signup-email">Email</label>
       <span class="input-icon">✉️</span>
@@ -68,16 +70,19 @@
       <span class="error" id="signup-email-error"></span>
     </div>
 
-    <!-- Contraseña -->
     <div class="input-group with-icon full">
       <label for="signup-password">Contraseña</label>
       <span class="input-icon">🔒</span>
-      <input id="signup-password" name="password" type="password" placeholder="Mínimo 8 caracteres" minlength="6" required />
+      
+      <input id="signup-password" name="password" type="password" placeholder="Contraseña segura" minlength="8" required />
+      
+      <p class="password-rules">
+        Debe incluir: 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial (!@#...).
+      </p>
       <span class="error" id="signup-password-error"></span>
       <p id="signup-global-error" class="msg error full" style="min-height: 16px;"></p>
     </div>
 
-    <!-- Botón -->
     <div class="full">
       <button type="submit" class="btn primary" style="width:100%;">
         <span class="icon-mask icon-leaf anim-pulse" aria-hidden="true"></span>
@@ -89,13 +94,11 @@
 
     </section>
 
-    <!-- Login -->
     <section class="form-container sign-in-container" aria-label="Formulario de inicio de sesión">
       <form class="form" id="signinForm" novalidate>
         <h1><span class="icon-mask icon-bug anim-float" aria-hidden="true"></span>Iniciar sesión</h1>
         <p class="subtitle">Bienvenido otra vez</p>
 
-        <!-- Usuario o Email -->
         <div class="input-group with-icon">
           <label for="signin-email">Usuario o Email</label>
           <span class="input-icon">✉️</span>
@@ -110,7 +113,6 @@
           <span class="error" id="signin-password-error"></span>
         </div>
 
-        <!-- Mensaje global -->
         <p id="signin-global-msg" class="msg error"></p>
 
         <div class="row between">
@@ -125,7 +127,6 @@
       </form>
     </section>
 
-    <!-- Overlay lateral -->
     <aside class="overlay-container" aria-hidden="true">
       <div class="overlay">
         <div class="overlay-panel overlay-left">
