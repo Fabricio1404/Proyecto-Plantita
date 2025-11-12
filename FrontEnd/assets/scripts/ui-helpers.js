@@ -57,10 +57,21 @@ document.addEventListener('DOMContentLoaded', () => {
      // --- Marcar Menú Activo ---
      try {
          const currentPath = window.location.pathname.split('/').pop() || 'plantas.html';
+         // Map pages that belong to the same sidebar section to a canonical href
+         const sectionCanonical = (path) => {
+             // Todas las páginas relacionadas con 'clases' deben resaltar 'clases.html'
+             const clasesPages = ['clases.html', 'clase-detalle.html', 'tarea-detalle.html'];
+             if (clasesPages.includes(path)) return 'clases.html';
+            // Add other sections here if needed in future, e.g., 'listas' pages -> 'listas.html'
+            return path;
+         };
+
+         const currentSection = sectionCanonical(currentPath);
          const menuLinks = document.querySelectorAll('.sidebar .menu-item');
          menuLinks.forEach(link => {
              const linkPath = link.getAttribute('href')?.split('/').pop();
-             if (linkPath && linkPath === currentPath) {
+             if (!linkPath) return;
+             if (linkPath === currentSection) {
                  link.classList.add('active');
              } else {
                  link.classList.remove('active');

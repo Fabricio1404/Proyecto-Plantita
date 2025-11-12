@@ -8,6 +8,77 @@
     <script>
       (function() { const savedTheme = localStorage.getItem('userTheme') || 'claro'; document.documentElement.setAttribute('data-theme', savedTheme); })();
     </script>
+    
+    <style>
+        /* * Estilos adaptados de tu 'styles.css' para el diseño
+         * de tarjeta con cabecera (basado en 'index.html')
+         */
+        
+        #classes-container.cards {
+             /* Ajuste para que el grid se vea bien */
+             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+             gap: 20px;
+        }
+
+        .class-card {
+            background-color: var(--card-bg); /* ADAPTADO */
+            border: 1px solid var(--border); /* ADAPTADO */
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm); /* ADAPTADO */
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+            margin: 0; /* El grid se encarga del espaciado */
+        }
+
+        .class-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md); /* ADAPTADO */
+        }
+
+        .class-card-header {
+            background-color: var(--primary); /* ADAPTADO */
+            color: #ffffff; /* El texto blanco está bien */
+            padding: 16px 18px;
+        }
+
+        .class-card-header h2 {
+            margin: 0 0 6px;
+            font-size: 1.25rem; /* 20px */
+            font-weight: 600;
+        }
+
+        .class-card-header p {
+            margin: 0;
+            font-size: 0.9rem; /* 14.4px */
+        }
+
+        .class-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 18px;
+            font-size: 0.85rem; /* 13.6px */
+            color: var(--text-color-muted); /* ADAPTADO */
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* (Icono de 'styles.css') */
+        .icon-user::before {
+            content: "👥";
+            font-size: 14px;
+        }
+
+        .footer-right {
+            font-weight: 600;
+            color: var(--text-color); /* ADAPTADO */
+        }
+    </style>
     </head>
 <body>
 
@@ -54,10 +125,10 @@
             </form>
             <div id="create-message-area" class="message-area"></div>
         </div>
-
         <h3>Mis Clases Actuales</h3>
-        <div id="classes-container" class="cards" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));"> <p>Cargando tus clases...</p>
-            </div>
+        <div id="classes-container" class="cards"> 
+            <p>Cargando tus clases...</p>
+        </div>
     </section>
 
     <footer class="foot"> <small>© 2025 InForest</small> </footer>
@@ -66,5 +137,6 @@
   <script src="./assets/scripts/auth-guard.js"></script>
   <script src="./assets/scripts/ui-helpers.js"></script>
   <script src="./assets/scripts/api.js" type="module"></script>
-  <script src="./assets/scripts/clases.js" type="module"></script> </body>
+  <script src="./assets/scripts/clases.js" type="module"></script> 
+</body>
 </html>

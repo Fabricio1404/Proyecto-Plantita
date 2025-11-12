@@ -14,6 +14,7 @@ const obtenerTareaDetalle = async (req, res) => {
     try {
         const tarea = await Tarea.findById(tareaId)
             .populate('profesor', 'nombre apellido')
+            .populate('clase', 'nombre')
             .populate({
                 path: 'comentarios',
                 populate: { path: 'autor', select: 'nombre apellido' },
@@ -29,8 +30,9 @@ const obtenerTareaDetalle = async (req, res) => {
         }
 
         // Seguridad: Verificar que el usuario pertenece a la clase de esta tarea
-        const clase = await Clase.findById(tarea.clase);
-        if (!clase.alumnos.includes(usuarioId)) {
+        const claseId = tarea.clase && tarea.clase._id ? tarea.clase._id : tarea.clase;
+        const clase = await Clase.findById(claseId);
+        if (!clase || !clase.alumnos.includes(usuarioId)) {
             return res.status(403).json({ ok: false, msg: 'No tienes permiso para ver esta tarea.' });
         }
         

@@ -1,76 +1,200 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargando Tarea... - InForest Classroom</title>
-    <link rel="stylesheet" href="./assets/css/home-style.css">
-    <style>
-        /* Estilos para comentarios (sin cambios) */
-        .comment-list { list-style: none; padding: 0; margin-top: 20px; }
-        .comment-item {
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 12px;
-            margin-bottom: 10px;
-        }
-        .comment-author { font-weight: bold; color: var(--primary); }
-        .comment-date { font-size: 0.8em; color: var(--muted); margin-left: 8px; }
-        .comment-body { margin-top: 5px; }
+  <meta charset="UTF-8" />
+  <title>Cargando Tarea... - Classroom</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <link rel="stylesheet" href="./assets/css/home-style.css" />
+  <script>
+    // Aplica el tema guardado (claro/oscuro/ecologico)
+    (function() { const savedTheme = localStorage.getItem('userTheme') || 'claro'; document.documentElement.setAttribute('data-theme', savedTheme); })();
+  </script>
+  
+  <style>
+    /* Estilos de 'styles.css' adaptados a las variables de 'home-style.css' */
 
-        /* Estilos para Calificación (sin cambios) */
-        .entrega-item {
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-        }
-        .entrega-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-            margin-bottom: 0;
-        }
-        .grading-form .input-group {
-            margin-bottom: 8px;
-        }
-        .grading-form input, .grading-form textarea {
-            font-size: 0.9em;
-            padding: 8px;
-        }
-        .grading-form textarea {
-            min-height: 40px;
-        }
-        .calificacion-guardada {
-            background: var(--input-bg);
-            border-radius: var(--radius-sm);
-            padding: 10px;
-            border: 1px solid var(--border);
-        }
-        
-        /* --- MODIFICACIÓN: Estilo para "Fuera de Plazo" --- */
-        .message-area.warning {
-            color: #b45309; /* Un color ámbar/naranja oscuro */
-            background-color: #fffbeb; /* Fondo amarillo pálido */
-            border: 1px solid #fde68a; /* Borde amarillo */
-            padding: 10px;
-            border-radius: var(--radius-sm);
-        }
-        /* --- FIN MODIFICACIÓN --- */
-    </style>
-    <script>
-      (function() { const savedTheme = localStorage.getItem('userTheme') || 'claro'; document.documentElement.setAttribute('data-theme', savedTheme); })();
-    </script>
-</head>
+    /* Reset básico */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* Layout de la página de tarea */
+    .page-two-cols {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+      gap: 20px;
+    }
+    .col-left { min-width: 0; }
+    .col-right { min-width: 0; }
+
+    .breadcrumb {
+      margin: 0 0 4px;
+      font-size: 1rem;
+      color: var(--muted);
+    }
+    
+    .page-title-task {
+        margin: 0 0 24px;
+        font-size: 2rem; /* 32px */
+        font-weight: 700;
+    }
+
+    /* Cajas de contenido (adaptadas a .form-card) */
+    .box {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px 16px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .box-title {
+      margin: 0 0 14px;
+      font-size: 1.25rem; /* 20px */
+      font-weight: 600;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .box-section { margin-bottom: 16px; }
+
+    .field-label {
+      display: block;
+      margin: 0 0 4px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-color-muted);
+    }
+    
+    .box-text {
+      margin: 4px 0 0;
+      font-size: 1rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Comentarios (adaptados) */
+    .comment {
+      margin-bottom: 12px;
+      border-left: 3px solid var(--primary-light);
+      padding-left: 12px;
+    }
+    .comment-author {
+      margin: 0 0 2px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .comment-date {
+      font-weight: 400;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-left: 6px;
+    }
+    .comment-text {
+      margin: 2px 0 0;
+      font-size: 0.95rem;
+      color: var(--text-color);
+    }
+    /* Usar clases de .btn de InForest */
+    .comment-btn { margin-top: 10px; }
+
+    /* Panel de Entrega (adaptado) */
+    .submission {
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .status-success {
+      /* No existen --success-bg/--success-border en el tema global, usar tonos neutros */
+      background-color: rgba(56,161,105,0.06); /* verde suave */
+      border: 1px solid rgba(56,161,105,0.12);
+    }
+    /* ESTADO DE ENTREGA (de tu tarea-detalle.js) */
+    .status-warning {
+        color: #b45309;
+        background-color: #fffbeb;
+        border: 1px solid #fde68a;
+    }
+
+    .submission-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--primary);
+      padding: 3px 10px;
+      border-radius: 999px;
+      background-color: var(--primary-light);
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+    .submission-file {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+    .submission-date {
+      font-size: 0.85rem;
+      color: var(--text-color-muted);
+    }
+
+    /* Calificación (adaptada) */
+    .grade {
+      margin: 4px 0 0;
+      font-size: 2.25rem; /* 36px */
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      background-color: var(--input-bg);
+      border: 1px solid var(--border);
+    }
+    .feedback-title {
+      margin: 0 0 4px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .feedback-text {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--text-color);
+    }
+    
+    /* Panel Profesor (de tu tarea-detalle.js) */
+    .entrega-item {
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+    .entrega-item:last-child { border-bottom: none; }
+    .grading-form input, .grading-form textarea { font-size: 0.9em; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .page-two-cols { grid-template-columns: 1fr; }
+      .col-right {
+          /* Mover la columna derecha arriba en móvil */
+          order: -1;
+      }
+      .box { margin-bottom: 20px; }
+    }
+  </style>
+  </head>
 <body>
 
   <aside class="sidebar" id="sidebar" aria-label="Menú lateral">
     <div class="brand"> <img src="./assets/img/logo.png" alt="Logo InForest" class="logo"> <div class="brand-name">InForest</div> </div>
     <nav class="menu" role="navigation" aria-label="Secciones">
       <a class="menu-item" href="plantas.html">Plantas</a>
-      <a class="menu-item" href="insectos.html">Insectos</a>
-      <div class="menu-sep"></div>
+      <a class="menu-item active" href="insectos.html">Insectos</a> <div class="menu-sep"></div>
       <a class="menu-item" href="listas.html">Mis Listas</a>
-      <a class="menu-item active" href="clases.html">Clases (Classroom)</a>
+      <a class="menu-item" href="clases.html">Clases (Classroom)</a>
       <a class="menu-item active" href="registro-fenologico.html">Registro Fenológico</a>
       <a class="menu-item" href="comunidad.html">Foros y Ranking</a>
       <div class="menu-sep"></div>
@@ -80,55 +204,74 @@
   </aside>
 
   <div class="main">
+    
     <header class="topbar">
       <div class="left">
         <button id="toggleSidebar" class="icon-btn" aria-pressed="false" aria-label="Mostrar/ocultar menú">☰</button>
         <a id="back-to-class-btn" href="clases.html" class="btn ghost btn-sm">← Volver a la Clase</a>
-        <div class="hello" style="margin-left: 10px;">
-            <h1 id="task-title">Cargando Tarea...</h1>
-            <p id="task-subtitle" class="muted"></p>
-        </div>
       </div>
-      <div class="right"> <div class="profile-section" id="user-profile"> <span class="profile-name" id="username-display-topbar">Usuario</span> <img src="./assets/img/default-avatar.png" alt="Avatar" class="profile-avatar" id="user-avatar"> </div> </div>
+      <div class="right"> 
+        <div class="profile-section" id="user-profile"> 
+            <span class="profile-name" id="username-display-topbar">Usuario</span> 
+            <img src="./assets/img/default-avatar.png" alt="Avatar" class="profile-avatar" id="user-avatar"> 
+        </div> 
+      </div>
     </header>
 
-    <section class="content-area" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+    <section class="content-area">
+      
+      <main class="page-two-cols">
         
-        <div class="main-column">
-            <div class="form-card">
-                <h3 id="task-detail-title"></h3>
-                <p class="muted">Profesor: <span id="task-profesor">...</span></p>
-                <p class="muted">Vencimiento: <span id="task-vencimiento">...</span></p>
-                <div id="task-descripcion" style="margin-top: 15px;"></div>
-                <div id="task-attachment-container" style="margin-top: 20px;">
-                    </div>
-            </div>
+        <section class="col-left">
+          
+          <p class="breadcrumb" id="task-breadcrumb">Cargando...</p>
+          <h1 class="page-title-task" id="task-title">Cargando Tarea...</h1>
 
-            <div class="form-card" style="margin-top: 20px;">
-                <h4>Comentarios de la Tarea</h4>
-                <ul id="comment-list-container" class="comment-list">
-                    <li>Cargando comentarios...</li>
-                </ul>
-                <form id="comment-form" style="margin-top: 20px;">
-                    <div class="input-group">
-                        <label for="comment-text">Escribe un comentario...</label>
-                        <textarea id="comment-text" rows="3" required></textarea>
-                    </div>
-                    <button type="submit" class="btn primary btn-sm">Publicar</button>
-                    <div id="comment-message-area" class="message-area"></div>
-                </form>
+          <div class="box">
+            <h2 class="box-title">Detalles de la Tarea</h2>
+            
+            <div class="box-section">
+              <h3 class="field-label">Descripción</h3>
+              <p class="box-text" id="task-descripcion">...</p>
             </div>
-        </div>
-
-        <div class="side-column">
-            <div id="entrega-container" class="form-card">
-                <h4>Tu Entrega</h4>
-                <div id="entrega-status-container">
-                    </div>
+            
+            <div class="box-section">
+              <h3 class="field-label">Fecha de Vencimiento</h3>
+              <p class="box-text" id="task-vencimiento">...</p>
+              
+              <div id="task-attachment-container" style="margin-top: 15px;">
+                </div>
             </div>
-        </div>
+          </div>
 
-    </section>
+          <div class="box">
+            <h2 class="box-title">Comentarios</h2>
+            
+            <div id="comment-list-container">
+                <p>Cargando comentarios...</p>
+            </div>
+            
+            <form id="comment-form" style="margin-top: 20px;">
+                <div class="input-group">
+                    <label class="field-label" for="comment-text">Escribe un comentario...</label>
+                    <textarea id="comment-text" class="field-input" rows="3" placeholder="Añadir un comentario..." required></textarea>
+                </div>
+                <button type="submit" class="btn primary comment-btn">Publicar Comentario</button>
+                <div id="comment-message-area" class="message-area" style="margin-top: 10px;"></div>
+            </form>
+          </div>
+        </section>
+
+        <aside class="col-right">
+          
+          <div id="entrega-container-wrapper">
+            <p>Cargando estado...</p>
+          </div>
+
+        </aside>
+        
+      </main>
+      </section>
 
     <footer class="foot"> <small>© 2025 InForest</small> </footer>
   </div>

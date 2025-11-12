@@ -92,31 +92,30 @@ async function loadMisClases() {
     }
 }
 
+// ===== INICIO MODIFICACIÓN =====
+/**
+ * Crea el HTML de una tarjeta de clase con el NUEVO diseño
+ * (basado en 'index.html' y Captura...124153.png)
+ */
 function createClassCard(clase) {
-    // Verificar si el profesor es el mismo usuario
     const esProfesor = clase.profesor._id === localStorage.getItem('uid');
+    const rolTexto = esProfesor ? '(Tú)' : '';
     
+    // HTML de tu 'index.html'
     return `
-        <div class="card list-card">
-            <div class="species-info">
-                
-                <h4 style="color: var(--text); text-shadow: none;">${clase.nombre}</h4>
-                
-                <p class="muted" style="color: var(--muted); text-shadow: none; font-size: 0.9em; margin-bottom: 8px;">
-                    <strong>Código:</strong> ${clase.codigoAcceso}
-                </p>
-                <p class="muted" style="color: var(--muted); text-shadow: none; font-size: 0.9em; margin-bottom: 8px;">
-                    <strong>Profesor:</strong> ${clase.profesor.nombre} ${clase.profesor.apellido} ${esProfesor ? '(Tú)' : ''}
-                </p>
-                <p class="muted" style="color: var(--muted); text-shadow: none; font-size: 0.9em; margin-bottom: 16px;">
-                    <strong>Alumnos:</strong> ${clase.alumnos.length}
-                </p>
-                
-                <a href="clase-detalle.html?id=${clase._id}" class="btn primary" style="margin-top: auto;">
-                    Ver Contenido
-                </a>
-
+        <article class="class-card" onclick="window.location.href='clase-detalle.html?id=${clase._id}'" style="cursor: pointer;">
+            <div class="class-card-header">
+              <h2>${clase.nombre}</h2>
+              <p>Prof. ${clase.profesor.nombre} ${clase.profesor.apellido} ${rolTexto}</p>
             </div>
-        </div>
+            <div class="class-card-footer">
+              <div class="footer-left">
+                <span class="icon-user"></span>
+                <span>${clase.alumnos.length} alumnos</span>
+              </div>
+              <div class="footer-right">${clase.codigoAcceso}</div>
+            </div>
+        </article>
     `;
 }
+// ===== FIN MODIFICACIÓN =====
