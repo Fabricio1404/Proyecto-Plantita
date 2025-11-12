@@ -1,22 +1,18 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mi Perfil - InForest</title>
-
-  <link rel="stylesheet" href="./assets/css/home-style.css" />
-  <link rel="stylesheet" href="./assets/css/perfil.css" />
-
-  <script>
-    (function () {
-      const savedTheme = localStorage.getItem('userTheme') || 'claro';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    })();
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - InForest</title>
+    
+    <link rel="stylesheet" href="./assets/css/home-style.css">
+    
+    <script>
+      (function() { const savedTheme = localStorage.getItem('userTheme') || 'claro'; document.documentElement.setAttribute('data-theme', savedTheme); })();
+    </script>
 </head>
-<body data-page-theme="perfil">
-  <!-- SIDEBAR -->
+<body>
+
   <aside class="sidebar" id="sidebar" aria-label="Menú lateral">
     <div class="brand">
       <img src="./assets/img/logo.png" alt="Logo InForest" class="logo">
@@ -28,197 +24,84 @@
       <div class="menu-sep"></div>
       <a class="menu-item" href="listas.html">Mis Listas</a>
       <a class="menu-item" href="clases.html">Clases (Classroom)</a>
-      <a class="menu-item" href="registro-fenologico.html">Observatorio Personal</a>
+      <a class="menu-item active" href="registro-fenologico.html">Registro Fenológico</a>
       <a class="menu-item" href="comunidad.html">Foros y Ranking</a>
       <div class="menu-sep"></div>
-      <a class="menu-item active" href="perfil.html">Mi Perfil</a>
-    </nav>
+      <a class="menu-item active" href="perfil.html">Mi Perfil</a> </nav>
     <div class="sidebar-foot">
       <button id="logout" class="btn ghost btn-sm" aria-label="Salir">Salir</button>
     </div>
   </aside>
 
-  <!-- MAIN -->
   <div class="main">
-    <!-- TOPBAR -->
     <header class="topbar">
       <div class="left">
-        <button id="toggleSidebar"
-                class="icon-btn"
-                aria-pressed="false"
-                aria-label="Mostrar/ocultar menú">☰</button>
+        <button id="toggleSidebar" class="icon-btn" aria-pressed="false" aria-label="Mostrar/ocultar menú">☰</button>
         <div class="hello">
-          <p class="muted">Hola 👋</p>
-          <h1 id="perfil-title-name">Invitado</h1>
-          <p class="muted small">
-            Gestiona tu información personal, seguridad y preferencias de InForest.
-          </p>
+          <h1>Mi Perfil y Configuración</h1>
         </div>
       </div>
       <div class="right">
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Cambiar tema">
+            <span class="icon-sun">☀️</span>
+            <span class="icon-moon">🌙</span>
+        </button>
         <div class="profile-section" id="user-profile">
           <span class="profile-name" id="username-display-topbar">Usuario</span>
-          <img src="./assets/img/default-avatar.png"
-               alt="Avatar"
-               class="profile-avatar"
-               id="user-avatar">
+          <img src="./assets/img/default-avatar.png" alt="Avatar" class="profile-avatar" id="user-avatar">
         </div>
       </div>
     </header>
 
-    <!-- CONTENIDO PERFIL -->
-    <main class="content perfil-page" aria-label="Configuración de perfil">
-      <section class="perfil-grid">
+    <section class="content-area">
+      <div id="profile-message-area" class="message-area" style="font-size: 1em; margin-bottom: 20px;"></div>
 
-        <!-- Foto de Perfil -->
-        <section class="perfil-card perfil-card-large">
-          <h2 class="perfil-card-title">Foto de Perfil</h2>
-          <div class="perfil-avatar-row">
-            <div class="perfil-avatar-wrapper">
-              <img
-                id="perfil-avatar-img"
-                class="perfil-avatar-img"
-                src="./assets/img/default-avatar.png"
-                alt="Foto de perfil">
-              <button id="perfil-avatar-trigger"
-                      class="perfil-avatar-camera"
-                      aria-label="Cambiar foto de perfil">
-                📷
-              </button>
-              <!-- oculto, solo se usa desde JS -->
-              <input id="perfil-avatar-input"
-                     type="file"
-                     accept="image/*"
-                     class="perfil-hidden-input">
+      <div class="profile-grid">
+
+        <div class="form-card">
+          <h3>Información Personal</h3>
+          <form id="profile-form-info">
+            
+            <div class="profile-photo-section" style="margin-bottom: 20px;">
+              <img id="current-photo" src="./assets/img/default-avatar.png" alt="Foto Perfil" class="profile-photo-preview">
+              <label for="photo-upload" id="photo-upload-label" class="btn secondary btn-sm">Cambiar Foto</label>
+              <input type="file" id="photo-upload" accept="image/*">
             </div>
-            <div class="perfil-avatar-text">
-              <p class="perfil-avatar-name" id="perfil-display-fullname">
-                Nombre Apellido
-              </p>
-              <p class="perfil-avatar-username" id="perfil-display-username">
-                @usuario
-              </p>
-              <p class="perfil-avatar-hint">
-                Sube una imagen cuadrada para mejores resultados (mín. 400x400px).
-              </p>
-            </div>
-          </div>
-        </section>
 
-        <!-- Información Personal -->
-        <section class="perfil-card">
-          <h2 class="perfil-card-title">Información Personal</h2>
+            <div class="input-group"> <label for="profile-nombre">Nombre</label> <input type="text" id="profile-nombre" required> </div>
+            <div class="input-group"> <label for="profile-apellido">Apellido</label> <input type="text" id="profile-apellido" required> </div>
+            <div class="input-group"> <label for="profile-username">Nombre de Usuario</label> <input type="text" id="profile-username" disabled title="El nombre de usuario no se puede modificar."> </div>
+            <div class="input-group"> <label for="profile-correo">Correo Electrónico</label> <input type="email" id="profile-correo" disabled title="El correo no se puede modificar."> </div>
+            
+            <button type="submit" class="btn primary" style="width: 100%; margin-top: 10px;">Guardar Cambios</button>
+          </form>
+        </div>
+        
+        <div class="form-card">
+            <h3>Cambiar Contraseña</h3>
+            <form id="profile-form-password">
+                <div class="input-group">
+                    <label for="password-actual">Contraseña Actual</label>
+                    <input type="password" id="password-actual" required>
+                </div>
+                <div class="input-group">
+                    <label for="password-nueva">Nueva Contraseña</label>
+                    <input type="password" id="password-nueva" minlength="8" required placeholder="Mínimo 8 caracteres">
+                </div>
+                <div class="input-group">
+                    <label for="password-confirmar">Confirmar Nueva Contraseña</label>
+                    <input type="password" id="password-confirmar" minlength="8" required>
+                </div>
+                <button type="submit" class="btn secondary" style="width: 100%;">Actualizar Contraseña</button>
+            </form>
+        </div>
 
-          <div class="perfil-field-row">
-            <label class="perfil-label" for="perfil-fullName">Nombre Completo *</label>
-            <div class="perfil-input-wrapper">
-              <span class="perfil-input-icon">👤</span>
-              <input id="perfil-fullName"
-                     class="perfil-input"
-                     type="text"
-                     placeholder="Tu nombre completo">
-            </div>
-          </div>
+        </div> </section>
 
-          <div class="perfil-field-row">
-            <label class="perfil-label" for="perfil-email">Correo Electrónico *</label>
-            <div class="perfil-input-wrapper">
-              <span class="perfil-input-icon">✉️</span>
-              <input id="perfil-email"
-                     class="perfil-input"
-                     type="email"
-                     placeholder="tu.email@ejemplo.com">
-            </div>
-          </div>
-
-          <div class="perfil-field-row">
-            <label class="perfil-label" for="perfil-username">Nombre de Usuario *</label>
-            <div class="perfil-input-wrapper">
-              <span class="perfil-input-icon">@</span>
-              <input id="perfil-username"
-                     class="perfil-input"
-                     type="text"
-                     placeholder="nombreusuario">
-            </div>
-          </div>
-
-          <div class="perfil-field-row">
-            <label class="perfil-label" for="perfil-location">Ubicación</label>
-            <div class="perfil-input-wrapper">
-              <span class="perfil-input-icon">📍</span>
-              <input id="perfil-location"
-                     class="perfil-input"
-                     type="text"
-                     placeholder="Ciudad, País">
-            </div>
-          </div>
-        </section>
-
-        <!-- Cambiar Contraseña -->
-        <section class="perfil-card">
-          <h2 class="perfil-card-title">Cambiar Contraseña</h2>
-
-          <div class="perfil-field-row">
-            <label class="perfil-label" for="perfil-currentPassword">Contraseña Actual</label>
-            <div class="perfil-input-wrapper">
-              <span class="perfil-input-icon">🔒</span>
-              <input id="perfil-currentPassword"
-                     class="perfil-input perfil-input-password"
-                     type="password"
-                     placeholder="••••••••">
-              <button class="perfil-eye-btn"
-                      data-target="perfil-currentPassword">👁️</button>
-            </div>
-          </div>
-
-          <div class="perfil-field-row">
-            <label class="perfil-label" for="perfil-newPassword">Nueva Contraseña</label>
-            <div class="perfil-input-wrapper">
-              <span class="perfil-input-icon">🔒</span>
-              <input id="perfil-newPassword"
-                     class="perfil-input perfil-input-password"
-                     type="password"
-                     placeholder="••••••••">
-              <button class="perfil-eye-btn"
-                      data-target="perfil-newPassword">👁️</button>
-            </div>
-          </div>
-
-          <div class="perfil-field-row">
-            <label class="perfil-label" for="perfil-confirmPassword">
-              Confirmar Nueva Contraseña
-            </label>
-            <div class="perfil-input-wrapper">
-              <span class="perfil-input-icon">🔒</span>
-              <input id="perfil-confirmPassword"
-                     class="perfil-input perfil-input-password"
-                     type="password"
-                     placeholder="••••••••">
-              <button class="perfil-eye-btn"
-                      data-target="perfil-confirmPassword">👁️</button>
-            </div>
-          </div>
-
-          <p class="perfil-helper-text">
-            La contraseña debe tener al menos 8 caracteres,
-            incluyendo mayúsculas, minúsculas y un número.
-          </p>
-        </section>
-
-      </section>
-    </main>
-
-    <footer class="foot">
-      <small>© 2025 InForest</small>
-    </footer>
-  </div>
-
-  <!-- Scripts globales -->
-  <script src="./assets/scripts/auth-guard.js"></script>
+    <footer class="foot"> <small>© 2025 InForest</small> </footer>
+  </div> <script src="./assets/scripts/auth-guard.js"></script>
   <script src="./assets/scripts/ui-helpers.js"></script>
   <script src="./assets/scripts/api.js" type="module"></script>
-
-  <!-- Script específico del perfil -->
-  <script src="./assets/scripts/perfil.js"></script>
+  <script src="./assets/scripts/perfil.js" type="module"></script>
 </body>
 </html>

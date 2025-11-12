@@ -1,58 +1,176 @@
-// Nombre del usuario en saludo y topbar
-(function () {
-  const rawUser =
-    JSON.parse(localStorage.getItem('usuario') || 'null') ||
-    JSON.parse(localStorage.getItem('user') || 'null') ||
-    null;
+// frontend/assets/scripts/perfil.js
+// v4: Lógica solo para el interruptor Sol/Luna
 
-  const nombre =
-    (rawUser && (rawUser.nombre || rawUser.name)) ||
-    localStorage.getItem('nombre') ||
-    'Invitado';
+import { getProfile, updateProfile, changePassword, updateTheme } from './api.js';
 
-  const titleName = document.getElementById('perfil-title-name');
-  const topbarName = document.getElementById('username-display-topbar');
+// --- Selectores DOM ---
+const $ = (s) => document.querySelector(s);
+const messageArea = $('#profile-message-area');
 
-  if (titleName) titleName.textContent = nombre;
-  if (topbarName) topbarName.textContent = nombre;
-})();
+// Formulario de Info
+const infoForm = $('#profile-form-info');
+const currentPhoto = $('#current-photo');
+const photoUpload = $('#photo-upload');
+const photoUploadLabel = $('#photo-upload-label');
+const profileNombre = $('#profile-nombre');
+const profileApellido = $('#profile-apellido');
+const profileCorreo = $('#profile-correo');
+const profileUsername = $('#profile-username');
 
-// Avatar
-const avatarTrigger = document.getElementById('perfil-avatar-trigger');
-const avatarInput = document.getElementById('perfil-avatar-input');
-const avatarImg = document.getElementById('perfil-avatar-img');
+// Formulario de Contraseña
+const passwordForm = $('#profile-form-password');
+const passActual = $('#password-actual');
+const passNueva = $('#password-nueva');
+const passConfirmar = $('#password-confirmar');
 
-avatarTrigger?.addEventListener('click', () => avatarInput?.click());
+// Opciones de Tema
+const themeToggleBtn = $('#theme-toggle'); // Botón Sol/Luna en Topbar
 
-avatarInput?.addEventListener('change', (e) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    if (avatarImg) avatarImg.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-});
+// --- Funciones ---
 
-// Mostrar / ocultar contraseñas
-document.querySelectorAll('.perfil-eye-btn').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    const targetId = btn.getAttribute('data-target');
-    const input = document.getElementById(targetId);
-    if (!input) return;
+/** Muestra un mensaje al usuario */
+function showMessage(message, isError = false) {
+    if (!messageArea) return;
+    messageArea.textContent = message;
+    messageArea.className = isError ? 'message-area error' : 'message-area success';
+    setTimeout(() => { if (messageArea) messageArea.textContent = ''; }, 4000);
+}
 
-    if (input.type === 'password') {
-      input.type = 'text';
-      btn.textContent = '🙈';
+/** Carga los datos del perfil del usuario */
+async function loadProfileData() {
+    const response = await getProfile();
+
+    if (response.ok && response.data.usuario) {
+        const user = response.data.usuario;
+        
+        if (profileNombre) profileNombre.value = user.nombre || '';
+        if (profileApellido) profileApellido.value = user.apellido || '';
+        if (profileCorreo) profileCorreo.value = user.correo || '';
+        if (profileUsername) profileUsername.value = user.username || '';
+        
+        if (currentPhoto && user.fotoPerfil && user.fotoPerfil !== 'default_profile.png') {
+             currentPhoto.src = user.fotoPerfil.startsWith('http') ? user.fotoPerfil : `./assets/img/${user.fotoPerfil}`;
+        } else if (currentPhoto) {
+             currentPhoto.src = './assets/img/default-avatar.png';
+        }
+        
+        // Aplicar tema (el script del <head> ya lo hizo)
+        const savedTheme = user.configuracion?.tema || localStorage.getItem('userTheme') || 'claro';
+        applyTheme(savedTheme); // Solo actualiza el icono del interruptor
+
     } else {
-      input.type = 'password';
-      btn.textContent = '👁️';
+        showMessage("Error al cargar los datos del perfil.", true);
     }
-  });
-});
+}
 
-// Guardar cambios (simulado por ahora)
-const saveDebug = () => {
-  // Más adelante acá enganchamos con tu backend
-  console.log('Perfil guardado (simulado)');
-};
+/** Maneja el envío del formulario de Información Personal */
+async function handleInfoUpdate(e) {
+    e.preventDefault();
+    const nombre = profileNombre?.value.trim();
+    const apellido = profileApellido?.value.trim();
+
+    if (!nombre || !apellido) {
+        showMessage("Nombre y Apellido son obligatorios.", true);
+        return;
+    }
+    
+    showMessage("Guardando información...", false);
+    const response = await updateProfile({ nombre, apellido });
+
+    if (response.ok) {
+        showMessage("Información personal actualizada.", false);
+        localStorage.setItem('displayName', response.data.usuario.nombre);
+        const topbarName = document.getElementById('username-display-topbar');
+        if (topbarName) topbarName.textContent = response.data.usuario.nombre;
+    } else {
+        showMessage(response.data?.msg || "Error al guardar.", true);
+    }
+}
+
+/** Maneja el envío del formulario de Contraseña */
+async function handlePasswordUpdate(e) {
+    e.preventDefault();
+    const passwordActual = passActual?.value;
+    const nuevaPassword = passNueva?.value;
+    const confirmarPassword = passConfirmar?.value;
+
+    if (!passwordActual || !nuevaPassword || !confirmarPassword) {
+        showMessage("Todos los campos de contraseña son obligatorios.", true);
+        return;
+    }
+    if (nuevaPassword !== confirmarPassword) {
+        showMessage("Las nuevas contraseñas no coinciden.", true);
+        return;
+    }
+
+    showMessage("Actualizando contraseña...", false);
+    const response = await changePassword(passwordActual, nuevaPassword);
+
+    if (response.ok) {
+        showMessage("Contraseña actualizada con éxito.", false);
+        passwordForm.reset();
+    } else {
+        showMessage(response.data?.msg || "Error al cambiar la contraseña.", true);
+    }
+}
+
+/** Maneja el clic en el interruptor de tema (sol/luna en topbar) */
+function handleThemeToggle() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'claro';
+    // Alterna solo entre claro y oscuro.
+    const newTheme = (currentTheme === 'claro') ? 'oscuro' : 'claro';
+    
+    // Si el usuario estaba en 'ecologico', lo pasa a 'oscuro'.
+    // const newTheme = (currentTheme === 'oscuro') ? 'claro' : 'oscuro';
+    
+    applyThemeAndSave(newTheme);
+}
+
+/** Función central para aplicar y guardar el tema */
+function applyThemeAndSave(themeName) {
+    applyTheme(themeName); // 1. Aplicar visualmente
+    localStorage.setItem('userTheme', themeName); // 2. Guardar en localStorage
+
+    // 3. Guardar en backend (silenciosamente)
+    updateTheme(themeName)
+        .then(response => {
+            if (response.ok) {
+                console.log(`Tema '${themeName}' guardado en backend.`);
+            } else {
+                throw new Error(response.data?.msg);
+            }
+        })
+        .catch(error => {
+            console.warn("No se pudo guardar el tema en el backend:", error.message);
+        });
+}
+
+/** Aplica el tema al <html> y actualiza el icono del interruptor */
+function applyTheme(themeName) {
+    document.documentElement.setAttribute('data-theme', themeName);
+    // El CSS se encarga de mostrar/ocultar .icon-sun y .icon-moon
+}
+
+/** Previsualiza la foto seleccionada */
+function handlePhotoPreview() {
+    if (!photoUpload || !currentPhoto) return;
+    const file = photoUpload.files[0];
+    if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = (e) => { currentPhoto.src = e.target.result; }
+        reader.readAsDataURL(file);
+    } else if (file) {
+        showMessage("Por favor, selecciona un archivo de imagen válido.", true);
+    }
+}
+
+// --- Inicialización ---
+document.addEventListener('DOMContentLoaded', () => {
+    loadProfileData();
+
+    if (infoForm) infoForm.addEventListener('submit', handleInfoUpdate);
+    if (passwordForm) passwordForm.addEventListener('submit', handlePasswordUpdate);
+    if (themeToggleBtn) themeToggleBtn.addEventListener('click', handleThemeToggle);
+    if (photoUpload) photoUpload.addEventListener('change', handlePhotoPreview);
+    if (photoUploadLabel) photoUploadLabel.addEventListener('click', () => photoUpload.click());
+});
