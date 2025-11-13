@@ -1,26 +1,29 @@
 const mongoose = require('mongoose');
 
+/**
+ * Seguimiento model
+ * - ObservacionSchema: entrada de observación con fecha, mediciones y notas
+ * - SeguimientoSchema: registro de una planta con ubicaciones y observaciones
+ */
 const ObservacionSchema = new mongoose.Schema({
     fechaHora: {
         type: Date,
         default: Date.now,
         required: true
     },
-    temperatura: { // Dato obtenido por API o manual
+    temperatura: {
         type: Number
     },
-    humedad: { // Dato obtenido por API o manual
+    humedad: {
         type: Number
     },
-    clima: { // Dato de la API climática
+    clima: {
         type: String
     },
     observacionesEscritas: {
         type: String,
         trim: true
-    },
-    // Podrías añadir campos para registrar crecimiento (altura, número de hojas, etc.)
-    // altura: Number, 
+    }
 });
 
 const SeguimientoSchema = new mongoose.Schema({
@@ -35,10 +38,10 @@ const SeguimientoSchema = new mongoose.Schema({
         trim: true
     },
     especie: {
-        type: String, // Nombre científico o ID de iNaturalist
+        type: String,
         default: 'Desconocida'
     },
-    ubicacion: { // Última ubicación registrada o ubicación inicial
+    ubicacion: {
         lat: Number,
         lng: Number
     },

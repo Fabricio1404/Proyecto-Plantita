@@ -1,6 +1,4 @@
-// frontend/assets/scripts/listas.js
-// v3: Enlaza a lista-detalle.html
-
+// Gestión de listas de usuario
 import { getListas, createLista, updateLista, deleteLista } from './api.js';
 
 const editModal = document.getElementById('edit-list-modal');
@@ -17,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// --- Formulario CREAR ---
+// Formulario crear lista
 function setupListForm() {
     const btn = document.getElementById('create-list-btn');
     const formContainer = document.getElementById('create-list-form-container');
@@ -50,7 +48,7 @@ function setupListForm() {
     });
 }
 
-// --- Cargar Listas ---
+// Cargar listas del usuario
 async function loadUserLists() {
     const container = document.getElementById('user-lists-container');
     if (!container) return;
@@ -66,7 +64,7 @@ async function loadUserLists() {
     }
 }
 
-// --- Renderizar Tarjeta (MODIFICADO) ---
+// Crear tarjeta de lista (diseño)
 function createListCard(list) {
     const visibility = list.publica ? 'Pública 🌐' : 'Privada 🔒';
     const speciesCount = list.especies.length;
@@ -93,7 +91,7 @@ function createListCard(list) {
     `;
 }
 
-// --- Listeners para Editar y Borrar ---
+// Listeners para editar/borrar tarjetas
 function setupCardListeners() {
     const container = document.getElementById('user-lists-container');
     if (!container) return;

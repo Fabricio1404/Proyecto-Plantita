@@ -1,8 +1,5 @@
-// Redirige si NO hay token (protege esta página)
-(function requireAuth() {
-  const token = localStorage.getItem("token");
-  if (!token) location.href = "./login.html";
-})();
+// Protege la página: redirige si no hay token
+(function requireAuth() { const token = localStorage.getItem("token"); if (!token) location.href = "./login.html"; })();
 
 // Imágenes aleatorias por tarjeta
 const plantImages = [
@@ -21,9 +18,7 @@ const insectImages = [
   "./assets/img/selector/insecto5.jpg",
 ];
 
-function getRandomImage(images) {
-  return images[Math.floor(Math.random() * images.length)];
-}
+function getRandomImage(images) { return images[Math.floor(Math.random() * images.length)]; }
 
 // Asignar imágenes al cargar
 const imgPlants = document.getElementById("img-plants");

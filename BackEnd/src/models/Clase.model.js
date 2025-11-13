@@ -1,4 +1,12 @@
-// backend/src/models/Clase.model.js
+/**
+ * Clase model
+ * - codigoAcceso: código único para unirse a la clase
+ * - profesor: referencia al usuario que creó la clase
+ * - alumnos: array de referencias a usuarios
+ * - materiales: objetos con metadatos y `urlArchivo`
+ *
+ * Nota: las tareas no se almacenan aquí; se consultan por `claseId` en el modelo `Tarea`.
+ */
 const mongoose = require('mongoose');
 
 const ClaseSchema = new mongoose.Schema({
@@ -30,16 +38,6 @@ const ClaseSchema = new mongoose.Schema({
         urlArchivo: String,
         fechaPublicacion: { type: Date, default: Date.now }
     }]
-    
-    // --- MODIFICACIÓN CLAVE AQUÍ ---
-    // Eliminamos el array de 'tareas'. Las tareas se buscarán por 'claseId'.
-    /*
-    tareas: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Tarea' 
-    }]
-    */
-    // --- FIN DE LA MODIFICACIÓN ---
 }, {
     timestamps: true
 });

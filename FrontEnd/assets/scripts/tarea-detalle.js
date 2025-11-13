@@ -1,6 +1,4 @@
-// frontend/assets/scripts/tarea-detalle.js
-// V2 - FUSIONADO: Lógica del 'tarea-detalle.js' original adaptada al NUEVO diseño 'tarea.html'
-
+// Tarea detalle: muestra entrega/comentarios y permite acciones según rol
 import { 
     getTareaDetalle, 
     addComentarioATarea, 
@@ -12,10 +10,10 @@ import {
 const API_V1_URL_PARA_ENLACES = 'http://localhost:4000';
 const currentUserId = localStorage.getItem('uid');
 
-let currentTarea = null; // Guardará la tarea actual
-let esProfesor = false; 
+let currentTarea = null;
+let esProfesor = false;
 
-// --- Selectores del DOM (Adaptados al nuevo HTML) ---
+// Selectores del DOM
 const titleEl = document.getElementById('task-title');
 const breadcrumbEl = document.getElementById('task-breadcrumb');
 const backBtn = document.getElementById('back-to-class-btn');
@@ -31,9 +29,7 @@ const commentMessageArea = document.getElementById('comment-message-area');
 const params = new URLSearchParams(location.search);
 const tareaId = params.get('id');
 
-/**
- * Función Principal (MODIFICADA)
- */
+/** Carga detalles de la tarea y renderiza view según rol */
 async function loadTaskDetails() {
     if (!tareaId) {
         titleEl.textContent = 'Error: ID de tarea no encontrado.';
@@ -82,7 +78,7 @@ async function loadTaskDetails() {
             </a>`;
     }
 
-    // 2. Renderizar Comentarios
+    // 2. Renderizar comentarios
     renderComments(tarea.comentarios);
 
     // 3. Renderizar panel derecho
@@ -96,9 +92,7 @@ async function loadTaskDetails() {
     }
 }
 
-/**
- * Renderiza Comentarios (HTML nuevo)
- */
+/** Renderiza comentarios */
 function renderComments(comentarios) {
     if (!comentarios || comentarios.length === 0) {
         commentListContainer.innerHTML = '<p>Aún no hay comentarios.</p>';
@@ -118,9 +112,7 @@ function renderComments(comentarios) {
     }).join('');
 }
 
-/**
- * Renderiza el panel derecho para el Alumno (HTML nuevo)
- */
+/** Renderiza panel derecho para alumno */
 function renderPanelAlumno(miEntrega, tarea) {
     let html = '';
 
@@ -199,9 +191,7 @@ function renderPanelAlumno(miEntrega, tarea) {
     entregaContainerWrapper.innerHTML = html;
 }
 
-/**
- * Renderiza el panel derecho para el Profesor (HTML nuevo)
- */
+/** Renderiza panel derecho para profesor */
 function renderPanelProfesor(entregas) {
     let entregasHtml;
     if (entregas.length === 0) {
@@ -267,9 +257,7 @@ function renderPanelProfesor(entregas) {
 }
 
 
-/**
- * Configura el formulario de comentarios (SIN CAMBIOS LÓGICOS)
- */
+/** Configura formulario de comentarios */
 function setupCommentForm() {
     if (!commentForm) return;
     
@@ -303,9 +291,7 @@ function setupCommentForm() {
     });
 }
 
-/**
- * Configura el formulario de entrega (SIN CAMBIOS LÓGICOS)
- */
+/** Configura formulario de entrega */
 function setupEntregaForm() {
     const entregaForm = document.getElementById('entrega-form');
     if (!entregaForm) return; 
@@ -347,9 +333,7 @@ function setupEntregaForm() {
 }
 
 
-/**
- * Configura los formularios de calificación (SIN CAMBIOS LÓGICOS)
- */
+/** Configura formularios de calificación */
 function setupGradingForms() {
     const listaEntregas = document.getElementById('lista-entregas-container');
     if (!listaEntregas) return;
@@ -393,9 +377,7 @@ function setupGradingForms() {
     });
 }
 
-/**
- * Configura el botón de anular entrega (SIN CAMBIOS LÓGICOS)
- */
+/** Configura botón de anular entrega (delegación) */
 function setupEntregaListeners() {
     // Usamos delegación en el contenedor derecho
     entregaContainerWrapper.addEventListener('click', async (e) => {
@@ -425,18 +407,14 @@ function setupEntregaListeners() {
     });
 }
 
-// --- Inicialización ---
+// Inicialización
 document.addEventListener('DOMContentLoaded', () => {
-    loadTaskDetails(); // Carga todo
-    setupCommentForm(); // Configura el formulario de comentarios
-    // Los otros listeners (entrega, calificación, anular)
-    // se configuran *dentro* de loadTaskDetails
-    // después de renderizar el panel correcto.
+    loadTaskDetails();
+    setupCommentForm();
     // Asegurar que el botón de volver no cause navegación a 'undefined'
     const safeBackBtn = document.getElementById('back-to-class-btn');
     if (safeBackBtn) {
         safeBackBtn.addEventListener('click', (e) => {
-            // Si href está ausente o es 'undefined', prevenimos y navegamos a /clases
             const href = safeBackBtn.getAttribute('href');
             if (!href || href.includes('undefined')) {
                 e.preventDefault();

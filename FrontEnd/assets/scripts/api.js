@@ -1,9 +1,7 @@
-// frontend/assets/scripts/api.js
-// V2 - COMPLETADO CON TODAS LAS FUNCIONES DE CLASSROOM
-
+// Cliente HTTP para llamadas a la API
 const API_V1_URL = 'http://localhost:4000/api/v1';
 
-// --- 1. Helper Fetch para JSON (El que ya tenías) ---
+// Helper: fetch para JSON
 export const protectedFetch = async (endpoint, token, options = {}) => {
     const headers = {
         'Content-Type': 'application/json',
@@ -19,12 +17,12 @@ export const protectedFetch = async (endpoint, token, options = {}) => {
             body: (options.body && options.method !== 'GET') ? JSON.stringify(options.body) : undefined,
         });
 
-        if (response.status === 401) {
-            console.error("Error 401: Token inválido. Redirigiendo.");
-            localStorage.clear();
-            window.location.href = 'auth.html';
-            return { ok: false, status: 401, data: { msg: "Token inválido" } };
-        }
+            if (response.status === 401) {
+                console.error("Error 401: Token inválido. Redirigiendo.");
+                localStorage.clear();
+                window.location.href = 'auth.html';
+                return { ok: false, status: 401, data: { msg: "Token inválido" } };
+            }
         
         const data = await response.json().catch(() => ({ msg: `Respuesta no JSON: ${response.statusText}` }));
         
@@ -36,11 +34,7 @@ export const protectedFetch = async (endpoint, token, options = {}) => {
     }
 };
 
-// --- 2. NUEVO Helper Fetch para FormData (Subir Archivos) ---
-/**
- * Realiza una petición fetch para FormData (archivos),
- * NO establece Content-Type, el navegador lo hace.
- */
+// Helper: fetch para FormData (subida de archivos). No establecer Content-Type.
 export const protectedFetchFormData = async (endpoint, token, options = {}) => {
     const headers = {
         'x-token': token,
@@ -70,7 +64,7 @@ export const protectedFetchFormData = async (endpoint, token, options = {}) => {
 };
 
 
-// --- 3. Funciones de iNaturalist (Sin cambios) ---
+// iNaturalist
 export const getEspecies = async (taxon, query = '') => {
     const token = localStorage.getItem('token');
     if (!token) return { ok: false, status: 401, data: { msg: "Token no encontrado" } };
@@ -85,7 +79,7 @@ export const getEspecies = async (taxon, query = '') => {
     return protectedFetch(`/inaturalist/taxa?${params.toString()}`, token);
 };
 
-// --- 4. Funciones de Listas (Sin cambios) ---
+// Listas
 export const createLista = (nombre, descripcion, publica) => {
     const t = localStorage.getItem('token');
     if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
@@ -127,7 +121,7 @@ export const deleteEspecieFromLista = (listaId, especieId) => {
     });
 };
 
-// --- 5. Funciones de Perfil de Usuario (Sin cambios) ---
+// Perfil de usuario
 export const getProfile = () => {
     const token = localStorage.getItem('token');
     if (!token) return Promise.resolve({ ok: false, status: 401, data: { msg: "Token no encontrado" } });
@@ -158,7 +152,7 @@ export const updateTheme = (themeName) => {
     });
 };
 
-// --- 6. Funciones de Seguimiento (Observatorio) ---
+// Seguimiento (observatorio)
 export const createSeguimiento = (nombrePlanta, especie, lat, lng) => {
     const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
     return protectedFetch('/seguimiento', t, { method: 'POST', body: { nombrePlanta, especie, lat, lng } });
@@ -180,7 +174,7 @@ export const addObservacionFenologica = (idSeguimiento, fenoData) => {
     return protectedFetch(`/seguimiento/${idSeguimiento}/fenologia`, t, { method: 'POST', body: fenoData });
 };
 
-// --- 7. Funciones de Clases (Lobby - Sin cambios) ---
+// Clases (lobby)
 export const createClase = (nombre) => {
     const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
     return protectedFetch('/clases', t, { method: 'POST', body: { nombre } });
@@ -195,9 +189,7 @@ export const getMisClases = () => {
 };
 
 
-// ===== ESTAS SON LAS FUNCIONES QUE FALTAN =====
-
-// --- 8. Funciones de Clase-Detalle (NUEVAS) ---
+// Funciones adicionales: clase-detalle, tarea, entregas, etc.
 export const getClasePorId = (claseId) => {
     const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
     return protectedFetch(`/clases/${claseId}`, t);
@@ -210,7 +202,6 @@ export const getTareasPorClase = (claseId) => {
 
 export const addMaterialAClase = (claseId, formData) => {
     const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
-    // Usamos el helper de FormData
     return protectedFetchFormData(`/clases/${claseId}/materiales`, t, { method: 'POST', body: formData });
 };
 
@@ -227,13 +218,11 @@ export const deleteMaterialDeClase = (claseId, materialId) => {
 // --- 9. Funciones de Tarea-Detalle (NUEVAS) ---
 export const addTareaAClase = (claseId, formData) => {
     const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
-    // Usamos el helper de FormData
     return protectedFetchFormData(`/clases/${claseId}/tareas`, t, { method: 'POST', body: formData });
 };
 
 export const getTareaDetalle = (tareaId) => {
     const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
-    // Nota: la ruta en el servidor está en singular '/tarea/:id'
     return protectedFetch(`/tarea/${tareaId}`, t);
 };
 
@@ -249,26 +238,21 @@ export const deleteTarea = (tareaId) => {
 
 export const addComentarioATarea = (tareaId, texto) => {
     const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
-    // La ruta en backend para comentar es POST /api/v1/tarea/:id/comentar
     return protectedFetch(`/tarea/${tareaId}/comentar`, t, { method: 'POST', body: { texto } });
 };
 
 // --- 10. Funciones de Entregas (NUEVAS) ---
 export const addEntregaATarea = (tareaId, formData) => {
     const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
-    // La ruta en backend para entregar es POST /api/v1/tarea/:id/entregar
     return protectedFetchFormData(`/tarea/${tareaId}/entregar`, t, { method: 'POST', body: formData });
 };
 
 export const anularEntrega = (entregaId) => {
     const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
-    // La ruta en backend para anular entrega es DELETE /api/v1/tarea/entrega/:id
     return protectedFetch(`/tarea/entrega/${entregaId}`, t, { method: 'DELETE' });
 };
 
 export const calificarEntrega = (entregaId, calificacion, comentarioProfesor) => {
     const t = localStorage.getItem('token'); if (!t) return Promise.resolve({ ok: false, data: { msg: "Token requerido" } });
-    // La ruta en backend es POST /api/v1/tarea/entrega/:id/calificar
     return protectedFetch(`/tarea/entrega/${entregaId}/calificar`, t, { method: 'POST', body: { calificacion, comentarioProfesor } });
 };
-// ===============================================

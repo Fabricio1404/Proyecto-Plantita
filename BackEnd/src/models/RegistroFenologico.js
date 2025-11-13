@@ -1,6 +1,10 @@
 const { Schema, model } = require('mongoose');
 
-// Este es el "molde" para CADA CELDA (cuadro)
+/**
+ * RegistroFenologico model
+ * - CeldaSchema: representa una celda del registro con medidas y estado meteorológico
+ * - RegistroFenologicoSchema: tarjeta con metadatos y un array de celdas
+ */
 const CeldaSchema = new Schema({
     top: [Number],
     right: [Number],
@@ -13,9 +17,8 @@ const CeldaSchema = new Schema({
         humedad: { type: String, default: '' },
         presion: { type: String, default: '' },
     }
-}, { _id: false }); // No crear _id para cada celda
+}, { _id: false });
 
-// Este es el "molde" para CADA REGISTRO (tarjeta)
 const RegistroFenologicoSchema = new Schema({
     name: { type: String, required: true, default: 'Registro' },
     lugar: { type: String, default: '' },
@@ -23,16 +26,12 @@ const RegistroFenologicoSchema = new Schema({
     especie: { type: String, default: '' },
     observations: { type: String, default: '' },
     isCollapsed: { type: Boolean, default: false },
-    
-    // Un array de 30 celdas (usando el molde de arriba)
-    cells: [CeldaSchema], 
-    
-    // Conexión con el usuario que lo creó
+    cells: [CeldaSchema],
     user: {
         type: Schema.Types.ObjectId,
-        ref: 'Usuario', // Asegúrate que tu modelo de usuario se llame 'Usuario'
+        ref: 'Usuario',
         required: true
     }
-}, { timestamps: true }); // Añade createdAt y updatedAt automáticamente
+}, { timestamps: true });
 
 module.exports = model('RegistroFenologico', RegistroFenologicoSchema);

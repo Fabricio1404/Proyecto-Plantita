@@ -1,4 +1,12 @@
-// backend/src/models/Entrega.model.js
+/**
+ * Entrega model
+ * - tarea: referencia a la tarea
+ * - alumno: referencia al usuario que entrega
+ * - urlArchivo: ruta del archivo subido por el alumno
+ * - fechaEntrega: fecha de envío
+ * - calificacion: nota o estado (ej. "8/10", "Aprobado")
+ * - comentarioProfesor: devolución del profesor
+ */
 const mongoose = require('mongoose');
 
 const EntregaSchema = new mongoose.Schema({
@@ -12,7 +20,7 @@ const EntregaSchema = new mongoose.Schema({
         ref: 'Usuario',
         required: true
     },
-    urlArchivo: { // Archivo subido por el alumno
+    urlArchivo: {
         type: String,
         required: true
     },
@@ -20,19 +28,19 @@ const EntregaSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    calificacion: { // La nota, ej: "8/10" o "Aprobado"
+    calificacion: {
         type: String,
         trim: true,
         default: null
     },
-    comentarioProfesor: { // La devolución del profesor
+    comentarioProfesor: {
         type: String,
         trim: true,
         default: null
     }
 }, { timestamps: true });
 
-// Evita que un alumno entregue dos veces la misma tarea
+// Índice único para evitar entregas duplicadas por el mismo alumno
 EntregaSchema.index({ tarea: 1, alumno: 1 }, { unique: true });
 
 module.exports = mongoose.model('Entrega', EntregaSchema);

@@ -1,4 +1,4 @@
-// Determina la URL base de la API
+// URL base de la API (puede sobrescribirse desde localStorage)
 const API_BASE =
   localStorage.getItem("API_BACK") ||
   ((location.hostname === "localhost" || location.hostname === "127.0.0.1")
@@ -11,7 +11,7 @@ const signInBtn = document.getElementById("signIn");
 const linkToSignUp = document.getElementById("linkToSignUp");
 const linkToSignIn = document.getElementById("linkToSignIn");
 
-// Funciones para animar el panel de Login/Registro
+// Handlers para mostrar/ocultar panel de registro/login
 function openSignup() {
   container?.classList.add("right-panel-active");
   if (location.hash !== "#signup") history.replaceState(null, "", "#signup");
@@ -25,13 +25,13 @@ signInBtn?.addEventListener("click", openSignin);
 linkToSignUp?.addEventListener("click", e => { e.preventDefault(); openSignup(); });
 linkToSignIn?.addEventListener("click", e => { e.preventDefault(); openSignin(); });
 
-// Activar registro si la URL lo indica
+// Inicia en modo registro si la URL lo solicita
 (function initMode() {
   const params = new URLSearchParams(location.search);
   if (params.get("mode") === "signup" || location.hash === "#signup") openSignup();
 })();
 
-// --- Helpers de UI ---
+// --- UI helpers ---
 function ensureToastWrap() {
   let w = document.querySelector(".toast-wrap");
   if (!w) { w = document.createElement("div"); w.className = "toast-wrap"; document.body.appendChild(w); }
@@ -47,30 +47,24 @@ function toast(msg, type = "ok", timeout = 2000) {
   setTimeout(() => { el.remove(); }, timeout + 250);
 }
 
-// --- Helpers de Autenticación ---
+// --- Autenticación ---
 function setToken(t) { localStorage.setItem("token", t); }
 function getToken() { return localStorage.getItem("token"); }
 function clearToken() { localStorage.removeItem("token"); }
 
 async function api(path, opts = {}) {
   const headers = opts.headers || {};
-  if (!headers["Content-Type"] && !(opts.body instanceof FormData)) {
-    headers["Content-Type"] = "application/json";
-  }
+  if (!headers["Content-Type"] && !(opts.body instanceof FormData)) headers["Content-Type"] = "application/json";
   const token = getToken();
   if (token) headers["Authorization"] = `Bearer ${token}`;
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...opts,
-    headers,
-    credentials: "include"
-  });
+  const res = await fetch(`${API_BASE}${path}`, { ...opts, headers, credentials: "include" });
   let data = {};
   try { data = await res.json(); } catch (e) { }
   if (!res.ok) throw data;
   return data;
 }
 
-// --- Manejador de Registro ---
+// --- Registro ---
 const signupForm = document.getElementById("signupForm");
 const signupFirst = document.getElementById("signup-firstname");
 const signupLast = document.getElementById("signup-lastname");
@@ -102,45 +96,26 @@ signupForm?.addEventListener("submit", async (e) => {
   };
   try {
     const data = await api("/api/auth/register", { method: "POST", body: JSON.stringify(body) });
-    
     toast(data.msg || "Registro exitoso. Inicia sesión.", "ok");
-
-    setTimeout(() => {
-      openSignin(); 
-    }, 1000); 
-
+    setTimeout(openSignin, 1000);
   } catch (err) {
     const first = err?.errors?.[0];
     const msg = err?.msg || err?.message || first?.msg || "Error en el registro";
     const path = first?.path || "";
-    
     toast(msg, "err");
-
-    // Asigna el mensaje de error al campo correspondiente
     switch (path) {
-      case 'profile.first_name':
-        signupFirstErr.textContent = msg;
-        break;
-      case 'profile.last_name':
-        signupLastErr.textContent = msg;
-        break;
-      case 'username':
-        signupUserErr.textContent = msg;
-        break;
-      case 'email':
-        signupEmailErr.textContent = msg;
-        break;
-      case 'password':
-        signupPassErr.textContent = msg;
-        break;
-      default:
-        signupGlobalErr.textContent = msg;
+      case 'profile.first_name': signupFirstErr.textContent = msg; break;
+      case 'profile.last_name': signupLastErr.textContent = msg; break;
+      case 'username': signupUserErr.textContent = msg; break;
+      case 'email': signupEmailErr.textContent = msg; break;
+      case 'password': signupPassErr.textContent = msg; break;
+      default: signupGlobalErr.textContent = msg;
     }
   }
 });
 
 
-// --- Manejador de Login ---
+// --- Login ---
 const signinForm = document.getElementById("signinForm");
 const signinUserOrEmail = document.getElementById("signin-email"); 
 const signinPass = document.getElementById("signin-password");
@@ -156,7 +131,7 @@ signinForm?.addEventListener("submit", async (e) => {
   e.preventDefault(); clearSigninErrors();
   const val = (signinUserOrEmail?.value || "").trim();
   
-  // Permite iniciar sesión con email o username
+  // Soporta login con email o username
   const body = val.includes("@")
     ? { email: val.toLowerCase(), password: signinPass?.value || "" }
     : { username: val, password: signinPass?.value || "" };
@@ -165,8 +140,7 @@ signinForm?.addEventListener("submit", async (e) => {
     const data = await api("/api/auth/login", { method: "POST", body: JSON.stringify(body) });
 
     if (data.token) setToken(data.token);
-
-    // Guarda datos del usuario en localStorage para usarlos en otras páginas
+    // Guarda información básica del usuario en localStorage
     const displayName =
       (data.user?.profile?.first_name) ||
       (data.user?.username) ||

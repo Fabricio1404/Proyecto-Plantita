@@ -1,9 +1,6 @@
-// frontend/assets/scripts/perfil.js
-// v4: Lógica solo para el interruptor Sol/Luna
-
 import { getProfile, updateProfile, changePassword, updateTheme } from './api.js';
 
-// --- Selectores DOM ---
+// Selectores DOM
 const $ = (s) => document.querySelector(s);
 const messageArea = $('#profile-message-area');
 
@@ -25,8 +22,6 @@ const passConfirmar = $('#password-confirmar');
 
 // Opciones de Tema
 const themeToggleBtn = $('#theme-toggle'); // Botón Sol/Luna en Topbar
-
-// --- Funciones ---
 
 /** Muestra un mensaje al usuario */
 function showMessage(message, isError = false) {
@@ -164,7 +159,7 @@ function handlePhotoPreview() {
     }
 }
 
-// --- Inicialización ---
+// Inicialización
 document.addEventListener('DOMContentLoaded', () => {
     loadProfileData();
 

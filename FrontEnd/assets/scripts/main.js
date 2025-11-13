@@ -6,7 +6,7 @@ const gridPlantasSel = '#plant-results';
 const gridInsectosSel = '#insect-results';
 const gridSel = isPlantasPage ? gridPlantasSel : gridInsectosSel;
 
-// --- 1. Variables de Estado para Scroll Infinito ---
+// Estado para scroll infinito
 let currentPage = 1;
 let currentQuery = '';
 let currentTaxon = '';
@@ -14,7 +14,7 @@ let isLoading = false;
 let noMoreResults = false;
 const PER_PAGE = 30; // Coincide con la API
 
-// --- 2. Función de crear tarjeta (sin cambios) ---
+// Crear tarjeta de especie
 const createSpeciesCard = (specie) => {
     const imgUrl = specie.default_photo?.medium_url || './assets/img/default_placeholder.jpg';
     const nombreComun = specie.preferred_common_name || 'Nombre no disponible';
@@ -32,7 +32,7 @@ const createSpeciesCard = (specie) => {
     `;
 };
 
-// --- 3. Función de carga (MODIFICADA) ---
+// Cargar especies (paginación)
 async function loadSpecies(taxon, query, page) {
     // Evita cargas duplicadas o innecesarias
     if (isLoading || noMoreResults) return; 
@@ -109,7 +109,7 @@ async function loadSpecies(taxon, query, page) {
     isLoading = false;
 }
 
-// --- 4. Nueva Función para Búsquedas ---
+// Buscar especies
 function triggerSearch() {
     currentPage = 1;
     noMoreResults = false;
@@ -117,7 +117,7 @@ function triggerSearch() {
     loadSpecies(currentTaxon, currentQuery, currentPage);
 }
 
-// --- 5. Nueva Función de Scroll ---
+// Scroll infinito
 function setupInfiniteScroll() {
     // El 'div.main' es el que tiene el scroll, no 'window'
     const mainContainer = document.querySelector('.main');
@@ -137,7 +137,7 @@ function setupInfiniteScroll() {
     });
 }
 
-// --- 6. Evento de Carga (MODIFICADO) ---
+// Inicialización
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
     if (!token) {

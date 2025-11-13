@@ -1,4 +1,11 @@
-// backend/src/models/Lista.model.js
+/**
+ * Lista model
+ * - usuario: propietario de la lista
+ * - nombre: título de la lista
+ * - descripcion: descripción opcional
+ * - especies: array de especies con metadatos obtenidos de iNaturalist
+ * - publica: visibilidad de la lista
+ */
 const mongoose = require('mongoose');
 
 const ListaSchema = new mongoose.Schema({
@@ -27,7 +34,6 @@ const ListaSchema = new mongoose.Schema({
             type: String,
             enum: ['plantas', 'insectos']
         },
-        // --- CAMBIO: Añadido campo para la imagen ---
         imageUrl: { 
             type: String 
         }

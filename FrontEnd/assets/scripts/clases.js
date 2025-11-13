@@ -1,5 +1,3 @@
-// frontend/assets/scripts/clases.js
-
 import { createClase, joinClase, getMisClases } from './api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -28,7 +26,7 @@ function setupClassForms() {
         document.getElementById('create-message-area').textContent = '';
     });
     
-    // --- Unirse a Clase ---
+    // Unirse a clase
     document.getElementById('join-class-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const code = document.getElementById('class-code').value.trim();
@@ -49,7 +47,7 @@ function setupClassForms() {
         }
     });
 
-    // --- Crear Clase ---
+    // Crear clase
     document.getElementById('create-class-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('class-name').value.trim();
@@ -71,9 +69,7 @@ function setupClassForms() {
     });
 }
 
-/**
- * Carga y visualización de clases
- */
+/** Carga y visualización de clases */
 async function loadMisClases() {
     const container = document.getElementById('classes-container');
     container.innerHTML = '<p>Buscando tus clases...</p>';
@@ -92,11 +88,7 @@ async function loadMisClases() {
     }
 }
 
-// ===== INICIO MODIFICACIÓN =====
-/**
- * Crea el HTML de una tarjeta de clase con el NUEVO diseño
- * (basado en 'index.html' y Captura...124153.png)
- */
+// Crea la tarjeta de clase (diseño nuevo)
 function createClassCard(clase) {
     const esProfesor = clase.profesor._id === localStorage.getItem('uid');
     const rolTexto = esProfesor ? '(Tú)' : '';

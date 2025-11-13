@@ -1,6 +1,4 @@
-// frontend/assets/scripts/detail.js
-// v3: Pasa la 'imageUrl' al añadir a lista
-
+// Detalle de especie: mapa, lightbox y añadir a listas
 import { protectedFetch, getListas, addEspecieToLista } from './api.js';
 
 const $ = (s) => document.querySelector(s);
@@ -22,7 +20,7 @@ const addToListModalCloseBtns = addToListModal ? addToListModal.querySelectorAll
 
 let map, clusterLayer;
 
-/* --- Configuración Botón Volver --- */
+// Configuración Botón Volver
 (function setupBackButton() {
   if (backButton) {
     backButton.href = (cameFrom === 'listas') ? 'listas.html' : `${cameFrom}.html`;
@@ -30,10 +28,10 @@ let map, clusterLayer;
   document.body.setAttribute('data-page-theme', cameFrom === 'insectos' ? 'insectos' : 'plantas');
 })();
 
-/* --- Mapa (Leaflet) --- */
+// Mapa (Leaflet)
 function initMap() { if(!$("#detail-map")) return; map = L.map("detail-map", { zoomControl: true, minZoom: 3 }); L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(map); const arSW = L.latLng(-55.2, -73.6); const arNE = L.latLng(-21.8, -53.6); const arBounds = L.latLngBounds(arSW, arNE); map.fitBounds(arBounds.pad(0.1)); map.setMaxBounds(arBounds.pad(1.5)); clusterLayer = L.markerClusterGroup(); map.addLayer(clusterLayer); }
 
-/* --- Pestañas (Tabs) --- */
+// Pestañas (Tabs)
 function switchTabs() { document.querySelectorAll(".detail-tabs .tab-btn").forEach((btn) => { btn.addEventListener("click", () => { document.querySelectorAll(".detail-tabs .tab-btn").forEach((b) => b.classList.remove("active")); document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("show")); btn.classList.add("active"); const tabPanel = document.getElementById(btn.dataset.tab); if (tabPanel) tabPanel.classList.add("show"); if (btn.dataset.tab === "tab-map") setTimeout(() => { if (map) map.invalidateSize() }, 250); }); }); }
 
 /* --- Helpers Renderizado --- */

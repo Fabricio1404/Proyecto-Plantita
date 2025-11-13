@@ -1,4 +1,10 @@
-// backend/src/models/Tarea.model.js
+/**
+ * Tarea model
+ * - clase: referencia a la clase
+ * - profesor: autor de la tarea
+ * - urlArchivo: archivo adjunto (si existe)
+ * - entregas/comentarios: referencias a otros modelos
+ */
 const mongoose = require('mongoose');
 
 const TareaSchema = new mongoose.Schema({
@@ -24,7 +30,7 @@ const TareaSchema = new mongoose.Schema({
     fechaVencimiento: {
         type: Date
     },
-    urlArchivo: { // Archivo adjunto del profesor
+    urlArchivo: {
         type: String
     },
     entregas: [{

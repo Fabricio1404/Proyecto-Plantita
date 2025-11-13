@@ -1,3 +1,9 @@
+/**
+ * Usuario model
+ * - Campos esenciales: nombre, apellido, username, correo, password
+ * - `password.select = false` para no exponer contraseñas en consultas
+ * - `configuracion.tema` permite elegir tema de la UI
+ */
 const mongoose = require('mongoose');
 
 const UsuarioSchema = new mongoose.Schema({
@@ -32,11 +38,11 @@ const UsuarioSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'La contraseña es obligatoria'],
-        select: false // No devolver la contraseña en consultas por defecto
+        select: false
     },
     fotoPerfil: {
         type: String,
-        default: 'default_profile.png' // URL o nombre del archivo de perfil por defecto
+        default: 'default_profile.png'
     },
     rol: {
         type: String,

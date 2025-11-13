@@ -1,11 +1,9 @@
-// --- 1. IMPORTAR FUNCIONES Y CONFIGURAR ---
+// Registro fenológico: CRUD local/servidor, render y export PDF
 import { protectedFetch } from './api.js';
 
-let sections = []; // Empezar con un array vacío
-let saveTimer; // Temporizador para el auto-guardado
-const token = localStorage.getItem('token'); // Token del usuario
-
-// --- 2. FUNCIONES DE DATOS (CRUD) ---
+let sections = [];
+let saveTimer;
+const token = localStorage.getItem('token');
 
 async function loadSections() {
     if (!token) return; 
@@ -89,7 +87,7 @@ async function removeSection(id) {
     renderSections();
 }
 
-// --- 3. FUNCIONES DE ACTUALIZACIÓN DE ESTADO ---
+// Actualización de estado
 function createEmptyCells() {
     return Array(30).fill(null).map(() => ({
         top: [null, null, null, null], right: [null, null, null, null], bottom: [null, null, null, null], left: [null, null, null, null], date: "",
@@ -155,7 +153,7 @@ function toggleCollapse(sectionId) {
     }
 }
 
-// --- 4. API DE CLIMA ---
+// API de clima
 async function fetchWeather(sectionId, cellIndex, buttonElement) {
     const section = sections.find(s => s.id === sectionId);
     if (!section) return;
@@ -201,8 +199,6 @@ async function fetchWeather(sectionId, cellIndex, buttonElement) {
         buttonElement.disabled = false;
     }
 }
-
-// --- 5. FUNCIONES DE RENDERIZADO ---
 
 function getPhaseColor(phase) {
     const colors = { 1: '#facc15', 2: '#22c55e', 3: '#f97316', 4: '#b45309', 5: '#a855f7' };
@@ -256,8 +252,7 @@ function renderSegments(cell, sectionId, cellIndex, position) {
     return segments;
 }
 
-// --- MODIFICADO: `renderPhenologicalCell` ---
-// Añadido span para unidades
+// renderPhenologicalCell: crea DOM de la celda fenológica
 function renderPhenologicalCell(cell, sectionId, cellIndex) {
     const cellWrapper = document.createElement('div');
     cellWrapper.className = 'cell-wrapper';
@@ -285,8 +280,7 @@ function renderPhenologicalCell(cell, sectionId, cellIndex) {
     const weatherGrid = document.createElement('div');
     weatherGrid.className = 'weather-inputs';
     
-    // --- MODIFICACIÓN: Helper para crear input + span (unidad) ---
-    // (Ya no usa data-unit, crea un <span>)
+    // Helper para crear input + span (unidad)
     const createWeatherInput = (field, placeholder, unit) => {
         const group = document.createElement('div');
         group.className = 'weather-input-group';
@@ -307,7 +301,7 @@ function renderPhenologicalCell(cell, sectionId, cellIndex) {
         group.appendChild(unitSpan); // <-- Añadiendo el SPAN al grupo
         return group;
     };
-    // --- FIN DE MODIFICACIÓN ---
+    // fin helper unidades
 
     weatherGrid.appendChild(createWeatherInput('temp', 'Temp', '°C'));
     weatherGrid.appendChild(createWeatherInput('viento', 'Viento', 'km/h'));
@@ -332,8 +326,7 @@ function renderPhenologicalCell(cell, sectionId, cellIndex) {
     return cellWrapper;
 }
 
-// --- MODIFICADO: `renderSection` ---
-// Añadidos estilos de salto de página
+// renderSection: crea el DOM del registro completo
 function renderSection(section) {
     const sectionCard = document.createElement('div');
     sectionCard.className = 'form-card'; 
@@ -486,8 +479,7 @@ function renderSections() {
     });
 }
 
-// --- MODIFICADO: `downloadPDF` ---
-// (Añadido salto de página forzado y reemplazo de <span>)
+// downloadPDF: captura y genera PDF del registro
 async function downloadPDF(sectionId, clickedButton) {
     const element = document.getElementById(`registro-card-${sectionId}`);
     if (!element) return;
@@ -499,7 +491,7 @@ async function downloadPDF(sectionId, clickedButton) {
     const originalBtnText = clickedButton.innerHTML;
     const buttonsToHide = element.querySelectorAll('.no-print');
     
-    // --- MODIFICACIÓN: Encontrar el obsGroup ---
+    // Buscar el grupo de observaciones
     const obsGroup = element.querySelector('.global-observation-group');
 
     // Función de reemplazo
@@ -510,7 +502,7 @@ async function downloadPDF(sectionId, clickedButton) {
         return el;
     };
     
-    // --- MODIFICACIÓN: Reemplazo de <input> a <div.weather-unit-replacement> ---
+    // Reemplazo inputs por bloques para imprimir
     const createWeatherReplacement = (value, unit) => {
         const group = document.createElement('div');
         group.className = 'pdf-text-replacement-weather'; // Clase para el grupo
@@ -575,7 +567,7 @@ async function downloadPDF(sectionId, clickedButton) {
         dateReplaces.push({ original: input, replacement: replace });
     });
 
-    // --- MODIFICACIÓN: Forzar salto de página ---
+    // Forzar salto de página en el PDF
     if (obsGroup) {
         obsGroup.style.pageBreakBefore = 'always';
     }
@@ -596,7 +588,7 @@ async function downloadPDF(sectionId, clickedButton) {
         scale: 2, useCORS: true, width: element.offsetWidth, height: element.offsetHeight, backgroundColor: null 
     });
 
-    // --- MODIFICACIÓN: Quitar salto de página ---
+    // Quitar salto de página forzado
     if (obsGroup) {
         obsGroup.style.pageBreakBefore = '';
     }
@@ -662,7 +654,7 @@ async function downloadPDF(sectionId, clickedButton) {
     pdf.save(`${section.name.replace(/ /g, '_')}.pdf`);
 } 
 
-// --- 6. INICIALIZACIÓN ---
+// Inicialización
 document.addEventListener('DOMContentLoaded', () => {
     // CSS para la animación de carga del botón
     const style = document.createElement('style');

@@ -1,16 +1,18 @@
+/**
+ * Registro fenológico routes
+ * - Requiere JWT
+ */
 const { Router } = require('express');
-const { validarJWT } = require('../Middlewares/auth'); // Ruta desde tu archivo
-const validarCampos = require('../Middlewares/validator'); // Ruta desde tu archivo
+const { validarJWT } = require('../Middlewares/auth');
+const validarCampos = require('../Middlewares/validator');
 const RegistroFenologico = require('../models/RegistroFenologico');
 
 const router = Router();
-
 router.use(validarJWT);
 
 router.get('/', async (req, res) => {
     try {
-        const registros = await RegistroFenologico.find({ user: req.uid })
-                                               .sort({ createdAt: 'desc' });
+        const registros = await RegistroFenologico.find({ user: req.uid }).sort({ createdAt: 'desc' });
         res.json({ ok: true, registros });
     } catch (error) {
         console.log(error);
@@ -21,11 +23,8 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const nuevoRegistro = new RegistroFenologico(req.body);
-        nuevoRegistro.user = req.uid; // Asignar al usuario logueado
-        
+        nuevoRegistro.user = req.uid;
         await nuevoRegistro.save();
-        
-        // Devolvemos el registro completo con el ID de la DB
         res.status(201).json({ ok: true, registro: nuevoRegistro });
     } catch (error) {
         console.log(error);
@@ -37,23 +36,12 @@ router.put('/:id', async (req, res) => {
     const registroId = req.params.id;
     try {
         const registro = await RegistroFenologico.findById(registroId);
-        if (!registro) {
-            return res.status(404).json({ ok: false, msg: 'Registro no encontrado' });
-        }
-        
-        // Seguridad: Asegurarse que el usuario solo actualice sus propios registros
-        if (registro.user.toString() !== req.uid) {
-            return res.status(401).json({ ok: false, msg: 'No autorizado' });
-        }
+        if (!registro) return res.status(404).json({ ok: false, msg: 'Registro no encontrado' });
 
-        const registroActualizado = await RegistroFenologico.findByIdAndUpdate(
-            registroId, 
-            req.body, 
-            { new: true } // Devuelve el documento actualizado
-        );
-        
+        if (registro.user.toString() !== req.uid) return res.status(401).json({ ok: false, msg: 'No autorizado' });
+
+        const registroActualizado = await RegistroFenologico.findByIdAndUpdate(registroId, req.body, { new: true });
         res.json({ ok: true, registro: registroActualizado });
-
     } catch (error) {
         console.log(error);
         res.status(500).json({ ok: false, msg: 'Error al actualizar el registro' });
@@ -64,18 +52,11 @@ router.delete('/:id', async (req, res) => {
     const registroId = req.params.id;
     try {
         const registro = await RegistroFenologico.findById(registroId);
-        if (!registro) {
-            return res.status(404).json({ ok: false, msg: 'Registro no encontrado' });
-        }
-        
-        if (registro.user.toString() !== req.uid) {
-            return res.status(401).json({ ok: false, msg: 'No autorizado' });
-        }
+        if (!registro) return res.status(404).json({ ok: false, msg: 'Registro no encontrado' });
+        if (registro.user.toString() !== req.uid) return res.status(401).json({ ok: false, msg: 'No autorizado' });
 
         await RegistroFenologico.findByIdAndDelete(registroId);
-        
         res.json({ ok: true, msg: 'Registro eliminado' });
-
     } catch (error) {
         console.log(error);
         res.status(500).json({ ok: false, msg: 'Error al eliminar el registro' });

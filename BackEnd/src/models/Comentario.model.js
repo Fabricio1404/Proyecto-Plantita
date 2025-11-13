@@ -1,4 +1,10 @@
-// backend/src/models/Comentario.model.js
+/**
+ * Comentario model
+ * - tarea: referencia a la tarea comentada
+ * - autor: usuario que publica el comentario
+ * - texto: contenido del comentario
+ * - fechaPublicacion: marca temporal de la publicación
+ */
 const mongoose = require('mongoose');
 
 const ComentarioSchema = new mongoose.Schema({

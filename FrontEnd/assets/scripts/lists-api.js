@@ -1,13 +1,6 @@
-// Mockup de Autenticación/Listas
+export const isLoggedIn = () => localStorage.getItem('token') !== null;
 
-export const isLoggedIn = () => {
-    return localStorage.getItem('token') !== null;
-};
-
-// Funciones de Listas (Mock)
-export const getLists = async () => {
-    return []; // Devuelve array vacío para no bloquear
-};
+export const getLists = async () => [];
 
 export const createList = async (name, type) => ({ _id: "mock_id", name, type, items: [] });
 export const addToList = async (listId, item) => ({ success: true });

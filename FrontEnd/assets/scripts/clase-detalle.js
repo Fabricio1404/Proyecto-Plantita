@@ -1,6 +1,4 @@
-// frontend/assets/scripts/clase-detalle.js
-// V3 - FUSIONADO: Lógica de 'clase-detalle.js' original + Nuevo Diseño 'class.html' + Lógica de Visor Modal
-
+// Clase detalle: carga datos, materiales y tareas; maneja modales y acciones
 import { 
     getClasePorId, 
     getTareasPorClase, 
@@ -11,48 +9,47 @@ import {
     getTareaDetalle, 
     editTarea,
     deleteTarea
-} from './api.js?v=4'; // <--- Importa la versión anti-caché de api.js
+} from './api.js?v=4'; // anti-cache
 
 const API_V1_URL_PARA_ENLACES = 'http://localhost:4000';
 const currentUserId = localStorage.getItem('uid');
 
-// --- Variables globales de estado ---
-let esProfesor = false; 
-let currentClassData = null; 
+// Estado
+let esProfesor = false;
+let currentClassData = null;
 let currentEditingMaterialId = null;
-let currentEditingTaskId = null; 
+let currentEditingTaskId = null;
 
-// --- Selectores del DOM (Adaptados al nuevo HTML) ---
+// Selectores
 const titleEl = document.getElementById('class-title');
 const professorEl = document.getElementById('class-professor');
 const badgeEl = document.getElementById('class-badge-code');
 const backBtn = document.getElementById('back-to-class-btn');
-const teacherControlsEl = document.querySelector('.tab-action'); 
+const teacherControlsEl = document.querySelector('.tab-action');
 const materialsContainer = document.getElementById('materiales-container');
 const tasksContainer = document.getElementById('tareas-container');
 const studentsList = document.getElementById('alumnos-container');
 const tabsContainer = document.querySelector('.tabs');
 const tabPanels = document.querySelectorAll('.panel');
 
-// --- Selectores Modal Material (de 'class.html') ---
+// Modal material
 const addMaterialBtn = document.getElementById('btnSubirMaterial');
 const addMaterialModal = document.getElementById('overlayMaterial');
-const materialModalTitle = document.getElementById('material-modal-title'); 
+const materialModalTitle = document.getElementById('material-modal-title');
 const materialForm = document.getElementById('material-form');
 const materialMessageArea = document.getElementById('material-message-area');
-const materialFileNote = document.getElementById('material-file-note'); 
+const materialFileNote = document.getElementById('material-file-note');
 const modalCloseBtnsMaterial = addMaterialModal ? addMaterialModal.querySelectorAll('[data-close="overlayMaterial"]') : [];
 
-// --- Selectores Modal Tareas (de 'class.html') ---
+// Modal tarea
 const addTaskBtn = document.getElementById('btnCrearTarea');
 const addTaskModal = document.getElementById('overlayTarea');
-const taskModalTitle = document.getElementById('task-modal-title'); 
+const taskModalTitle = document.getElementById('task-modal-title');
 const taskForm = document.getElementById('task-form');
 const taskMessageArea = document.getElementById('task-message-area');
-const taskFileNote = document.getElementById('task-file-note'); 
+const taskFileNote = document.getElementById('task-file-note');
 const modalCloseBtnsTask = addTaskModal ? addTaskModal.querySelectorAll('[data-close="overlayTarea"]') : [];
 
-// --- ID de la clase desde la URL ---
 const params = new URLSearchParams(location.search);
 const claseId = params.get('id');
 
