@@ -18,18 +18,20 @@
     })();
   </script>
 </head>
-<body data-page-theme="insectos"> <aside class="sidebar" id="sidebar" aria-label="Menú lateral">
+<body data-page-theme="insectos">
+  <aside class="sidebar" id="sidebar" aria-label="Menú lateral">
     <div class="brand">
       <img src="./assets/img/logo.png" alt="Logo InForest" class="logo">
       <div class="brand-name">InForest</div>
     </div>
     <nav class="menu" role="navigation" aria-label="Secciones">
       <a class="menu-item" href="plantas.html">Plantas</a>
-      <a class="menu-item active" href="insectos.html">Insectos</a> <div class="menu-sep"></div>
+      <a class="menu-item active" href="insectos.html">Insectos</a>
+      <div class="menu-sep"></div>
       <a class="menu-item" href="listas.html">Mis Listas</a>
       <a class="menu-item" href="clases.html">Clases</a>
       <a class="menu-item active" href="registro-fenologico.html">Registro Fenológico</a>
-      <a class="menu-item" href="comunidad.html">Foros y Ranking</a>
+      <!-- <a class="menu-item" href="comunidad.html">Foros y Ranking</a> -->
       <div class="menu-sep"></div>
       <a class="menu-item" href="perfil.html">Mi Perfil</a>
     </nav>
@@ -60,7 +62,6 @@
       <div class="searchbar">
         <input id="insect-search" type="search" placeholder="Buscar insecto o arácnido… (ej. abeja, araña)" autocomplete="off" aria-label="Buscar" />
         <button id="search-button" class="btn primary" aria-label="Buscar">Buscar</button>
-        <button id="toggleMap" class="btn ghost" aria-pressed="false" aria-label="Mostrar/ocultar mapa">Mostrar Mapa</button>
       </div>
       <div id="search-state" class="search-state" role="status" aria-live="polite"></div>
     </section>
@@ -86,10 +87,19 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.js"></script>
   <script src="./assets/scripts/auth-guard.js"></script>
   <script src="./assets/scripts/ui-helpers.js"></script>
   <script src="./assets/scripts/api.js" type="module"></script>
   <script src="./assets/scripts/main.js" type="module"></script>
+
+  <!-- Fix scroll infinito -->
+  <script>
+    const scrollArea = document.querySelector(".content");
+    scrollArea.addEventListener("scroll", () => {
+      window.dispatchEvent(new Event("scroll"));
+    });
+  </script>
+
 </body>
 </html>
