@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>InForest  — Plataforma informativa forestal y entomología</title>
+    <meta
+      name="description"
+      content="Buscador, mapas y analíticas para especies de flora e insectos forestales en Argentina."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/css/index.css" />
+
+  </head>
+  <body>
+    <!-- NAV -->
+    <header class="nav" id="nav">
+      <div class="container nav__inner">
+        <a href="#" class="brand">
+          <img src="/FrontEnd/assets/img/logo.png" alt="InForest" class="brand__logo" />
+          <span class="brand__name">InForest</span>
+        </a>
+        <nav class="menu" aria-label="Principal">
+          <a class="btn btn--sm btn--ghost" href="auth.html">Iniciar sesión</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- HERO SLIDER -->
+    <section class="hero" aria-label="Presentación">
+      <div class="slider" id="slider">
+        <article
+          class="slide"
+          style="
+            --bg: url('/FrontEnd/assets/img/cruz.jpg');
+          "
+        >
+          <div class="container slide__content">
+            <h1>Bienvenido a <em>InForest</em></h1>
+            <p>
+             Conoce el portal que conecta ciencia, naturaleza y educación.
+            </p>
+          </div>
+        </article>
+        <article
+          class="slide is-active"
+          style="
+            --bg: url('/FrontEnd/assets/img/bañadolaestresha.jpg');
+          "
+        >
+          <div class="container slide__content">
+            <h1>Plantas e   <em>insectos de</em> Formosa</h1>
+            <p>
+              Conoce las especies más importantes de nuestra región.
+            </p>
+            <form class="hero__search" onsubmit="return false;" role="search">
+              
+            </form>
+          </div>
+        </article>
+        <article
+          class="slide"
+          style="
+            --bg: url('/FrontEnd/assets/img/fusita.jpg');
+          "
+        >
+          <div class="container slide__content">
+            <h1>Mis <em>propios</em> documentos</h1>
+            <p>
+              Tu espacio personal para organizar el aprendizaje.
+            </p>
+          </div>
+        </article>
+        <div
+          class="slider__dots"
+          id="dots"
+          aria-label="Selector de slides"
+        ></div>
+      </div>
+      <div class="hero__shade"></div>
+      <div class="hero__scroll">Deslizá ↓</div>
+    </section>
+
+    <!-- KPIs / CONTADORES -->
+    <section class="kpis">
+      <div class="container kpis__grid">
+        <div class="kpi">
+          <span class="kpi__num" data-count="18000">0</span
+          ><span class="kpi__label">Registros</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi__num" data-count="3250">0</span
+          ><span class="kpi__label">Especies</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi__num" data-count="23">0</span
+          ><span class="kpi__label">Provincias</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi__num" data-count="120">0</span
+          ><span class="kpi__label">Colecciones</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PARALLAX STRIP -->
+    
+
+    <!-- MÓDULOS -->
+    <section class="section" id="modulos">
+      <div class="container">
+        <header class="section__head">
+          <h2>Módulos de InForest</h2>
+          <p class="muted">
+            Inspirados en plataformas de analítica agro y adaptados al mundo de
+            la flora y la fauna formoseña.
+          </p>
+        </header>
+        <div class="cards">
+          
+          
+          <article class="card reveal">
+            <img
+              class="card__media"
+              src="/FrontEnd/assets/img/lapacho.avif"
+            />
+            <div class="card__body">
+              <h3>Arboles - Plantas</h3>
+              <p>
+                Especies de diversas plantas/arboles con sus respectivas características.
+              </p>
+            </div>
+          </article>
+          <article class="card reveal">
+            <img
+              class="card__media"
+              src="/FrontEnd/assets/img/pulgon.jpg"
+              alt="Colecciones"
+            />
+            <div class="card__body">
+              <h3>Insectos</h3>
+              <p>
+                Información sobre insectos con características esepcíficas de especies y reinados.
+              </p>
+            </div>
+          </article>
+          <article class="card reveal">
+            <img
+              class="card__media"
+              src="/FrontEnd/assets/img/costanera.jpg"
+              alt="Dashboards"
+            />
+            <div class="card__body">
+              <h3>Información</h3>
+              <p>
+                Apartado de noticias/información referida a nuevas plagas.
+              </p>
+            </div>
+          </article>
+          
+        </div>
+      </div>
+    </section>
+
+    
+
+
+    <!-- CTA -->
+    <section class="cta">
+      <div class="container cta__inner">
+        <div>
+          <h3>¿Listo para explorar la biodiversidad?</h3>
+          <p>Desarrollado por y para estudiantes.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer" id="contacto">
+      <div class="container footer__grid">
+        <div>
+          <h4>InForest</h4>
+          <p>
+            Plataforma académica para organizar información de flora y
+            entomología forestal.
+          </p>
+        </div>
+        <div>
+          <h4>Recursos</h4>
+          <ul class="list">
+            <li><a href="#">Documentación</a></li>
+            <li><a href="#">API</a></li>
+            <li><a href="#">Guía de estilo</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contacto</h4>
+          <ul class="list">
+            <li>
+              <a href="mailto:equipo@inforest.edu">equipo@inforest.edu</a>
+            </li>
+            <li><a href="#">Enviar sugerencia</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="container footer__bottom">
+        <small>© <span id="year"></span> InForest</small>
+      </div>
+    </footer>
+
+    <script src="./assets/scripts/index.js" defer></script>
+  </body>
+</html>
