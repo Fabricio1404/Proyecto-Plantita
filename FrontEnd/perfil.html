@@ -6,6 +6,7 @@
     <title>Mi Perfil - InForest</title>
     
     <link rel="stylesheet" href="./assets/css/home-style.css">
+    <link rel="stylesheet" href="./assets/css/perfil.css">
     
     <script>
       (function() { const savedTheme = localStorage.getItem('userTheme') || 'claro'; document.documentElement.setAttribute('data-theme', savedTheme); })();
@@ -76,8 +77,7 @@
             
             <div class="profile-photo-section" style="margin-bottom: 20px;">
               <img id="current-photo" src="./assets/img/default-avatar.png" alt="Foto Perfil" class="profile-photo-preview">
-              <label for="photo-upload" id="photo-upload-label" class="btn secondary btn-sm">Cambiar Foto</label>
-              <input type="file" id="photo-upload" accept="image/*">
+              <button type="button" id="change-photo-btn" class="btn secondary btn-sm">Cambiar Foto</button>
             </div>
 
             <div class="input-group"> <label for="profile-nombre">Nombre</label> <input type="text" id="profile-nombre" required> </div>
@@ -112,7 +112,19 @@
             </form>
         </div>
 
-        </div> </section>
+        </div> 
+    </section>
+
+    <div id="avatar-modal" class="modal" style="display: none;">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card">
+            <button class="modal-x" data-modal-close>×</button>
+            <h3>Elige tu nuevo avatar</h3>
+            <div id="avatar-grid" class="avatar-grid">
+                <!-- Avatares se insertarán aquí -->
+            </div>
+        </div>
+    </div>
 
     <footer class="foot"> <small>© 2025 InForest</small> </footer>
   <script src="./assets/scripts/auth-guard.js"></script>

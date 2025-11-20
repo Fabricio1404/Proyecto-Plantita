@@ -1,14 +1,32 @@
 import { getProfile, updateProfile, changePassword } from './api.js';
 
-// Selectores DOM
+// --- CONSTANTES ---
+const AVATAR_LIST = [
+    'avatars/avatar-1.jpg',
+    'avatars/avatar-2.jpg',
+    'avatars/avatar-3.jpg',
+    'avatars/avatar-4.jpg',
+    'avatars/avatar-5.jpg',
+    'avatars/avatar-6.jpg',
+    'avatars/avatar-7.jpg'
+    // 'default-avatar.png'
+];
+
+// --- SELECTORES DOM ---
 const $ = (s) => document.querySelector(s);
 const messageArea = $('#profile-message-area');
 
 // Formulario de Info
 const infoForm = $('#profile-form-info');
 const currentPhoto = $('#current-photo');
-const photoUpload = $('#photo-upload');
-const photoUploadLabel = $('#photo-upload-label');
+const changePhotoButton = $('#change-photo-btn');
+
+// Modal de Avatares
+const avatarModal = $('#avatar-modal');
+const avatarGrid = $('#avatar-grid');
+const closeModalButton = avatarModal.querySelector('[data-modal-close]');
+const modalBackdrop = avatarModal.querySelector('.modal-backdrop');
+
 const profileNombre = $('#profile-nombre');
 const profileApellido = $('#profile-apellido');
 const profileCorreo = $('#profile-correo');
@@ -20,8 +38,7 @@ const passActual = $('#password-actual');
 const passNueva = $('#password-nueva');
 const passConfirmar = $('#password-confirmar');
 
-// Opciones de Tema
-// El tema ahora se maneja globalmente en ui-helpers.js
+// --- FUNCIONES ---
 
 /** Muestra un mensaje al usuario */
 function showMessage(message, isError = false) {
@@ -38,18 +55,14 @@ async function loadProfileData() {
     if (response.ok && response.data.usuario) {
         const user = response.data.usuario;
         
-        if (profileNombre) profileNombre.value = user.nombre || '';
-        if (profileApellido) profileApellido.value = user.apellido || '';
-        if (profileCorreo) profileCorreo.value = user.correo || '';
-        if (profileUsername) profileUsername.value = user.username || '';
+        profileNombre.value = user.nombre || '';
+        profileApellido.value = user.apellido || '';
+        profileCorreo.value = user.correo || '';
+        profileUsername.value = user.username || '';
         
-        if (currentPhoto && user.fotoPerfil && user.fotoPerfil !== 'default_profile.png') {
-             currentPhoto.src = user.fotoPerfil.startsWith('http') ? user.fotoPerfil : `./assets/img/${user.fotoPerfil}`;
-        } else if (currentPhoto) {
-             currentPhoto.src = './assets/img/default-avatar.png';
-        }
+        const foto = user.fotoPerfil || 'default-avatar.png';
+        currentPhoto.src = foto.startsWith('http') ? foto : `./assets/img/${foto}`;
         
-        // El tema se carga desde ui-helpers.js
     } else {
         showMessage("Error al cargar los datos del perfil.", true);
     }
@@ -58,9 +71,10 @@ async function loadProfileData() {
 /** Maneja el envío del formulario de Información Personal */
 async function handleInfoUpdate(e) {
     e.preventDefault();
-    const nombre = profileNombre?.value.trim();
-    const apellido = profileApellido?.value.trim();
-
+    const nombre = profileNombre.value.trim();
+    const apellido = profileApellido.value.trim();
+    // La foto se guarda por separado
+    
     if (!nombre || !apellido) {
         showMessage("Nombre y Apellido son obligatorios.", true);
         return;
@@ -72,8 +86,7 @@ async function handleInfoUpdate(e) {
     if (response.ok) {
         showMessage("Información personal actualizada.", false);
         localStorage.setItem('displayName', response.data.usuario.nombre);
-        const topbarName = document.getElementById('username-display-topbar');
-        if (topbarName) topbarName.textContent = response.data.usuario.nombre;
+        $('#username-display-topbar').textContent = response.data.usuario.nombre;
     } else {
         showMessage(response.data?.msg || "Error al guardar.", true);
     }
@@ -82,9 +95,10 @@ async function handleInfoUpdate(e) {
 /** Maneja el envío del formulario de Contraseña */
 async function handlePasswordUpdate(e) {
     e.preventDefault();
-    const passwordActual = passActual?.value;
-    const nuevaPassword = passNueva?.value;
-    const confirmarPassword = passConfirmar?.value;
+    // (Sin cambios en esta función)
+    const passwordActual = passActual.value;
+    const nuevaPassword = passNueva.value;
+    const confirmarPassword = passConfirmar.value;
 
     if (!passwordActual || !nuevaPassword || !confirmarPassword) {
         showMessage("Todos los campos de contraseña son obligatorios.", true);
@@ -106,27 +120,57 @@ async function handlePasswordUpdate(e) {
     }
 }
 
-
-
-/** Previsualiza la foto seleccionada */
-function handlePhotoPreview() {
-    if (!photoUpload || !currentPhoto) return;
-    const file = photoUpload.files[0];
-    if (file && file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = (e) => { currentPhoto.src = e.target.result; }
-        reader.readAsDataURL(file);
-    } else if (file) {
-        showMessage("Por favor, selecciona un archivo de imagen válido.", true);
-    }
+/** Abre el modal para seleccionar un avatar */
+function openAvatarModal() {
+    avatarGrid.innerHTML = AVATAR_LIST.map(avatarPath => `
+        <img src="./assets/img/${avatarPath}" alt="Avatar" class="avatar-option" data-path="${avatarPath}">
+    `).join('');
+    avatarModal.style.display = 'grid';
 }
 
-// Inicialización
+/** Cierra el modal de avatares */
+function closeAvatarModal() {
+    avatarModal.style.display = 'none';
+}
+
+/** Maneja la selección de un nuevo avatar */
+async function handleAvatarSelection(e) {
+    if (!e.target.classList.contains('avatar-option')) return;
+
+    const selectedAvatarPath = e.target.dataset.path;
+    
+    // Actualiza la vista previa
+    currentPhoto.src = `./assets/img/${selectedAvatarPath}`;
+    
+    // Guarda en el backend
+    showMessage("Guardando avatar...", false);
+    const response = await updateProfile({ fotoPerfil: selectedAvatarPath });
+
+    if (response.ok) {
+        showMessage("Avatar actualizado.", false);
+        // Actualiza también el avatar del topbar
+        $('#user-avatar').src = `./assets/img/${selectedAvatarPath}`;
+        localStorage.setItem('userAvatarUrl', `./assets/img/${selectedAvatarPath}`);
+    } else {
+        showMessage(response.data?.msg || "Error al guardar el avatar.", true);
+        // Revertir si falla
+        loadProfileData();
+    }
+
+    closeAvatarModal();
+}
+
+// --- INICIALIZACIÓN ---
 document.addEventListener('DOMContentLoaded', () => {
     loadProfileData();
 
-    if (infoForm) infoForm.addEventListener('submit', handleInfoUpdate);
-    if (passwordForm) passwordForm.addEventListener('submit', handlePasswordUpdate);
-    if (photoUpload) photoUpload.addEventListener('change', handlePhotoPreview);
-    if (photoUploadLabel) photoUploadLabel.addEventListener('click', () => photoUpload.click());
+    // Eventos de formularios
+    infoForm.addEventListener('submit', handleInfoUpdate);
+    passwordForm.addEventListener('submit', handlePasswordUpdate);
+
+    // Eventos del modal de avatares
+    changePhotoButton.addEventListener('click', openAvatarModal);
+    closeModalButton.addEventListener('click', closeAvatarModal);
+    modalBackdrop.addEventListener('click', closeAvatarModal);
+    avatarGrid.addEventListener('click', handleAvatarSelection);
 });
