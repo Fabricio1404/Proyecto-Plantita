@@ -1,5 +1,5 @@
 // Protege la página: redirige si no hay token
-(function requireAuth() { const token = localStorage.getItem("token"); if (!token) location.href = "./login.html"; })();
+(function requireAuth() { const token = localStorage.getItem("token"); if (!token) location.href = "./auth.html"; })();
 
 // Imágenes aleatorias por tarjeta
 const plantImages = [
@@ -37,5 +37,5 @@ document.getElementById("card-insects")?.addEventListener("click", () => {
 // Logout
 document.getElementById("btnLogout")?.addEventListener("click", () => {
   localStorage.removeItem("token");
-  location.href = "./auth.html";
+  location.href = "./index.html";
 });

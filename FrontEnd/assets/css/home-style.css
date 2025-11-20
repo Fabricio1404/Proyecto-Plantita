@@ -11,18 +11,22 @@
   --secondary: #f97316; --secondary-strong: #c2410c; --secondary-light: #fb923c;
   --bg-insect: #1f120a; --bg2-insect: #1a0f08; --card-insect: #2a1a0e;
   --border-insect: rgba(249, 115, 22, 0.18); --chip-insect: #4b2509;
+  /* Aliases para compatibilidad con páginas antiguas */
+  --text-color: var(--text); --text-color-muted: var(--muted); --card-bg: var(--bg2);
 }
 /* --- 2. TEMA OSCURO --- */
 html[data-theme="oscuro"] {
   --bg: #0a110e; --bg2: #0f1a15; --text: #e1eee8; --muted: #8ca89a; --border: #253a31;
   --primary: #22c55e; --primary-strong: #16a34a; --primary-light: #4ade80;
   --accent: #38bdf8; --shadow-color: rgba(0, 0, 0, 0.35); --input-bg: #1a2e25;
+  --text-color: var(--text); --text-color-muted: var(--muted); --card-bg: var(--bg2);
 }
 /* --- 3. TEMA ECOLÓGICO --- */
 html[data-theme="ecologico"] {
   --bg: #f0fdf4; --bg2: #ffffff; --text: #14532d; --muted: #15803d; --border: #a7f3d0;
   --primary: #16a34a; --primary-strong: #14532d; --primary-light: #22c55e;
   --accent: #fb923c; --shadow-color: rgba(22, 163, 74, 0.1); --input-bg: #dcfce7;
+  --text-color: var(--text); --text-color-muted: var(--muted); --card-bg: var(--bg2);
 }
 /* Aplicar tema Insectos (se superpone a claro/oscuro/ecologico) */
 body[data-page-theme="insectos"] {

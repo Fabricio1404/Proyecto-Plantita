@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /** Maneja el clic en el interruptor de tema */
     function handleThemeToggle() {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'oscuro';
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'claro';
         const newTheme = (currentTheme === 'claro') ? 'oscuro' : 'claro';
         applyThemeAndSave(newTheme);
     }
