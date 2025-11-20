@@ -1,4 +1,4 @@
-import { getProfile, updateProfile, changePassword, updateTheme } from './api.js';
+import { getProfile, updateProfile, changePassword } from './api.js';
 
 // Selectores DOM
 const $ = (s) => document.querySelector(s);
@@ -21,7 +21,7 @@ const passNueva = $('#password-nueva');
 const passConfirmar = $('#password-confirmar');
 
 // Opciones de Tema
-const themeToggleBtn = $('#theme-toggle'); // Botón Sol/Luna en Topbar
+// El tema ahora se maneja globalmente en ui-helpers.js
 
 /** Muestra un mensaje al usuario */
 function showMessage(message, isError = false) {
@@ -49,10 +49,7 @@ async function loadProfileData() {
              currentPhoto.src = './assets/img/default-avatar.png';
         }
         
-        // Aplicar tema (el script del <head> ya lo hizo)
-        const savedTheme = user.configuracion?.tema || localStorage.getItem('userTheme') || 'claro';
-        applyTheme(savedTheme); // Solo actualiza el icono del interruptor
-
+        // El tema se carga desde ui-helpers.js
     } else {
         showMessage("Error al cargar los datos del perfil.", true);
     }
@@ -109,42 +106,7 @@ async function handlePasswordUpdate(e) {
     }
 }
 
-/** Maneja el clic en el interruptor de tema (sol/luna en topbar) */
-function handleThemeToggle() {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'claro';
-    // Alterna solo entre claro y oscuro.
-    const newTheme = (currentTheme === 'claro') ? 'oscuro' : 'claro';
-    
-    // Si el usuario estaba en 'ecologico', lo pasa a 'oscuro'.
-    // const newTheme = (currentTheme === 'oscuro') ? 'claro' : 'oscuro';
-    
-    applyThemeAndSave(newTheme);
-}
 
-/** Función central para aplicar y guardar el tema */
-function applyThemeAndSave(themeName) {
-    applyTheme(themeName); // 1. Aplicar visualmente
-    localStorage.setItem('userTheme', themeName); // 2. Guardar en localStorage
-
-    // 3. Guardar en backend (silenciosamente)
-    updateTheme(themeName)
-        .then(response => {
-            if (response.ok) {
-                console.log(`Tema '${themeName}' guardado en backend.`);
-            } else {
-                throw new Error(response.data?.msg);
-            }
-        })
-        .catch(error => {
-            console.warn("No se pudo guardar el tema en el backend:", error.message);
-        });
-}
-
-/** Aplica el tema al <html> y actualiza el icono del interruptor */
-function applyTheme(themeName) {
-    document.documentElement.setAttribute('data-theme', themeName);
-    // El CSS se encarga de mostrar/ocultar .icon-sun y .icon-moon
-}
 
 /** Previsualiza la foto seleccionada */
 function handlePhotoPreview() {
@@ -165,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (infoForm) infoForm.addEventListener('submit', handleInfoUpdate);
     if (passwordForm) passwordForm.addEventListener('submit', handlePasswordUpdate);
-    if (themeToggleBtn) themeToggleBtn.addEventListener('click', handleThemeToggle);
     if (photoUpload) photoUpload.addEventListener('change', handlePhotoPreview);
     if (photoUploadLabel) photoUploadLabel.addEventListener('click', () => photoUpload.click());
 });
