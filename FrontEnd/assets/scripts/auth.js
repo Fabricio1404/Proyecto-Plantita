@@ -154,6 +154,12 @@ signinForm?.addEventListener("submit", async (e) => {
     if (data.user.configuracion) {
         localStorage.setItem('configuracion', JSON.stringify(data.user.configuracion));
     }
+    if (data.user.fotoPerfil) {
+        const avatarUrl = data.user.fotoPerfil.startsWith('http') 
+            ? data.user.fotoPerfil 
+            : `./assets/img/${data.user.fotoPerfil}`;
+        localStorage.setItem('userAvatarUrl', avatarUrl);
+    }
 
     toast("Sesión iniciada correctamente", "ok");
     setTimeout(() => { window.location.href = "selector.html"; }, 900);

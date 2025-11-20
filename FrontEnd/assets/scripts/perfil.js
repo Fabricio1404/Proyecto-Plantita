@@ -60,7 +60,7 @@ async function loadProfileData() {
         profileCorreo.value = user.correo || '';
         profileUsername.value = user.username || '';
         
-        const foto = user.fotoPerfil || 'default-avatar.png';
+        const foto = user.fotoPerfil || 'avatars/avatar-1.jpg';
         currentPhoto.src = foto.startsWith('http') ? foto : `./assets/img/${foto}`;
         
     } else {

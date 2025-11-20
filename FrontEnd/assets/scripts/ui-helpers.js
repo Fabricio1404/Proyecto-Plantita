@@ -60,8 +60,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const usernameDisplay = document.getElementById('username-display-topbar');
     const userAvatar = document.getElementById('user-avatar');
-    if (usernameDisplay) usernameDisplay.textContent = localStorage.getItem('displayName') || localStorage.getItem('userName') || 'Usuario';
-    if (userAvatar) userAvatar.src = localStorage.getItem('userAvatarUrl') || './assets/img/default-avatar.png';
+    
+    if (usernameDisplay) {
+        usernameDisplay.textContent = localStorage.getItem('displayName') || 'Usuario';
+    }
+    if (userAvatar) {
+        const avatarUrl = localStorage.getItem('userAvatarUrl');
+        if (avatarUrl && avatarUrl !== 'null' && avatarUrl !== 'undefined') {
+            userAvatar.src = avatarUrl;
+        } else {
+            userAvatar.src = './assets/img/default-avatar.png';
+        }
+    }
 
     try {
         const currentPath = window.location.pathname.split('/').pop() || 'plantas.html';

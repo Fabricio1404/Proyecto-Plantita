@@ -24,5 +24,11 @@
     const nameEl = document.getElementById('username-display-topbar');
     const name = localStorage.getItem('nombre');
     if (nameEl && name) nameEl.textContent = name;
+
+    const avatarEl = document.getElementById('user-avatar');
+    const avatarUrl = localStorage.getItem('userAvatarUrl');
+    if (avatarEl) {
+      avatarEl.src = avatarUrl || './assets/img/avatars/avatar-1.jpg';
+    }
   });
 })();
