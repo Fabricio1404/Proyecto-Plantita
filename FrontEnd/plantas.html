@@ -95,10 +95,12 @@
 
   <!-- Fix scroll infinito -->
   <script>
-    const scrollArea = document.querySelector(".content");
-    scrollArea.addEventListener("scroll", () => {
-      window.dispatchEvent(new Event("scroll"));
-    });
+    const scrollArea = document.querySelector(".main");
+    if (scrollArea) {
+      scrollArea.addEventListener("scroll", () => {
+        window.dispatchEvent(new Event("scroll"));
+      });
+    }
   </script>
 
 </body>

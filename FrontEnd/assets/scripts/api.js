@@ -65,7 +65,7 @@ export const protectedFetchFormData = async (endpoint, token, options = {}) => {
 
 
 // iNaturalist
-export const getEspecies = async (taxon, query = '') => {
+export const getEspecies = async (taxon, query = '', page = 1) => {
     const token = localStorage.getItem('token');
     if (!token) return { ok: false, status: 401, data: { msg: "Token no encontrado" } };
     const taxaIds = (taxon === 'plantas') ? "47126" : (taxon === 'insectos') ? "47158,47119,48222" : "";
@@ -76,6 +76,7 @@ export const getEspecies = async (taxon, query = '') => {
     params.set('order_by', 'observations_count');
     params.set('order', 'desc');
     params.set('per_page', '30');
+    if (page) params.set('page', page); // Añadir página a los parámetros
     return protectedFetch(`/inaturalist/taxa?${params.toString()}`, token);
 };
 

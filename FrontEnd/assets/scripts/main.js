@@ -125,8 +125,9 @@ async function loadSpecies(taxon, query, page) {
         // Si la última página leída tenía menos de PER_PAGE, asumimos fin
         if (especies.length < PER_PAGE) {
             noMoreResults = true;
-            if (resultsContainer.innerHTML !== '' && !noMoreResults) {
-                resultsContainer.insertAdjacentHTML('beforeend', '<p style="grid-column: 1 / -1; text-align: center; color: var(--muted); margin-top: 20px;">Fin de los resultados.</p>');
+            // Solo mostrar el mensaje de "Fin" si no se ha mostrado antes
+            if (!document.querySelector('.end-of-results-message')) {
+                resultsContainer.insertAdjacentHTML('beforeend', '<p class="end-of-results-message" style="grid-column: 1 / -1; text-align: center; color: var(--muted); margin-top: 20px;">Fin de los resultados.</p>');
             }
         }
 
